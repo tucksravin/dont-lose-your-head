@@ -1,0 +1,24 @@
+# Normalize line endings; Godot text formats stay LF.
+* text=auto eol=lf
+*.gd      text eol=lf
+*.tscn    text eol=lf
+*.tres    text eol=lf
+*.godot   text eol=lf
+*.cfg     text eol=lf
+*.import  text eol=lf
+*.uid     text eol=lf
+*.sh      text eol=lf
+
+# Binary assets
+*.png      binary
+*.jpg      binary
+*.jpeg     binary
+*.gif      binary
+*.webp     binary
+*.wav      binary
+*.ogg      binary
+*.mp3      binary
+*.ttf      binary
+*.otf      binary
+*.aseprite binary
+*.ase      binary

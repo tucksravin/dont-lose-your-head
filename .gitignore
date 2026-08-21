@@ -15,3 +15,14 @@ export_credentials.cfg
 .mono/
 data_*/
 mono_crash.*.json
+
+# Exports (produced by tools/export_web.sh). build/.gdignore IS committed — it stops Godot
+# from importing previous builds into the next one.
+build/*
+!build/.gdignore
+
+# macOS
+.DS_Store
+
+# Editor-local settings
+.vscode/
