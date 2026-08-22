@@ -158,3 +158,10 @@ A running log of everything an LLM assistant did in this repo, newest at the bot
 - Not applied: anything that would pick the cut order, the Day-1 card, or R/Esc behaviour — those are D8 / C2 step 1 / D11 rows for the team.
 **Verified:** Mermaid balanced (7/7), 39 nodes, all edge refs declared; TASKS↔graph IDs reconcile (graph-only IDs are answered decisions); 0 broken links; no "Sunday"/"48 h"/stale §3 pointers left (grep); §3 recommendation-word grep clean.
 **Open:** D5, D8, D11, Day-1 card, J1 owner, Google Doc link; names for C2/C4/C5/P3/P4.
+
+## 2026-08-21 17:45 — Branch pushed, PR #1 opened
+**Driver:** Tucker
+**Asked:** "lets go into a separate branch, we're all working now"
+**Did:** committed the docs work on `tucker/docs-fixes` (`9175ad7`), pushed, opened **PR #1** → https://github.com/tucksravin/dont-lose-your-head/pull/1 with the open decisions listed in the body. Not merged — anyone can, per DESIGN §2.3. Pixel-art advice (tools, sizes, palette, the rolling-head rotation gotcha with three outs) given in chat; offered a `docs/art.md` — Tucker's call.
+**Verified:** `git log origin/tucker/docs-fixes -1` = `9175ad7`; PR URL returned by `gh`.
+**Open:** team to merge PR #1 or request changes; D5 / D8 / D11 / Day-1 card / J1 owner / Doc link / task owners.
