@@ -1,6 +1,6 @@
 # CLAUDE.md — working agreement for LLM assistants in this repo
 
-This is a 48-hour game-jam project ("Don't Lose Your Head", Godot 4.7.1, theme *Body and Mind*) by a three-person team on their **first jam**, who are also using it to **learn Godot** and **learn how they work together**. Those two goals shape everything below.
+This is a ~38-hour game-jam project (clock Fri 10:00 → Sat 23:59) ("Don't Lose Your Head", Godot 4.7.1, theme *Body and Mind*) by a three-person team on their **first jam**, who are also using it to **learn Godot** and **learn how they work together**. Those two goals shape everything below.
 
 ## 1. Keep the work journal — non-negotiable
 
@@ -55,7 +55,7 @@ Anything involving input, audio, or timing should also be eyeballed by a human i
 
 ## 7. Scope guard
 
-It's a jam. Prefer the smallest change that works. If a request implies a new system, more than ~2 hours of work, or touches the cut order in DESIGN.md §2 (once the team has written it — see §3.4), say so before starting. Flag scope creep kindly; don't silently do it, and don't silently skip it either.
+It's a jam. Prefer the smallest change that works. If a request implies a new system, more than ~2 hours of work, or touches the cut order (DESIGN.md §2 once written; proposal in docs/TASKS.md), say so before starting. Flag scope creep kindly; don't silently do it, and don't silently skip it either.
 
 ## 8. Communication
 

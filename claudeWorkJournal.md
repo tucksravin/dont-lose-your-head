@@ -140,3 +140,21 @@ A running log of everything an LLM assistant did in this repo, newest at the bot
 - README: "Where things are" gains TASKS.md + the deadline; folder layout lists TASKS.md.
 **Verified:** link check + Mermaid balance (below); no code changed.
 **Open:** D5 fail details; Google Doc link; owners for C2, C4, C5, P3, P4. A background review of TASKS.md vs DESIGN §2 (completeness, sizing realism, cross-file consistency) is running — findings will be applied and logged.
+
+## 2026-08-21 17:33 — Moved to a branch; team's day brainstorm linked
+**Driver:** Tucker
+**Asked:** "what's my best way to do pixel art for this? also, lets go into a separate branch, we're all working now"
+**Did:** Found Tucker had already committed my pending docs as `febc7af` ("claude task dependencies") and pushed; the team added `docs/days/brainstorm.md` (`75b938c`). Fast-forwarded local `main` to `75b938c`, created **`tucker/docs-fixes`** from it — all further LLM edits go there and reach `main` by PR. Linked `docs/days/brainstorm.md` from DESIGN §3.7 and the README layout. Pixel-art tooling/workflow advice given in chat (not in the docs — Tucker's call as art director what to write down).
+**Verified:** `git status -sb` clean on the new branch after edits except the two doc tweaks + this entry; `git merge-base --is-ancestor 499a0c8 origin/main` → yes (scaffold is on the remote).
+**Open:** review-workflow findings to apply, then commit + push this branch and open the PR when Tucker says.
+
+## 2026-08-21 17:44 — Task-list review applied (on branch tucker/docs-fixes)
+**Driver:** Tucker · **Agent:** Claude (Fable 5) + 3-lens review workflow (11 agents: completeness / realism / consistency → skeptic verify)
+**Asked:** (follow-through on "can we get the task list now?") — review the list before the team leans on it.
+**Did:** 5 confirmed + the consistent medium findings applied; 3 refuted and ignored.
+- `docs/TASKS.md`: added **tonight's floor** next to the target (realism: two Godot newcomers can't land T1–T8 + C2 in one evening — T3/T5/C2 may slip to Sat 09:15); **T0 API contract** (signal/method names) before splitting T1–T7; **proposed one-owner-per-file split** (Sean\*/Ben\* — swap freely); T2 re-sized M–L with a 2-h timebox, physics tips and a `freeze` fallback, acceptance "10 of 10 runs"; T5 list-vs-scan note (`ResourceLoader.list_directory`, not `DirAccess`, on web); T8 done-when now honest about registering a day; **C2 picks its own card tonight** (was blocked on Saturday's C1); **J1 jam admin** (rules, AI policy wording, form fields, deadline + timezone, Google Doc link); **D11** R / Esc / after-end-card decision; **D8** cut order as a *proposal, not agreed*; P1 adds Sean & Ben as itch admins so anyone can upload; E1 includes the full PR loop + Reload Saved Scene; A1 swap-in done by the scene owner paired with Tucker (avoids a .tscn conflict); Days 4–5 start only after 2–3 run on the web; **P1r** export after every merged day; **P2·0** 17:00 mini-playtest with P5 (text *and* HUD lights) before freeze; P3 gains cover image, credits, AI-disclosure field; **P4 flips the itch page Restricted → Public** and checks logged-out from the jam entries list (was missing — judges would have hit a dead link); XS defined; PR cost noted.
+- `docs/task-dependencies.md`: fixed the P3/P5 ID collision, reversed A3↔C3 edge, added T0/A0/J1/P5/X3/X4/D8/D11 nodes, T4→T7 edge, dotted C4/C5→P4 ("or text card"), C1→C2 hard edge removed; prose + text table updated.
+- DESIGN.md: precedence rule now allows later chat decisions (deadline); §4 #4 merge rules "decided"; §5 Sat rows re-cut (days 2–3 first; 17:00 round 0 + text decisions; 19:00–21:30 playtest; 21:30–22:30 Public + submit). README: pixel art "decided" (was still "provisional", pointing at a §3.14 that no longer exists); merge rules decided. CLAUDE.md: "~38-hour" clock; cut-order pointer.
+- Not applied: anything that would pick the cut order, the Day-1 card, or R/Esc behaviour — those are D8 / C2 step 1 / D11 rows for the team.
+**Verified:** Mermaid balanced (7/7), 39 nodes, all edge refs declared; TASKS↔graph IDs reconcile (graph-only IDs are answered decisions); 0 broken links; no "Sunday"/"48 h"/stale §3 pointers left (grep); §3 recommendation-word grep clean.
+**Open:** D5, D8, D11, Day-1 card, J1 owner, Google Doc link; names for C2/C4/C5/P3/P4.

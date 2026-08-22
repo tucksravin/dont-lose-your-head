@@ -2,7 +2,7 @@
 
 *Game jam · theme **Body and Mind** · Godot 4.7.1 · Tucker, Sean, Ben*
 
-> ~8 minute read. **§1–2 are settled** — §2 now includes Friday's meeting ([meeting-notes-friday.md](../meeting-notes-friday.md) is the source; if this doc and the notes disagree, the notes win and this doc is wrong). **§3 is what's still open.** §4–6: how we run the weekend. **Task list: [TASKS.md](TASKS.md)** (seed for the Google Doc) · dependencies: [task-dependencies.md](task-dependencies.md).
+> ~8 minute read. **§1–2 are settled** — §2 now includes Friday's meeting ([meeting-notes-friday.md](../meeting-notes-friday.md) is the source; if this doc and the notes disagree, the notes win and this doc is wrong — except where §2 records a later decision made in chat; so far only the deadline, §2.3 Clock). **§3 is what's still open.** §4–6: how we run the weekend. **Task list: [TASKS.md](TASKS.md)** (seed for the Google Doc) · dependencies: [task-dependencies.md](task-dependencies.md).
 
 ---
 
@@ -71,7 +71,7 @@ Paste it into README → "Where things are".
 #### 3.4 Day timer numbers — seconds allowed vs the ~30-second design; same every day?
 #### 3.5 Intrusive thoughts mid-day — intro only · recurring hazard (kiki shapes).
 #### 3.6 Intro & reunion specifics — title / "press any key" screen (also unlocks web audio): yes · no. Skip the intro on retry? Reunion trigger and look (brainstorm: *the head faces the camera and the guy walks into the screen*). Stretch: the final battle.
-#### 3.7 Day card — a five-line format for pitching a day, if you want one: `name · the snag / what befalls the head (mind need) · the body need · the verb for each · the twist · length`. Needs from the brainstorm: hungry · hurt · tired · cold · can't see · only hears · falls in love · scared · lonely.
+#### 3.7 Day card — ideas are collecting in [days/brainstorm.md](days/brainstorm.md). A five-line format for pitching one, if you want it: `name · the snag / what befalls the head (mind need) · the body need · the verb for each · the twist · length`. Needs from the brainstorm: hungry · hurt · tired · cold · can't see · only hears · falls in love · scared · lonely.
 #### 3.8 Mental vs. physical task (stretch) — what distinguishes them, mechanically?
 #### 3.9 Kiki / bouba mapping *(art direction)* — which is which?
 #### 3.10 Controller & browsers — gamepad is mapped: test it · ignore it. Browser matrix: Chrome · + Firefox · + Safari. `pause` = Esc also exits browser fullscreen — keep or remap?
@@ -97,9 +97,9 @@ Paste it into README → "Where things are".
 Honest advice, in priority order.
 
 1. **Template + one day = the vertical slice.** Friday's call: scene template first, minimum ship is one day. So the first milestone is one ~30-second day running end to end — slope in → snag → two problems → slope out → next day — with coloured rectangles. Every day after is an insert; intro and reunion slot in around it.
-2. **Export to the web tonight, then every few hours.** Web is where jam builds die (renderer, audio, threads, load time). The pipeline is proven on Tucker's machine — `tools/export_web.sh` → upload to a **Restricted** itch page (secret URL; *Draft* is owner-only) tonight so Sunday has zero surprises. On web, `print()` goes to the browser devtools console, and keys only arrive once the canvas has focus (click it first). Keep the last known-good `web.zip` in Discord.
+2. **Export to the web tonight, then every few hours.** Web is where jam builds die (renderer, audio, threads, load time). The pipeline is proven on Tucker's machine — `tools/export_web.sh` → upload to a **Restricted** itch page (secret URL; *Draft* is owner-only) tonight so Saturday night has zero surprises. On web, `print()` goes to the browser devtools console, and keys only arrive once the canvas has focus (click it first). Keep the last known-good `web.zip` in Discord.
 3. **One owner per scene file.** `.tscn` merges are the worst part of Godot-in-a-team. Say "I'm in `day_02.tscn`" in Discord before you open it. Scripts merge fine. `project.godot` (input map, autoloads) and `export_presets.cfg` are shared files too — give them an owner. After `git pull` with the editor open: **Scene → Reload Saved Scene**, or restart Godot. If Godot re-saves a `.tscn` you didn't touch, `git checkout -- <file>` before committing. First-timer time sinks to timebox at ~45 min: TileMap/TileSet editor, AnimationTree, shaders, `RigidBody2D` tuning.
-4. **Small PRs, short-lived branches.** You chose PRs — keep them hours long, not days: a `.tscn` that lives on a branch overnight is a conflict in the morning. Agree who can approve/merge (§3.6) so nobody waits at 01:00.
+4. **Small PRs, short-lived branches.** You chose PRs — keep them hours long, not days: a `.tscn` that lives on a branch overnight is a conflict in the morning. Merge rules are decided (§2.3: anyone merges, self-merge if necessary) — so nobody waits at 01:00.
 5. **Pick the cut order while you're calm.** Days beyond the first are the cut list, in reverse order of how much each one teaches. Write it in §2 once chosen.
 6. **Timebox tasks to ~2 h.** If it's not done, ship what works or cut it. Polishing one thing for 5 hours is how jams are lost.
 7. **Placeholder art until the mechanic it's for is stable.** Code stabilises against rectangles; art swaps in behind stable code. Swapping `ColorRect` → `Sprite2D` changes bounds, pivots, and collision feel — budget an hour for it, body and head first.
@@ -120,12 +120,12 @@ Deadline **Sat 23:59**. Tonight = template + one day. Saturday = days, beats, ar
 | **Fri 17:30–19:00** | Everyone: clone, run, download export templates, one PR merged. Sean & Ben start the template; Tucker: art direction kickoff + Restricted itch page with tonight's `web.zip`. |
 | **Fri 19:00–late** | **Template + one ~30-second day end to end**, rectangles (tonight's target). Web export before bed. **Hard stop — agree the hour.** |
 | **Sat 09:00** | Stand-up (≤15 min): play last night's *web* build together; write the day cards; assign one owner per day. |
-| **Sat 09:15–13:00** | Days 2–5 in parallel (one file, one owner each). Intro beat. Skeleton/head sprites swap in (budget an hour). SFX pass. |
+| **Sat 09:15–13:00** | Finish anything that slipped from tonight first. Then **Days 2 and 3** (one file, one owner each); Tucker: sprite swap-in with the scene owners (A1) + kiki/bouba (A2). SFX once Day 1 is on the web. Days 4–5 and the intro start **only after Days 2–3 run in the web build**. Export after every merged day. |
 | **Sat 13:00–14:00** | Lunch + **scope check** — apply the cut order now, not at 21:00. |
-| **Sat 14:00–17:00** | Finish days. Reunion beat. Per-day props/sun/HUD art. Music if there's time. |
-| **Sat 17:00–19:00** | Itch page text, screenshots, GIF. Last features land. **Feature freeze 19:00.** |
-| **Sat 19:00–22:00** | Export → itch. Playtest the web build in two browsers, everyone plays every day. Showstoppers only. Remove instruction text where it reads without. |
-| **Sat 22:00–22:30** | Final export, upload, page check, **Submit.** |
+| **Sat 14:00–17:00** | Finish days. Reunion beat. Per-day props/sun/HUD art. Music only after the scope check and only if days 1–3 run. |
+| **Sat 17:00–19:00** | Mini-playtest of the 17:00 web build → **instruction-text / HUD-light decisions land here, per day**. Itch page text, controls, credits written now; screenshots + GIF from the 19:00 build. Last features. **Feature freeze 19:00.** |
+| **Sat 19:00–21:30** | Export → itch. Everyone plays every day on the web build in two browsers. Showstoppers only. |
+| **Sat 21:30–22:30** | Final export, upload, itch **Restricted → Public**, logged-out check from the jam's entries list, **Submit by 22:30.** |
 | **Sat 23:59** | Deadline. |
 
 ---
