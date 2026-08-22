@@ -16,11 +16,16 @@ signal puzzle_advanced(index: int)
 @onready var question: Label = $Question
 
 ## prompt, three choices, index of the correct choice (0–2).
+## Escalates; last one is a glance-impossible calc-3 flux (div thm → 12π/5).
 var puzzles: Array = [
-	["2 + 2", ["3", "4", "5"], 1],
-	["1 + 1", ["2", "3", "1"], 0],
-	["5 - 2", ["4", "2", "3"], 2],
-	["3 + 3", ["5", "6", "9"], 1],
+	["17 − 9", ["8", "7", "26"], 0],
+	["6 × 7", ["36", "42", "48"], 1],
+	["125 / 5", ["12", "25", "5"], 1],
+	[
+		"∯_S ⟨x³, y³, z³⟩ · dS   on  x²+y²+z²=1  (outward)",
+		["12π/5", "4π/3", "4π"],
+		0,
+	],
 ]
 
 var _index: int = 0
@@ -63,7 +68,9 @@ func _show_current() -> void:
 	if _index >= puzzles.size():
 		return
 	var puzzle: Array = puzzles[_index]
-	question.text = str(puzzle[0])
+	var prompt: String = str(puzzle[0])
+	question.text = prompt
+	question.add_theme_font_size_override("font_size", 14 if prompt.length() > 22 else 22)
 	var choices: Array = puzzle[1]
 	for i in mini(_pads.size(), choices.size()):
 		_pads[i].set_choice(str(choices[i]))

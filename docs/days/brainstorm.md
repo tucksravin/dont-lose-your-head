@@ -14,6 +14,8 @@ Both have a kiki cloud that closes in as panic rises.
 
 I can't see without my glasses! The head can't see and the screen's all blurry, big glasses. Head has glasses in the intro; they fall off in `transition_glasses` (after panic); Velma is the find-and-return beat. Head near the entrance, glasses later and darker. After that the head wears them for the rest of the run. 
 
+**Bridge rework (smahr, Sat 15:56):** head on a centre perch the body can't reach; right half spike pit; drawbridge starts up; mixed platforms + a moving rider; stomp a kiki over the pit button to drop the bridge; perch tips and dumps the head. File: `platforming_day.tscn`.
+
 ### One Mental One Physical
 
 The body needs a workout, and so does the brain. Cardio and a crossword
