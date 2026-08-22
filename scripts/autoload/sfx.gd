@@ -58,10 +58,18 @@ var voices: int = 6
 ## Seconds before sunset at which "sunset_warning" fires.
 var sunset_warning_lead: float = 5.0
 
-var _streams: Dictionary = {}  # cue → AudioStream (only cues that have a file)
+## Footstep loop while the body is walking on the ground. Separate from the
+## CUES pool above: that pool is fire-and-forget one-shots (jump, land, …),
+## but a footstep needs an explicit start/stop, so it gets its own player and
+## its own signal (`walking_changed`) instead of going through play(). Only
+## walk_2 is wired up — the walk/ folder also has walk_1, not used yet.
+const WALK_LOOP_PATH: String = "res://assets/audio/sfx/walk/walk_2.wav"
+
+var _streams: Dictionary = { } # cue → AudioStream (only cues that have a file)
 var _players: Array[AudioStreamPlayer] = []
 var _next_player: int = 0
 var _missing: Array[StringName] = []
+var _walk_player: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -70,6 +78,13 @@ func _ready() -> void:
 		p.bus = &"SFX"
 		add_child(p)
 		_players.append(p)
+	_walk_player = AudioStreamPlayer.new()
+	_walk_player.bus = &"SFX"
+	add_child(_walk_player)
+	if ResourceLoader.exists(WALK_LOOP_PATH):
+		# Looping is already baked into walk_2.wav.import (edit/loop_mode) —
+		# trust the artist's setting rather than forcing one here.
+		_walk_player.stream = load(WALK_LOOP_PATH)
 	for cue in CUES:
 		var stream: AudioStream = _load_cue(cue)
 		if stream != null:
@@ -77,14 +92,25 @@ func _ready() -> void:
 		else:
 			_missing.append(cue)
 	if not _missing.is_empty():
-		print("Sfx: %d/%d cues have no file yet — see assets/audio/README.md: %s" %
-				[_missing.size(), CUES.size(), ", ".join(_missing)])
+		print(
+			"Sfx: %d/%d cues have no file yet — see assets/audio/README.md: %s"
+			% [_missing.size(), CUES.size(), ", ".join(_missing)]
+		)
 
 	# DayManager / WinConditionManager emit these on the bus so Sfx doesn't
 	# double-play by also hooking their local signals.
-	Events.condition_satisfied.connect(func(_key: String) -> void: play(&"need_met"))
-	Events.day_completed.connect(func() -> void: play(&"day_won"))
-	Events.day_failed.connect(func(_reason: String) -> void: play(&"day_failed"))
+	Events.condition_satisfied.connect(
+		func(_key: String) -> void:
+			play(&"need_met"),
+	)
+	Events.day_completed.connect(
+		func() -> void:
+			play(&"day_won"),
+	)
+	Events.day_failed.connect(
+		func(_reason: String) -> void:
+			play(&"day_failed"),
+	)
 	get_tree().node_added.connect(_on_node_added)
 
 
@@ -119,16 +145,38 @@ func has_file(cue: StringName) -> bool:
 ## _ready, so groups aren't set yet; match on signals/methods instead.
 func _on_node_added(node: Node) -> void:
 	if node is CharacterBody2D and node.has_signal("jumped") and node.has_signal("landed"):
-		node.connect("jumped", func() -> void: play(&"jump"))
-		node.connect("landed", func() -> void: play(&"land"))
+		node.connect(
+			"jumped",
+			func() -> void:
+				play(&"jump"),
+		)
+		node.connect(
+			"landed",
+			func() -> void:
+				play(&"land"),
+		)
+		if node.has_signal("walking_changed"):
+			node.connect("walking_changed", _on_body_walking_changed)
 	elif node.has_signal("released") and node.has_signal("left_scene"):
-		node.connect("released", func() -> void: play(&"head_roll"))
+		node.connect(
+			"released",
+			func() -> void:
+				play(&"head_roll"),
+		)
 	elif node.has_signal("sunset") and "day_length" in node:
 		# Wait for _ready so day_length is final, then arm a one-shot warning.
-		node.ready.connect(func() -> void: _arm_sunset_warning(node), CONNECT_ONE_SHOT)
+		node.ready.connect(
+			func() -> void:
+				_arm_sunset_warning(node),
+			CONNECT_ONE_SHOT,
+		)
 	elif node.has_signal("panic_changed") and node.has_signal("calmed"):
 		node.connect("panic_changed", _on_panic_changed)
-		node.connect("calmed", func() -> void: play(&"calm"))
+		node.connect(
+			"calmed",
+			func() -> void:
+				play(&"calm"),
+		)
 
 
 func _arm_sunset_warning(sun: Node) -> void:
@@ -137,10 +185,21 @@ func _arm_sunset_warning(sun: Node) -> void:
 	# Capture the id, not the node: a day that ends early frees its Sun before
 	# this fires, and a lambda holding a freed Node is an engine error on call.
 	var sun_id: int = sun.get_instance_id()
-	timer.timeout.connect(func() -> void:
-		var live: Object = instance_from_id(sun_id)
-		if live is Node and (live as Node).is_inside_tree():
-			play(&"sunset_warning"))
+	timer.timeout.connect(
+		func() -> void:
+			var live: Object = instance_from_id(sun_id)
+			if live is Node and (live as Node).is_inside_tree():
+				play(&"sunset_warning"),
+	)
+
+
+func _on_body_walking_changed(walking: bool) -> void:
+	if _walk_player.stream == null:
+		return
+	if walking:
+		_walk_player.play()
+	else:
+		_walk_player.stop()
 
 
 func _on_panic_changed(value: int) -> void:

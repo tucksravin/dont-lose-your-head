@@ -16,6 +16,10 @@ signal jumped
 ## The body touched down after being in the air. Sound and animation listen;
 ## this script doesn't know or care what they do with it.
 signal landed
+## Fires on the edge, not every frame: true when the body starts moving on
+## the ground, false when it stops or leaves the floor. Sound uses this to
+## start/stop the footstep loop.
+signal walking_changed(walking: bool)
 
 ## When true, this node ignores player input — an external script (e.g. a
 ## cutscene) is driving velocity/move_and_slide() on it directly instead.
@@ -26,6 +30,7 @@ signal landed
 var is_scripted: bool = false
 
 var _was_on_floor: bool = true
+var _was_walking: bool = false
 
 ## Sprite animation: "walk" while moving, "idle" otherwise; faces the direction of travel.
 ## Driven by velocity (not input) so cutscenes that set velocity directly animate too.
@@ -61,6 +66,7 @@ func _ready() -> void:
 func _physics_process(delta: float) -> void:
 	if is_scripted:
 		_track_landing()
+		_track_walking()
 		return
 	if not is_on_floor():
 		velocity.y += gravity * delta
@@ -77,6 +83,7 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_track_landing()
+	_track_walking()
 
 
 func _jump_requested() -> bool:
@@ -93,3 +100,14 @@ func _track_landing() -> void:
 	if on_floor and not _was_on_floor:
 		landed.emit()
 	_was_on_floor = on_floor
+
+
+## Emit `walking_changed` on the moving/still-or-floor/air edge. Same
+## on-the-ground, moving-horizontally check the animation above uses, just
+## edge-triggered instead of read every frame — a looping sound needs a
+## start/stop moment, not a per-frame poll.
+func _track_walking() -> void:
+	var walking: bool = is_on_floor() and absf(velocity.x) > 1.0
+	if walking != _was_walking:
+		_was_walking = walking
+		walking_changed.emit(walking)
