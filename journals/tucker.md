@@ -407,3 +407,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Not mine, left alone: two uncommitted edits in the night/all working tree (`body_juice.gd` breath_amount 0.06→0.02; `meeting-notes-friday.md` extra thoughts) — Tucker's in-editor tweaks, on no branch yet.
 **Verified:** verifiers could not refute 43 claims (headless load clean; smoke ALL GREEN re-run by an agent; Cage draws above the head at index 6; HUD under the fade; jump-arrival lands and hands off; hammering jump still arrives; wall holds x ≥ 4; dawdle → cage without the body, no end until it runs; directly-run transition → day_panic on night/all; no double advance on interrupt; typing/conventions clean; docs match). After the fix: `day_chain` 18 checks, zero ERROR lines at both interrupt points (` --headless -s res://tools/smoke/day_chain.gd` in the night/transition worktree). Full suite re-run on night/all below.
 **Open:** the verifiers' remaining nits were applied; nothing left from this pass. Worth a human press of F5 mid-transition in the editor once merged.
+
+## 2026-08-22 09:42 — PR #17 opened: night/all → main
+**Driver:** Tucker ("open the night/all") · **Agent:** Claude (Fable 5)
+**Asked:** open the PR for the night's work, as one PR from `night/all`
+**Did:** opened https://github.com/tucksravin/dont-lose-your-head/pull/17 (base `main`, head `night/all` @ dda5b92; +3032 −228, 68 files). Body lists what's in it, the verify commands, the stand-up decisions, and that it contains PR #16 (so #16 becomes redundant once this merges). Tucker's two uncommitted local edits are not in it. This entry is committed on `night/all` itself (the PR branch).
+**Verified:** `gh pr view 17` → mergeable, state CLEAN (no conflicts with main).
+**Open:** merge order if taking #16 first: fine either way — this PR already has it.
