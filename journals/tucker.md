@@ -542,3 +542,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Did:** fetched; `git merge-tree` dry run said one conflict — `docs/CODEBASE.md`, adjacent hunks (my §6.2 transition rewrite + intro line vs #33's new **Reunion** bullet in §6.3). Merged `origin/main` (b884370, "reunin flipped" #33) into `tucker/polish-intro-transitions` in Tucker's checkout and kept both (§6.2/intro = branch, Reunion bullet = main's, byte-identical); merge commit 38a1413. DESIGN.md auto-merged.
 **Verified:** `git merge-tree --write-tree origin/main tucker/polish-intro-transitions` → exit 0 (clean). `tools/smoke_test.sh` on the merged branch → **ALL GREEN** (68/89/34/21/21/28; play_through: intro 4.5 s, transition_cage 5.4 s, reunion 6.2 s → main.tscn).
 **Open:** still not pushed — Tucker's call.
+
+## 2026-08-22 14:38 — Polish branch landed on main directly (no PR) — why, and the fix
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "i pushed, PR onto main"
+**Did:** went to open the PR and found no `origin/tucker/polish-intro-transitions` — `origin/main` itself was at the branch tip (baff5d4). Cause: when the agent created the branch from `origin/main` it didn't pass `--no-track`, so git set the branch's upstream to `origin/main`; Tucker's push/sync then went to main. Not reverted: the tree is exactly the merge-clean, ALL-GREEN state checked one entry up, and a revert-and-redo would only add churn. Fixed the footgun: `git branch --unset-upstream tucker/polish-intro-transitions`. Lesson (agent): create branches with `git checkout -b X --no-track origin/main` / `git worktree add --no-track`.
+**Verified:** `git merge-base --is-ancestor` both ways → main == branch tip; `git for-each-ref` shows no upstream now.
+**Open:** PR #30 (sfx-folders) is still open. Tucker's checkout is on the branch, which equals main — `git checkout main && git pull` whenever convenient.
