@@ -53,7 +53,7 @@ Sizes: **XS** ≈ 15 min · **S** ≤ 1 h · **M** 2–3 h · **L** half a day. 
 | ID | Task | Owner | Needs | Size | Done when |
 |---|---|---|---|---|---|
 | **E4** | 13:00 **scope check** — apply the cut order written in DESIGN §2 (D8); if it isn't written yet, the first 10 min of E4 is writing it | all | D8 | XS | §2 has a cut order and the tasks below reflect it — applied, not re-debated |
-| **C5** | Reunion beat — after the last day; head and body reunite (look: §3.6; brainstorm: faces camera, walks into the screen). Or a text card (D8) | ? | C3 (at least the last day), A1 | M | last day → reunion → end card, in the web build |
+| **C5** ◐ | Reunion beat — **upside-down walk-in + dive + right + walk into sunset ✔** (`reunion.tscn`, smahr Sat 14:08). End card after the fade is still N1 (`main.tscn`). §3.6 "faces camera, walks into the screen" not used — brainstorm upside-down ending won. | smahr | C3, A1 | M | last day → reunion → end card, in the web build |
 | **A3** | Per-day props, sun, HUD art — swap behind stable code | Tucker | A1, C3 | M | no coloured rectangles left in shipped days (kept ones listed in the PR) |
 | **S2** | Per-day music — only if days exist and time allows, after E4 | Tucker / Ben | C3, E4 | M–L | each shipped day has a loop; web audio starts after first input |
 | **P2·0** | 17:00 mini-playtest of the current web build (round 0) → **P5 decisions land here, per day**. Seed the fix list from [overnight-2026-08-22.md §3–4](overnight-2026-08-22.md) (end card, R/Esc, head blocks the path, step-1 clip) *(reassessed)* | all | P1r | S | a list of what to fix before freeze |
