@@ -560,3 +560,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Docs: CODEBASE §0 quick-ref row + §5 bullet.
 **Verified:** `--import` clean. Probe (scratchpad `probe_kiki_gen.gd`): 40 spawns per kind → lil used **all 9 frames** (spread 1–9 each) and all four rotations (9/12/11/8); big used 11 of 12 frames, all four rotations; 40/40 playing the right loop at scale 2. 20 `kiki.tscn` instances → 12 distinct frames, all four rotations, 20/20 right animation. Bad kind → warning + lil. Animation keeps running after scramble (frame 4 at t=0.35 s). Windowed render of a 128-kiki grid saved to the scratchpad (`kiki_sheet.png`) — eyeballed: no two alike. `tools/smoke_test.sh` → **ALL GREEN** (70/89/34/21/21/28; load_all picked up both new files).
 **Open:** not pushed. Whether Sean's swarm/flying kiki adopt `Kiki` is his call. If you want a *swarm* generator (N kikis in a ring/scatter) rather than one-at-a-time, that's a second small node — say the word.
+
+## 2026-08-22 14:47 — Kiki generator pushed, PR #34 opened
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "great open the pr properly, are my intro changes on main?"
+**Did:** pushed `tucker/kiki-generator` (3f39c01) and opened **PR #34 → main** (mergeable, clean). Also confirmed the intro polish IS on main: `origin/main:scenes/intro/intro.gd` has `exit_margin`/`exit_delay`, the `sunset` hookup and `Game.start_days()`, and `intro.tscn` instances `sun.tscn` — it went up with the direct-to-main push (`git diff origin/main tucker/kiki-generator -- scenes/intro/` is empty).
+**Verified:** `gh pr view 34` → OPEN, MERGEABLE/CLEAN; smoke was ALL GREEN on this branch one entry up.
+**Open:** PR #30 (Sfx cue folders) shows **CLOSED, not merged** — main's `sfx.gd` is still one file per cue, so recordings in `assets/audio/sfx/<cue>/` folders won't play. Flagged for Tucker; re-open if that was accidental.
