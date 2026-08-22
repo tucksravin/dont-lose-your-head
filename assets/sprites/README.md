@@ -15,3 +15,5 @@ All art is 1× pixel art on a 32×32 (body) / 16×16 (head) canvas. **Render at 
 **Sun** (`scenes/sun/sun.tscn`) — wired: `Visual` is a `Sprite2D`, `texture = res://assets/sprites/sun.png` (Tucker's 16×16, palette #f1ffaf disc / #b2f167 rays), `scale = Vector2(2, 2)`, centered so `Sun.position` is still the arc centre. Source `src/sun.aseprite`.
 
 Texture filtering is Nearest project-wide; nothing to set per sprite. Sources are in `src/` (Aseprite); credits in `CREDITS.md`.
+
+**Palette:** [`assets/palette/`](../palette/README.md) — the `.gpl` to load in Aseprite, and the swatch strip. All shipped art comes from it.
