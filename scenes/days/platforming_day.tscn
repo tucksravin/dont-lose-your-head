@@ -82,7 +82,8 @@ one_way_collision = true
 
 [node name="Visual" type="Sprite2D" parent="Platform1"]
 texture_repeat = 2
-position = Vector2(83, 292)
+z_index = 1
+position = Vector2(83, 280)
 scale = Vector2(2, 2)
 texture = ExtResource("8_bridge_tex")
 region_enabled = true
@@ -97,7 +98,8 @@ one_way_collision = true
 
 [node name="Visual" type="Sprite2D" parent="Platform2"]
 texture_repeat = 2
-position = Vector2(143, 256)
+z_index = 1
+position = Vector2(143, 244)
 scale = Vector2(2, 2)
 texture = ExtResource("8_bridge_tex")
 region_enabled = true
@@ -112,7 +114,8 @@ one_way_collision = true
 
 [node name="Visual" type="Sprite2D" parent="Platform3"]
 texture_repeat = 2
-position = Vector2(203, 220)
+z_index = 1
+position = Vector2(203, 208)
 scale = Vector2(2, 2)
 texture = ExtResource("8_bridge_tex")
 region_enabled = true
@@ -134,7 +137,7 @@ position = Vector2(320, 316)
 scale = Vector2(2, 2)
 texture = ExtResource("8_bridge_tex")
 region_enabled = true
-region_rect = Rect2(0, 0, 78, 8)
+region_rect = Rect2(0, 0, 80, 8)
 
 [node name="Pit" type="Area2D" parent="."]
 

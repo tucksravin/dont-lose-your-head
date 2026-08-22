@@ -229,3 +229,14 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - `platforming_day.tscn`: `Platform1/2/3` `ColorRect`s → tiled `Sprite2D`s of the same art (`texture_repeat`, `region_rect = (0,0,35,8)`, scale 2 = the same 70×16 footprint, centred on each collision shape). **No collision or geometry changed** — jump distances are exactly as Sean tuned them.
 **Verified:** `--import` clean; `platforming_day` and the full chain run with no ERROR/WARNING; rendered the level with the bridge dropped and the body standing on it — steps and bridge now share the railing motif, and the body still draws behind the bridge railing.
 **Open:** the three steps are now green like the ground, which sits close to the `#25c04b` body-goal marker at the top of the climb — readable in the render, but worth a human eye. `saveCopyAs` from Aseprite exports the **untrimmed** canvas, so the PNG must be re-exported with `--trim` after any source edit (noted here because it silently broke the region maths once).
+
+## 2026-08-21 22:16 — Tucker's recolour imported; tile seam fixed; steps match the bridge
+**Driver:** Tucker · **Agent:** Claude (Fable 5)
+**Asked:** "recolored it correctly on the desktop... need some overlap on the repititions, otherwise we get double wide posts" · "the platforms should act the same way as the bridge as far as visual relationship to the body goes, body walks and goal zone sits on top of the railing"
+**Did:**
+- Imported Tucker's recoloured `bridge.aseprite` from the Desktop, replacing my palette swap: posts `#45381c`, rope + deck line `#645543`. Both palette entries, both visible against the mauve sky.
+- **Seam fixed by cropping the tile to 24 wide instead of 26.** The art has posts at columns 0–1, 6–7, 12–13, 18–19, 24–25 — the closing post at 24–25 butted against the next tile's opening post at 0–1, giving a 4 px double post at every repeat. Exporting with `--crop 4,8,24,8` (not `--trim`) drops the duplicate column so the repeat period is 24 and posts stay 6 px apart. Verified by simulating four repeats: **every post run is exactly 2 px**.
+- Bridge region 78 → **80** (the 24-wide tile means 80 fills the full 160 px gap and still ends on a whole post at 78–79).
+- **Platforms now match the bridge**: `z_index = 1` so the railing draws in front of the body, and each sprite dropped to `surface - 4` so the art's deck row lands on the walkable surface. The body walks behind the railing and the goal zone sits on top of it.
+**Verified:** `--import` clean, `platforming_day` and the full chain clean. Rendered the body standing on the middle step and zoomed 6× — posts uniform, the skeleton's legs behind the railing, the goal box resting on the top step's rail. No collision or geometry touched, so Sean's jump distances are unchanged.
+**Open:** exporting this sprite with `--trim` would silently reintroduce the double posts — recorded in `assets/sprites/README.md`.
