@@ -2,6 +2,7 @@
 
 - **Skeleton body** (`body_walk.png`, `body_idle.png`, `body_throw.png`, source `src/skeleton_base.aseprite`): based on *"pixel art skeleton"* by **tbbk** — https://opengameart.org/content/pixel-art-skeleton — **CC0 / public domain** ("No credits needed"). Modified: recoloured to the Gooseberry Ghost palette, skull removed (the head is a separate sprite), far-limb shade `#cdcd99`.
 - **Head** (`head_front.png`, `head_side.png`, sources `src/head_*.aseprite`): drawn by Tucker for this jam.
-- **Palette:** Gooseberry Ghost (8) + one bone-shadow swatch `#cdcd99` + one violet `#8a4fb5` (intrusive thoughts).
+- **Kikis** (`kikis.png`, source `src/kikis.aseprite`): drawn by Tucker for this jam (Sat).
+- **Palette:** Gooseberry Ghost (8) + one bone-shadow swatch `#cdcd99` + a violet ramp `#5e2d8c` `#8a4fb5` `#c79df2` (intrusive thoughts / kikis).
 
 No generative art was used anywhere in this project.
