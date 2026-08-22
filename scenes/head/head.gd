@@ -46,6 +46,13 @@ signal left_scene
 ## and collision don't move, only the sprite.
 @export var jitter_px: float = 1.5
 @export var jitter_full_agitation: float = 4.0
+## Caged only: sprite tint at 0 panic and at max panic — the head visibly
+## darkens toward the palette's ground green as it gets closer to failing the
+## day, on top of the jitter and the animation speeding up. Named from
+## Colors (scripts/colors.gd) rather than a one-off hex so it stays a palette
+## colour. Harmless on an uncaged head.
+@export var calm_tint: Color = Color.WHITE
+@export var panic_tint: Color = Colors.DARK_GREEN
 
 var _leaving: bool = false
 var _agitation: float = 1.0
@@ -93,6 +100,12 @@ func _physics_process(delta: float) -> void:
 func set_agitation(scale: float) -> void:
 	_agitation = maxf(scale, 0.0)
 	_sprite.speed_scale = _agitation
+
+
+## How panicked the head is, 0–1 against max_panic. Tints the sprite from
+## `calm_tint` toward `panic_tint`. Harmless on an uncaged head.
+func set_panic_ratio(ratio: float) -> void:
+	_sprite.modulate = calm_tint.lerp(panic_tint, clampf(ratio, 0.0, 1.0))
 
 
 ## Let the head go. Game calls this once every WinCondition is satisfied.

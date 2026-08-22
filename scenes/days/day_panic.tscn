@@ -65,6 +65,7 @@ script = ExtResource("3_vx7en")
 [node name="PanicCounter" parent="." unique_id=1147921961 instance=ExtResource("6_panic_counter")]
 max_panic = 100.0
 panic_per_second = 40.0
+calm_max_per_second = 20.0
 
 [node name="Instruction" type="Label" parent="." unique_id=1223928203]
 offset_left = 12.0
