@@ -27,6 +27,7 @@ extends Node
 ## Unifying the two systems is an open team decision — see journals/tucker.md.
 const DAY_SCENES: Array[String] = [
 	"res://scenes/days/day_template.tscn",
+	"res://scenes/days/day_panic.tscn",
 	"res://scenes/days/platforming_day.tscn",
 ]
 

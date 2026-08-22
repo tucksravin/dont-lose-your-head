@@ -203,3 +203,11 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - day_panic has **one** need (mind/stillness); DESIGN §2.1 wants a body need too. Nothing added — that's a design call.
 - `day_panic` is still **not in `Game.DAY_SCENES`** (F6 to test it). One line to add; it uses the old `WinConditions`, so it can sit anywhere before Sean's day.
 - Untouched: broken `day_01.tscn`, the two win systems, `intro.gd`'s unread `next_scene`.
+
+## 2026-08-21 21:51 — day_panic added to the run
+**Driver:** Tucker · **Agent:** Claude (Fable 5)
+**Asked:** "add it to day scenes"
+**Did:** `Game.DAY_SCENES` = `[day_template, day_panic, platforming_day]`. day_panic sits before Sean's day because it uses the older `WinConditions` and so advances through the list, whereas a `DayManager` day jumps straight to its own `next_scene` (the reunion) and must stay last.
+- Also reparented `PanicLabel` from `Head` to the scene root (same screen position). Now that the day can actually be won, the head is released and spins off screen — and the label, being its child, went with it, rotating. Its `counter` NodePath was updated to match.
+**Verified:** scripted flow test force-satisfying each day's conditions: `day_template` (body+mind) → `day_panic` (mind) → `platforming_day` (body+mind) → **reunion**. Full chain from the main scene runs clean, no ERROR/WARNING.
+**Open:** `day_template` is still the first day in the run — it's the bare authoring template, so dropping it from the list is a one-liner if you'd rather ship only real days. day_panic still has only a mind need.
