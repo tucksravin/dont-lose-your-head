@@ -2,11 +2,15 @@ extends Node
 ## Sound effects by name (autoload: `Sfx`). `Sfx.play(&"jump")` — that's the API.
 ##
 ## Every cue the game can make is declared in CUES below, with what it is for.
-## A cue plays `res://assets/audio/sfx/<cue>.wav` (or .ogg) if that file
-## exists and is silent otherwise — so the game is fully wired before a single
+## A cue plays `res://assets/audio/sfx/<cue>.wav` (or .ogg) — or, for cues
+## with several takes, any file in the folder `res://assets/audio/sfx/<cue>/`
+## (`jump/jump_1.wav`, `jump_2.wav`, …; one is picked at random per play) —
+## and is silent if neither exists. So the game is fully wired before a single
 ## sound exists, and dropping a file in is all it takes to hear it. At boot it
-## prints one line listing the cues that have no file yet: that list IS the
-## to-record list (also in assets/audio/README.md).
+## prints one line listing the cues that have no file yet (that list IS the
+## to-record list, also in assets/audio/README.md) and one listing folders
+## under sfx/ whose name is not a cue — recordings that will never play until
+## the folder is renamed to a cue (or the cue is added to CUES).
 ##
 ## Who calls play(): mostly nobody by hand. This node listens to the signals
 ## the game already emits — the Events bus, plus the body/head/sun/panic nodes
@@ -58,7 +62,7 @@ var voices: int = 6
 ## Seconds before sunset at which "sunset_warning" fires.
 var sunset_warning_lead: float = 5.0
 
-var _streams: Dictionary = {}  # cue → AudioStream (only cues that have a file)
+var _streams: Dictionary = {}  # cue → Array[AudioStream] (only cues that have a file; >1 = random variant)
 var _players: Array[AudioStreamPlayer] = []
 var _next_player: int = 0
 var _missing: Array[StringName] = []
@@ -71,14 +75,18 @@ func _ready() -> void:
 		add_child(p)
 		_players.append(p)
 	for cue in CUES:
-		var stream: AudioStream = _load_cue(cue)
-		if stream != null:
-			_streams[cue] = stream
+		var streams: Array[AudioStream] = _load_cue(cue)
+		if not streams.is_empty():
+			_streams[cue] = streams
 		else:
 			_missing.append(cue)
 	if not _missing.is_empty():
 		print("Sfx: %d/%d cues have no file yet — see assets/audio/README.md: %s" %
 				[_missing.size(), CUES.size(), ", ".join(_missing)])
+	var strays: Array[String] = unmatched_folders()
+	if not strays.is_empty():
+		print("Sfx: folders under assets/audio/sfx/ that are not cue names (their files never play): %s — rename to a cue or add the cue to Sfx.CUES" %
+				", ".join(strays))
 
 	# DayManager / WinConditionManager emit these on the bus so Sfx doesn't
 	# double-play by also hooking their local signals.
@@ -99,7 +107,8 @@ func play(cue: StringName, pitch_scale: float = 1.0) -> bool:
 		return false
 	var p: AudioStreamPlayer = _players[_next_player]
 	_next_player = (_next_player + 1) % _players.size()
-	p.stream = _streams[cue]
+	var streams: Array[AudioStream] = _streams[cue]
+	p.stream = streams.pick_random()
 	p.pitch_scale = pitch_scale
 	p.play()
 	return true
@@ -112,6 +121,26 @@ func missing() -> Array[StringName]:
 
 func has_file(cue: StringName) -> bool:
 	return _streams.has(cue)
+
+
+## How many takes a cue has (0 = silent).
+func variants(cue: StringName) -> int:
+	return (_streams[cue] as Array).size() if _streams.has(cue) else 0
+
+
+## Folders under assets/audio/sfx/ whose name is not a cue — recordings that
+## will not play. Exported builds list files with a ".import" suffix, which
+## _load_cue strips; folders themselves list normally.
+func unmatched_folders() -> Array[String]:
+	var out: Array[String] = []
+	var dir: DirAccess = DirAccess.open(SFX_DIR)
+	if dir == null:
+		return out
+	for d in dir.get_directories():
+		if not CUES.has(StringName(d)):
+			out.append(d)
+	out.sort()
+	return out
 
 
 ## Wire up sound-making nodes as they appear, by the signals they carry — no
@@ -148,9 +177,27 @@ func _on_panic_changed(value: int) -> void:
 	play(&"panic_tick", 0.8 + 0.4 * clampf(value / 30.0, 0.0, 1.0))
 
 
-func _load_cue(cue: StringName) -> AudioStream:
+const SFX_DIR: String = "res://assets/audio/sfx/"
+
+
+## All takes for a cue: the single file `sfx/<cue>.wav|ogg` if it exists, plus
+## every wav/ogg inside `sfx/<cue>/`. Sorted so the order is stable.
+func _load_cue(cue: StringName) -> Array[AudioStream]:
+	var out: Array[AudioStream] = []
 	for ext in ["wav", "ogg"]:
-		var path: String = "res://assets/audio/sfx/%s.%s" % [cue, ext]
+		var path: String = "%s%s.%s" % [SFX_DIR, cue, ext]
 		if ResourceLoader.exists(path):
-			return load(path) as AudioStream
-	return null
+			out.append(load(path) as AudioStream)
+	var dir: DirAccess = DirAccess.open(SFX_DIR + String(cue))
+	if dir != null:
+		var names: Array[String] = []
+		for f in dir.get_files():
+			var name: String = f.trim_suffix(".import")  # exported builds list the .import stubs
+			if (name.ends_with(".wav") or name.ends_with(".ogg")) and not names.has(name):
+				names.append(name)
+		names.sort()
+		for name in names:
+			var path: String = "%s%s/%s" % [SFX_DIR, cue, name]
+			if ResourceLoader.exists(path):
+				out.append(load(path) as AudioStream)
+	return out

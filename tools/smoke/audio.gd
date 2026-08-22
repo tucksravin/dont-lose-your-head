@@ -36,6 +36,15 @@ func _run() -> void:
 		Smoke.ok("every cue has a file")
 	else:
 		Smoke.warn("%d/%d cues have no file yet (expected until recorded): %s" % [missing.size(), cues.size(), ", ".join(missing)])
+	var strays: Array = sfx.call("unmatched_folders") if sfx.has_method("unmatched_folders") else []
+	if strays.is_empty():
+		Smoke.ok("every folder under assets/audio/sfx/ is a cue name")
+	else:
+		Smoke.warn("folders under assets/audio/sfx/ that are not cue names — their files never play: %s (rename to a cue, or add the cue)" % ", ".join(strays))
+	for cue in cues:
+		var n: int = int(sfx.call("variants", cue)) if sfx.has_method("variants") else (1 if bool(sfx.call("has_file", cue)) else 0)
+		if n > 0:
+			Smoke.ok("cue '%s' has %d take(s) loaded" % [cue, n])
 	Smoke.check(AudioServer.get_bus_index("SFX") >= 0 and AudioServer.get_bus_index("Music") >= 0,
 			"SFX and Music buses exist (default_bus_layout.tres)")
 

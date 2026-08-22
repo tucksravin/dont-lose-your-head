@@ -3,7 +3,9 @@
 Everything is already wired. **Drop a file in with the right name and it plays.** Nothing else to touch. Until a file exists its cue is silent (no error), and the game prints the missing list at boot:
 `Sfx: 16/16 cues have no file yet — …`
 
-## SFX — `assets/audio/sfx/<cue>.wav` (or `.ogg`)
+## SFX — `assets/audio/sfx/<cue>.wav` (or `.ogg`), or a folder `sfx/<cue>/` of takes
+
+A cue with several recordings goes in a **folder named exactly like the cue**: `sfx/jump/jump_1.wav`, `jump_2.wav`, … — `Sfx` loads them all and picks one at random per play (the single-file form still works). **The folder name must be a cue name** from the table below; a folder called `landing` or `walk` never plays — rename it to `land` / `step`, or add the cue to `Sfx.CUES`. At boot `Sfx` prints the cues with no file and the folders that match nothing; `tools/smoke_test.sh audio` reports the same.
 
 One-shots. **WAV, mono, 44.1 kHz, 16-bit**, trimmed tight (no leading silence — it fires on the frame). Short: most of these want 50–300 ms. Palette-wise think *silly-spooky*: bone clacks, hollow knocks, kazoo-adjacent, nothing wet.
 
