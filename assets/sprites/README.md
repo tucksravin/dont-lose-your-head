@@ -19,3 +19,8 @@ Texture filtering is Nearest project-wide; nothing to set per sprite. Sources ar
 **Palette:** [`assets/palette/`](../palette/README.md) — the `.gpl` to load in Aseprite, and the swatch strip. All shipped art comes from it.
 
 **Where the sprites are wired (Fri 20:30):** body → `scenes/body/body.tscn` · head → `scenes/head/head.tscn` (front) and `scenes/intro/intro.tscn`'s `HeadBlob` (side) · sun → `scenes/sun/sun.tscn`. Backgrounds and floors in `intro` / `day_template` / `reunion` are palette flat colours — all three skies are `#988277` (a background must never be `#201c02`: that is the sprites' own outline colour, and the silhouettes vanish into it); the two `SpatialGoal` markers are still rectangles, coloured per need from `spatial_goal.gd` (`body_color` / `mind_color`) because there's no art for them yet.
+
+**Not wired yet (Fri 20:50)** — dropped in as files so they're ready to use, but nobody has decided where they go:
+- `head_keyed.png` — 128×16, **8 frames of 16×16**. Frames 1–4 are head expressions (neutral · wide-eyed · narrow · looking left); frames 5–8 are the same heads over a `#645543` panel with a `#b2f167` marker square. Ask Tucker what 5–8 are for before building a SpriteFrames off them.
+- `bridge.png` — 64×16 fence/railing (posts + rails, `#45381c` + `#988277`). Art occupies the left ~28 px; the rest is transparent.
+- `head_side.png` was re-exported from Tucker's updated source (12 px changed). The source now has 3 frames, but they are pixel-identical, so only frame 1 ships.
