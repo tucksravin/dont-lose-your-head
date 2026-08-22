@@ -35,6 +35,10 @@ func _process(delta: float) -> void:
 func _on_body_entered(body: Node2D) -> void:
 	if _failed or not body is CharacterBody2D:
 		return
+	# Panic's release button puts the body in this group so standing on
+	# it is safe. Mirror day never adds it, so a hit there still fails.
+	if body.is_in_group("kiki_safe"):
+		return
 	_failed = true
 	var manager: Node = get_tree().get_first_node_in_group("day_manager")
 	if manager != null and manager.has_method("fail"):

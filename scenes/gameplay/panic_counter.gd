@@ -1,12 +1,9 @@
 extends Node
 class_name PanicCounter
-## day_panic's whole mechanic: the caged head starts panicking, and the day is
-## won by getting its panic to **zero**.
-##
-##   moving          -> panic climbs, and the cage animation speeds up with it
-##   stop moving     -> panic holds for `calm_delay`, then falls
-##   panic reaches 0 -> the child WinCondition is satisfied (the day's need)
-##   panic hits max  -> Events.day_failed, the same escape hatch the sun uses
+## Panic meter for the caged-head day. Moving winds it up; standing still
+## calms it after a hold. Hitting max fails the day. It does **not** win the
+## day any more — the release button does that. `win_on_zero` is the old
+## stand-still win, left off so this node is fail-only + agitation.
 ##
 ## The hold before it starts falling is what makes it a mechanic rather than a
 ## timer: stopping does not pay off instantly, so twitchy movement never lets it
@@ -50,13 +47,17 @@ class_name PanicCounter
 ## the agitated look the day opens on.
 @export var calm_agitation: float = 0.1
 @export var frantic_agitation: float = 4.0
+## Old panic day: hitting 0 satisfied a mind need. The rework wins on the
+## release button instead, so this stays false. Left as an export in case a
+## later day wants the stand-still win back.
+@export var win_on_zero: bool = false
 
 ## Emitted when the whole number changes — the panic display listens to this.
 signal panic_changed(value: int)
-## Emitted once panic reaches zero, alongside satisfying the WinCondition.
+## Emitted once panic reaches zero (only if win_on_zero).
 signal calmed
 
-@onready var condition: WinCondition = $WinCondition
+@onready var condition: WinCondition = get_node_or_null("WinCondition")
 
 var value: float = 0.0
 
@@ -96,10 +97,11 @@ func _physics_process(delta: float) -> void:
 
 	_apply()
 
-	if value <= 0.0:
+	if value <= 0.0 and win_on_zero:
 		_won = true
 		calmed.emit()
-		condition.satisfy()
+		if condition != null:
+			condition.satisfy()
 	elif value >= max_panic:
 		_failed = true
 		# DayManager owns fail presentation (game-over card). Found by group

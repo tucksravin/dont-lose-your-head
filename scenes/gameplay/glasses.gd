@@ -9,7 +9,7 @@ class_name Glasses
 ## ("hand them over"). Area2D rather than a body: only overlap detection is
 ## needed, same reasoning as spatial_goal.gd.
 ##
-## Placeholder art: a ColorRect block ("this can be a block for now").
+## Pickup art is glasses.png (16×16, bottom-aligned in the cell).
 
 ## How close the head has to be, once carried, before they count as handed over.
 @export var delivery_radius: float = 50.0
@@ -18,7 +18,7 @@ class_name Glasses
 
 @onready var found_condition: WinCondition = $FoundCondition
 @onready var delivered_condition: WinCondition = $DeliveredCondition
-@onready var visual: ColorRect = $Visual
+@onready var visual: CanvasItem = $Visual
 
 var _carried: bool = false
 var _body: CharacterBody2D
@@ -31,6 +31,10 @@ func _ready() -> void:
 	_head = get_tree().get_first_node_in_group("head") as Node2D
 	if _head == null:
 		push_warning("Glasses: no head in the scene — they can never be delivered.")
+	# Velma opens without them even if an F6 left Game.wearing_glasses true.
+	Game.wearing_glasses = false
+	if _head is Head:
+		(_head as Head).refresh_face()
 
 
 func _physics_process(_delta: float) -> void:
@@ -58,3 +62,5 @@ func _deliver() -> void:
 	set_physics_process(false)
 	delivered_condition.satisfy()
 	visual.visible = false
+	if _head is Head:
+		(_head as Head).set_wearing_glasses(true)

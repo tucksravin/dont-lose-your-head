@@ -18,8 +18,12 @@ brake_ratio = 1.0
 [node name="HeadPath" parent="."]
 curve = SubResource("Curve2D_offscreen")
 
+[node name="Head" parent="HeadPath/Follow" index="0"]
+animation = &"glasses"
+autoplay = "glasses"
+
 [node name="Cage" type="AnimatedSprite2D" parent="." index="6"]
 visible = false
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("3_head_frames")
-animation = &"imprisoned"
+animation = &"imprisoned_glasses"
