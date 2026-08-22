@@ -31,6 +31,7 @@ Use it as the test for every idea this weekend: *does this make the player feel 
 | **Art** | Locked rule: **no generative art**. Style is open (§3.14). The project is *provisionally* configured for pixel art at 640×360; switching to HD is a few Project Settings (README says how) |
 | **Engine / target** | Godot 4.7.1 → itch.io web (HTML5), manual export |
 | **Build order** | **Intro and reunion first**, then days slot in as ideas come. Friday-night target: intro → a stub day → reunion running end to end |
+| **Reunion trigger** | Body walks to head; press `interact` when within range → body snaps to head (Tween) → fade to black → next scene |
 | **Time** | 48-hour jam, started **Fri 10:00** → deadline **Sun 10:00**. Team starts ~Fri 16:00 *(assumed — confirm)* → ~42 h on the clock; after two nights' sleep that's roughly **24–26 working hours each**. Sunday morning is for submitting, not building |
 
 Everything not in this table is open. When you decide something in §3, move it here.

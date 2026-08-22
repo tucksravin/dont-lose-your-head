@@ -111,3 +111,34 @@ A running log of everything an LLM assistant did in this repo, newest at the bot
 - **Rejected / not applied:** reviewer suggestion to hard-code a Friday bedtime (left as "agree a hard stop"); moving Discord to an open question (the team already works in Discord per brainstorm.md).
 **Verified:** re-ran import, 60-frame run, `tools/export_web.sh` after the earlier edits — clean; 0 broken markdown links after this round; §3 grep for recommend/should/best/prefer/trivial → clean; docs URL for "Your first 2D game" resolves (HTTP 200, see above); DESIGN.md is ~3.3k words (~10 min), README ~1.1k.
 **Open:** Tucker's read-through, then commit (and push?).
+
+## 2026-08-21 17:44 — Intro scene: two-blob chase (first iteration)
+**Driver:** smahr · **Agent:** Claude Sonnet 4.6
+**Asked:** Create the initial intro scene — skeleton loses head, chase it off screen. First iteration: 2 blobs, blob 1 runs right and off screen, blob 2 (player) chases it.
+**Did:**
+- Created `scenes/intro/` folder
+- `scenes/intro/intro.gd` — `Node2D` script with `enum Phase { CHASE, EXIT }`. All tunables as `@export var`s: `head_speed`, `body_speed`, `jump_velocity`, `gravity`, `exit_margin`, `exit_delay`, `next_scene`. CHASE phase: head blob moves right at scripted speed, body blob is player-controlled (`move_left`/`move_right`/`jump` actions) with gravity and floor-reset. EXIT phase: both blobs auto-scroll right, then `Game.change_scene(next_scene)` fires after `exit_delay` seconds. `TODO(cutscene)` stub left at the top of the file for the later Tween separation animation.
+- `scenes/intro/intro.tscn` — scene tree: `IntroScene (Node2D)` → `Background (Polygon2D, dark fill)`, `Camera2D (static, centred at 320,180)`, `Ground (StaticBody2D + WorldBoundaryShape2D — infinite floor + Polygon2D strip)`, `HeadBlob (CharacterBody2D, yellow 32×32, starts at 200,250)`, `BodyBlob (CharacterBody2D, blue 32×48, starts at 100,250)`.
+- Updated `project.godot` `run/main_scene` → `res://scenes/intro/intro.tscn`.
+- **Design note / plan deviation:** Camera2D is a direct child of `IntroScene` (static), not a child of `HeadBlob` as the plan suggested. Static camera is necessary so the head visibly runs off the right edge — which is the whole visual point of the intro. Game-day scenes will follow the head instead.
+- **`WorldBoundaryShape2D`** — infinite-plane collision shape; no width to tune, ground never runs out as the blob scrolls right.
+- **`Polygon2D`** — used for all visuals (head, body, ground strip, background) because it's a `Node2D` type and positions cleanly relative to physics bodies; avoids the Control/layout complications of `ColorRect` as a child of `CharacterBody2D`.
+- Exit detection: `head_blob.global_position.x > get_viewport_rect().size.x + exit_margin`. `get_viewport_rect()` returns screen-space (0,0)→(640,360); with a static camera at (320,180) this maps 1-to-1 to world coords, so the check is reliable without camera math.
+- `next_scene` defaults to `"res://scenes/main.tscn"` (the template placeholder); swap for `res://scenes/days/day_01.tscn` when day 1 exists.
+**Verified:** not verified — Godot not found on this machine (Windows). **Team: please run** `godot --headless --path . --import` then `godot --headless --path . --quit-after 60` and check for `ERROR`/`SCRIPT ERROR` in the output before committing.
+**Open:** Eyeball test needed in the editor — does the ground sit where the blobs land? Is `head_speed=150` a good starting feel for the chase? `exit_delay=1.2s` — enough time for both blobs to visually clear the screen? Cutscene separation animation (Tween) is the next iteration after this plays well.
+
+## 2026-08-21 17:53 — Reunion scene
+**Driver:** smahr · **Agent:** Claude Sonnet 4.6
+**Asked:** Add the reunion scene: body walks to stationary head, press interact to trigger merge + fade → next scene.
+**Did:**
+- Created `scenes/reunion/` folder.
+- `scenes/reunion/reunion.gd` — `Node2D` script, `enum Phase { WALKING, MERGING, DONE }`. WALKING phase: body blob player-controlled (same movement as intro), head blob settles on floor via gravity (no horizontal movement), each frame checks `body_blob.global_position.distance_to(head_blob.global_position) < interact_distance` to show `InteractPrompt` and accept the `interact` action. MERGING: `_begin_merge()` chains three Tween steps — (1) `tween_property` body to head position over `merge_duration` with EASE_OUT/TRANS_QUAD, (2) `tween_property` fade ColorRect's `modulate:a` 0→1 over `fade_duration`, (3) `tween_callback` → `Game.change_scene(next_scene)`. DONE phase: no-op.
+- `scenes/reunion/reunion.tscn` — scene tree: `ReunionScene (Node2D)` → `Background (Polygon2D)`, `Camera2D (static 320,180)`, `Ground (StaticBody2D + WorldBoundaryShape2D + Polygon2D strip)`, `HeadBlob (CharacterBody2D, yellow 32×32, at 480,250)`, `BodyBlob (CharacterBody2D, blue 32×48, at 100,250)`, `InteractPrompt (Label, hidden, positioned above head blob, "E: reunite")`, `FadeOverlay (CanvasLayer layer=10)` → `Fade (ColorRect, full-screen via anchors_preset=15, black, modulate.a=0)`.
+- Updated `docs/DESIGN.md` §2 Locked table — added "Reunion trigger" row.
+- Updated `scenes/intro/intro.gd` `next_scene` default to `res://scenes/reunion/reunion.tscn` so the full intro → reunion arc is testable immediately (press F6 on intro.tscn, head runs off, scene changes, walk body to head, press E, fade out, back to main template).
+- **`CanvasLayer` at layer=10** — Godot renders CanvasLayer nodes above all 2D content in the scene; layer=10 guarantees the fade sits on top of everything regardless of z_index.
+- **Tween chaining** — `create_tween()` returns a Tween tied to the scene tree; `.tween_property()` and `.tween_callback()` append steps that run sequentially with no extra timer nodes needed.
+- `InteractPrompt` uses `LabelSettings` with font_size=10 so it stays small at the 640×360 viewport scale.
+**Verified:** not verified — Godot not installed on this machine. **Team: please open the project, press F6 on `scenes/intro/intro.tscn`, let the head run off screen, walk the body to the yellow blob in the reunion scene, press E, and confirm the snap + fade to black plays correctly.**
+**Open:** Is `interact_distance=64px` a comfortable range? Is `merge_duration=0.4s` fast enough to feel satisfying? Should the head blob wiggle or pulse while waiting (juice pass)? Cutscene "head faces camera / body walks into screen" is stubbed as a TODO in reunion.gd for a later iteration.

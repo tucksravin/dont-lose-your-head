@@ -1,0 +1,52 @@
+[gd_scene load_steps=5 format=3]
+
+[ext_resource type="Script" path="res://scenes/intro/intro.gd" id="1_intro"]
+
+[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_head"]
+size = Vector2(32, 32)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
+size = Vector2(32, 48)
+
+[node name="IntroScene" type="Node2D"]
+script = ExtResource("1_intro")
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.105882, 0.105882, 0.164706, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(320, 180)
+
+[node name="Ground" type="StaticBody2D" parent="."]
+position = Vector2(0, 320)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground"]
+shape = SubResource("WorldBoundaryShape2D_1")
+
+[node name="Visual" type="Polygon2D" parent="Ground"]
+polygon = PackedVector2Array(-5000, 0, 5000, 0, 5000, 50, -5000, 50)
+color = Color(0.25, 0.25, 0.3, 1)
+
+[node name="HeadBlob" type="CharacterBody2D" parent="."]
+position = Vector2(200, 250)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="HeadBlob"]
+shape = SubResource("RectangleShape2D_head")
+
+[node name="Visual" type="Polygon2D" parent="HeadBlob"]
+polygon = PackedVector2Array(-16, -16, 16, -16, 16, 16, -16, 16)
+color = Color(0.95, 0.85, 0.3, 1)
+
+[node name="BodyBlob" type="CharacterBody2D" parent="."]
+position = Vector2(100, 250)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="BodyBlob"]
+shape = SubResource("RectangleShape2D_body")
+
+[node name="Visual" type="Polygon2D" parent="BodyBlob"]
+polygon = PackedVector2Array(-16, -24, 16, -24, 16, 24, -16, 24)
+color = Color(0.3, 0.75, 0.9, 1)
