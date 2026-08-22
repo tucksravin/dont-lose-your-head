@@ -6,7 +6,6 @@
 
 [node name="TransitionCage" instance=ExtResource("1_base")]
 script = ExtResource("2_cage_script")
-arrival_wait = 0.0
 
 [node name="Cage" type="AnimatedSprite2D" parent="." index="6"]
 visible = false

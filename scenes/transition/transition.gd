@@ -1,24 +1,25 @@
 extends Node2D
-## Transition — the interstitial beat between days: the head rolls away down a
-## slope, the player runs the body after it, the head pauses on a shelf just
-## long enough for an "I almost caught up to you!" — then rolls again, down a
-## second slope, and where it finally stops it lands in its NEXT predicament.
-## That last part is the only thing that changes per day.
+## Transition — the interstitial beat between days. The head is sitting at the
+## top of a slope; the player runs the body after it and has ALMOST caught up
+## when the day's situation happens to it (a cage drops on it…) — and that is
+## what sends it rolling off down the slope, into its next predicament. The
+## head is not running away from the body: it just ends up rolling again.
+## The situation is the only thing that changes per day.
 ##
 ## HOW TO FORK ONE FOR A NEW DAY (decided Fri 22:50: inherited scenes)
 ##   1. In Godot: right-click transition.tscn → New Inherited Scene. Save it as
-##      scenes/transition/transition_<situation>.tscn. Everything here — slopes,
+##      scenes/transition/transition_<situation>.tscn. Everything here — slope,
 ##      path, body, fade — is inherited and greyed out; you only add/override.
 ##   2. Make scenes/transition/transition_<situation>.gd with
 ##          extends "res://scenes/transition/transition.gd"
 ##      and override ONLY `_play_arrival()` (it is awaited — take as long as the
-##      beat needs). Set that script on the inherited scene's root.
-##   3. Add any props the arrival needs as new nodes in the inherited scene.
-##      Tunables below can be overridden on the inherited root too (the cage
-##      fork sets arrival_wait = 0 so the cage lands before the body arrives).
+##      beat needs; when it returns, the head rolls). Set that script on the
+##      inherited scene's root.
+##   3. Add any props the situation needs as new nodes in the inherited scene.
+##      Tunables below can be overridden on the inherited root too.
 ##   4. Put the scene in Game.DAY_SCENES right BEFORE the day it leads into.
-##   transition_cage.tscn / .gd is the worked example (the head gets caged →
-##   day_panic). Scene inheritance docs:
+##   transition_cage.tscn / .gd is the worked example (the cage drops on the
+##   head and knocks it rolling → day_panic). Scene inheritance docs:
 ##   https://docs.godotengine.org/en/stable/tutorials/scripting/scene_organization.html#inheritance
 ##
 ## Why inherited scenes and not one shared scene with a slot: the team chose it
@@ -27,27 +28,27 @@ extends Node2D
 ## .tscn diffs are opaque, so keep base-scene edits rare and announced.
 ##
 ## Mechanics, in Godot terms: the head rides a PathFollow2D along a Path2D that
-## runs just above the ground (slope 1 → shelf → slope 2; a Tween drives
-## `progress`, so the roll is identical every run — DESIGN §2.1 "scripted, not
-## simulated"). Its sprite is rotated by distance ÷ radius, which is real rolling
-## without slipping. The body is the normal body.tscn and the PLAYER drives it
-## (decided Sat 08:40: "still control the body") — walk, jump, body.gd untouched;
-## the ground is a StaticBody2D with a CollisionPolygon2D so move_and_slide()
-## handles the inclines. This script touches the body twice: it lengthens the
-## floor snap (downhill at run speed the default 1 px lets it skip), and once
-## the body has reached the head it takes the controls away (`is_scripted`) so
-## it pulls up and stands there for the fade.
+## runs just above the ground (a Tween drives `progress`, so the roll is
+## identical every run — DESIGN §2.1 "scripted, not simulated"). Its sprite is
+## rotated by distance along the path × a spin rate, which is rolling without
+## slipping rounded to whole turns so it comes to rest upright. The body is the
+## normal body.tscn and the PLAYER drives it (decided Sat 08:40: "still control
+## the body") — walk, jump, body.gd untouched; the ground is a StaticBody2D
+## with a CollisionPolygon2D so move_and_slide() handles the incline. This
+## script touches the body twice: it lengthens the floor snap (downhill at run
+## speed the default 1 px lets it skip), and once the body has reached the
+## stopped head it takes the controls away (`is_scripted`) so it pulls up and
+## stands there for the fade.
 ##
-## Timeline (decided Sat evening, Tucker — "an 'I almost caught up to you'
-## moment, then the head gets rolling again down another slope"):
-##   roll 1 (roll1_time) down slope 1, coming to rest on the shelf at pause_x
-##   → WAIT until the body is within wake_distance (or wake_wait runs out, so
-##     a dawdler still sees it go) → `head_woke`
-##   → roll 2 (roll2_time accelerating + brake_time) down slope 2 to the end of
-##     the path → the head has stopped
-##   → the situation (`_play_arrival`) plays when the body is within
-##     arrive_distance, or after arrival_wait (0 = immediately, before the body
-##     can get there — what the cage fork wants)
+## Timeline (decided Sat 14:xx, Tucker — one slope; "the cage should initiate
+## the head's roll; the head isn't running away from the body, it just happens
+## to end up rolling again"):
+##   the head rests at the start of the path, the body spawns left of it
+##   → WAIT until the body is within trigger_distance ("I almost caught up to
+##     you!"), or arrival_wait runs out so a dawdler still sees it go
+##   → the situation (`_play_arrival`) plays — the cage lands, …
+##   → the head ROLLS: roll_time at constant speed (it was knocked, so it leaves
+##     at speed) for brake_ratio of the path, then brake_time easing to a stop
 ##   → the beat ENDS only once the body has actually reached the head (no
 ##     timeout; the hint label says to go after it) → hold → fade → Game.next_day().
 ##
@@ -59,39 +60,33 @@ extends Node2D
 ## business being a physics body anyway.
 ## Docs: https://docs.godotengine.org/en/stable/classes/class_pathfollow2d.html
 
-## Seconds for roll 1: down the first slope onto the shelf (ease in, ease out —
-## it starts from rest and rolls to rest).
-@export var roll1_time: float = 1.1
-## World x where the head comes to rest on the shelf between the slopes.
-@export var pause_x: float = 290.0
-## The head rolls again once the body is this close in x (px). Bigger = it
-## leaves earlier; smaller = a closer "almost".
-@export var wake_distance: float = 72.0
-## ...or after this many seconds on the shelf, whoever is or isn't coming.
-@export var wake_wait: float = 4.0
-## Seconds for roll 2: down the second slope, accelerating to brake_ratio of
-## the remaining path, then braking for brake_time.
-@export var roll2_time: float = 1.0
+## The situation fires once the body is this close in x (px) to the resting
+## head. Bigger = it happens earlier; smaller = a closer "almost!". The body
+## keeps closing while the situation plays, so the real gap at the moment the
+## head leaves is smaller than this (measured: ~30 px with the cage fork).
+@export var trigger_distance: float = 100.0
+## ...or after this many seconds, whoever is or isn't coming. 0 = don't wait.
+@export var arrival_wait: float = 4.0
+## Seconds the head rolls at constant speed (brake_ratio of the path)…
+@export var roll_time: float = 1.0
+## …then brakes to a stop over this many seconds (the rest of the path).
 @export var brake_time: float = 0.3
 @export_range(0.0, 1.0) var brake_ratio: float = 0.85
-## Radius of the head on screen (px) — the spin rate is progress / radius.
+## Radius of the head on screen (px) — sets the spin rate (rounded to whole
+## turns over the roll, so it stops upright; the cage's bars end vertical).
 @export var head_radius: float = 14.0
 ## Floor snap for the body while it is here (px). Downhill at run speed the
 ## default 1 px lets it skip off the slope; 8 keeps its feet on the ground.
 @export var body_floor_snap: float = 8.0
-## The body has "reached" the head once its x is within this many px of the
-## head's (or past it). It pulls up there — a couple of strides short.
+## The body has "reached" the stopped head once its x is within this many px
+## of the head's (or past it). It pulls up there — a couple of strides short.
 @export var arrive_distance: float = 40.0
-## The situation waits for the body to get close (so the player is watching
-## when it happens), but not longer than this after the head has stopped.
-## 0 = don't wait: it happens the moment the head stops (the cage fork).
-@export var arrival_wait: float = 2.5
-## Pause after the arrival beat, with the body there, before the fade.
+## Pause after the body has arrived, before the fade.
 @export var hold_after_arrival: float = 0.6
 @export var fade_duration: float = 0.4
 
-## The head has left the shelf (the "almost!" moment is over).
-signal head_woke
+## The situation has played and the head is rolling.
+signal head_rolled
 ## Emitted once, when the body reaches the stopped head (see arrive_distance).
 signal body_arrived
 
@@ -102,11 +97,13 @@ signal body_arrived
 @onready var body: CharacterBody2D = $Body
 @onready var fade: ColorRect = $FadeOverlay/Fade
 
-var _rolling: bool = true
+var _rolling: bool = false
 var _head_stopped: bool = false
 var _arrived: bool = false
 var _done: bool = false
 var _head_scale: Vector2 = Vector2(2, 2)
+## Radians of head rotation per px of path (whole turns over the whole path).
+var _spin: float = 0.0
 
 
 func _ready() -> void:
@@ -118,33 +115,25 @@ func _ready() -> void:
 
 func _run() -> void:
 	var total: float = path.curve.get_baked_length()
-	var pause: float = _progress_at_x(pause_x)
-	# Roll 1: down the first slope, coming to rest on the shelf.
-	var roll1: Tween = create_tween()
-	roll1.tween_property(follow, "progress", pause, roll1_time)\
-			.set_trans(Tween.TRANS_SINE).set_ease(Tween.EASE_IN_OUT)
-	await roll1.finished
-	_rolling = false
-	# "I almost caught up to you": it sits there until the body is nearly on it.
-	await _wait_for_gap(wake_distance, wake_wait)
-	head_woke.emit()
-	_rolling = true
-	# Roll 2: away again, down the second slope, braking into the final stop.
-	var brake_at: float = pause + (total - pause) * brake_ratio
-	var roll2: Tween = create_tween()
-	roll2.tween_property(follow, "progress", brake_at, roll2_time)\
-			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	roll2.tween_property(follow, "progress", total, brake_time)\
-			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	await roll2.finished
-	_rolling = false  # from here the arrival owns the head's rotation
-	_head_stopped = true
-	# The situation happens when the body gets close — or at once (arrival_wait 0),
-	# or when we tire of waiting.
-	if arrival_wait > 0.0:
-		await _wait_for_gap(arrive_distance, arrival_wait)
+	var turns: int = maxi(1, roundi(total / (TAU * head_radius)))
+	_spin = float(turns) * TAU / total
+	# "I almost caught up to you": the head sits there until the body is nearly
+	# on it (or we tire of waiting).
+	await _wait_for_gap(trigger_distance, arrival_wait)
+	# The situation — what a fork changes. When it returns, the head goes.
 	await _play_arrival()
-	# ...but the beat only ends once the body is actually there.
+	_rolling = true
+	head_rolled.emit()
+	# Knocked loose: off at speed down the slope, braking into the final stop.
+	var roll: Tween = create_tween()
+	roll.tween_property(follow, "progress", total * brake_ratio, roll_time)\
+			.set_trans(Tween.TRANS_LINEAR)
+	roll.tween_property(follow, "progress", total, brake_time)\
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	await roll.finished
+	_rolling = false
+	_head_stopped = true
+	# ...and the beat only ends once the body is actually there.
 	await _wait_for_gap(arrive_distance, -1.0)
 	await get_tree().create_timer(hold_after_arrival).timeout
 	var out: Tween = create_tween()
@@ -178,22 +167,12 @@ func _wait_for_gap(max_gap: float, timeout: float) -> void:
 		await tree.physics_frame
 
 
-## Path offset (px along the curve) of the first baked point at or past world x.
-func _progress_at_x(x: float) -> float:
-	var pts: PackedVector2Array = path.curve.get_baked_points()
-	var total: float = path.curve.get_baked_length()
-	for i in pts.size():
-		if path.to_global(pts[i]).x >= x:
-			return total * float(i) / float(maxi(pts.size() - 1, 1))
-	return total
-
-
 func _process(_delta: float) -> void:
-	# Rolling without slipping: angle = arc length / radius. Clockwise for a
-	# rightward roll, which in Godot (y down) is positive rotation. Only while
-	# rolling — an arrival may want to set the head upright (the cage does).
+	# Rolling: angle = distance × spin. Clockwise for a rightward roll, which in
+	# Godot (y down) is positive rotation. Only while rolling — before the roll
+	# the head sits upright, and a situation may pose it (the cage does).
 	if _rolling:
-		head.rotation = follow.progress / head_radius
+		head.rotation = follow.progress * _spin
 
 
 func _physics_process(delta: float) -> void:
@@ -215,15 +194,16 @@ func _physics_process(delta: float) -> void:
 	body.move_and_slide()
 
 
-## The forkable beat. Called once the head has finally stopped (and the body
-## is close, or arrival_wait ran out / was 0); override it in the inherited
-## scene's script and await whatever tweens the situation needs. The base does
-## a small settle-bounce and nothing else — note nothing visibly STOPS the head
-## on the second slope; a fork's situation is what explains why it stopped
-## (the cage lands on it).
+## The forkable beat: the situation that befalls the resting head — called once
+## the body is nearly on it (or arrival_wait ran out). Override it in the
+## inherited scene's script and await whatever tweens the situation needs; the
+## moment it returns, the head rolls off down the slope. The base does a small
+## impact squash and nothing else (returns after the squash-in; the rebound
+## overlaps the start of the roll) — a fork's situation is what explains the
+## knock (the cage lands on it).
 func _play_arrival() -> void:
-	var bounce: Tween = create_tween()
-	bounce.tween_property(head, "scale", _head_scale * Vector2(1.15, 0.85), 0.08)
-	bounce.tween_property(head, "scale", _head_scale, 0.16)\
+	var squash: Tween = create_tween()
+	squash.tween_property(head, "scale", _head_scale * Vector2(1.15, 0.85), 0.08)
+	squash.tween_property(head, "scale", _head_scale, 0.16)\
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
-	await bounce.finished
+	await squash.step_finished
