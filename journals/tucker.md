@@ -468,3 +468,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Did:** #20 `tucker/palette-violet` → main · #21 `tucker/kikis` → `tucker/palette-violet` · #22 `tucker/glasses` → `tucker/kikis` (stacked bases so each diff is only its own change; merge in order — GitHub retargets the next one when the base merges; or merge #22 alone, it contains the lot) · #23 `tucker/post-merge-docs` → main (docs sync from this morning). All four MERGEABLE/CLEAN at open time.
 **Verified:** `gh pr view` on each; the stack is rebased onto main incl. Ben's #18 and ALL GREEN at its top.
 **Open:** Sean's **#19 Lockdown** (new day + thought rain + puzzle chain, 38 files) overlaps the stack only on `docs/CODEBASE.md` / `docs/days/HOWTO.md` (one palette line each) and overlaps #23 on TASKS/DESIGN/deps/CODEBASE — whichever lands second gets a small docs conflict; keep both sides. I can re-resolve on request.
+
+## 2026-08-22 11:47 — Big kikis: updated kikis source (21 frames, big kiki now animated) — PR on top of the stack
+**Driver:** Tucker ("make a pr for big kikis") · **Agent:** Claude (Fable 5)
+**Asked:** a PR for the updated big kiki
+**Did:** `~/Desktop/dont_lose_your_head/kikis.aseprite` (Sat 11:42) → `assets/sprites/src/kikis.aseprite`, re-exported `assets/sprites/kikis.png` (now 336×16, 21 frames). Frames 0–8 (lil kiki) are pixel-identical to before; frames 9–20 are the big kiki as a **12-frame spinning/morphing loop** (all distinct; colours `#c79df2` 204 / `#8a4fb5` 138 / `#5e2d8c` 63 px — ramp only). The file has **no tags any more** (the earlier `Loop`/`lil_kiki` tags are gone), so the names stay ours: `kiki_frames.tres` regenerated — `lil_kiki` f0–8, `big_kiki` f9–20, both 10 fps loop. Sprites README updated. Branch `tucker/big-kikis` off `tucker/glasses` (worktree; Tucker's checkout is on `main` and was not touched).
+**Verified:** `--import` clean; probe: `big_kiki` 12 frames / `lil_kiki` 9, an `AnimatedSprite2D` plays; `load_all` ok on the tres.
+**Open:** tag `lil_kiki` / `big_kiki` in Aseprite so the names survive the next export.

@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=22 format=3 uid="uid://22kea81rt18j5"]
+[gd_resource type="SpriteFrames" load_steps=23 format=3 uid="uid://22kea81rt18j5"]
 
 [ext_resource type="Texture2D" uid="uid://b8dp4hohkwuk1" path="res://assets/sprites/kikis.png" id="1_kikis"]
 
@@ -81,6 +81,10 @@ region = Rect2(288, 0, 16, 16)
 [sub_resource type="AtlasTexture" id="AtlasTexture_k19"]
 atlas = ExtResource("1_kikis")
 region = Rect2(304, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k20"]
+atlas = ExtResource("1_kikis")
+region = Rect2(320, 0, 16, 16)
 
 [resource]
 animations = [{
@@ -167,6 +171,10 @@ animations = [{
 {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_k19")
+},
+{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k20")
 }],
 "loop": true,
 "name": &"big_kiki",
