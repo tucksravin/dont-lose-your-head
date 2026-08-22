@@ -1,6 +1,6 @@
 GIMP Palette
-Name: Gooseberry Ghost + bone shadow + violet
-Columns: 10
+Name: Gooseberry Ghost + bone shadow + violet ramp
+Columns: 12
 #
 152 130 119	mauve (sky) (#988277)
 100  85  67	brown (#645543)
@@ -11,4 +11,6 @@ Columns: 10
 178 241 103	light green (#b2f167)
  37 192  75	green (#25c04b)
   0 106  61	dark green (ground) (#006a3d)
+ 94  45 140	violet shadow (kikis) (#5e2d8c)
 138  79 181	violet (intrusive / kiki) (#8a4fb5)
+199 157 242	violet highlight (kikis) (#c79df2)
