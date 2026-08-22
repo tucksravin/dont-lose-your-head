@@ -19,7 +19,7 @@ extends Node2D
 ##   https://docs.godotengine.org/en/stable/tutorials/scripting/scene_organization.html#inheritance
 ##
 ## Why inherited scenes and not one shared scene with a slot: the team chose it
-## (journals/tucker.md, Fri 22:50) — it keeps each fork a real scene you can open
+## (journals/tucker.md, Fri 23:18 entry "Overnight run, part 2") — it keeps each fork a real scene you can open
 ## and tweak visually. The cost is that inherited .tscn diffs are opaque, so keep
 ## base-scene edits rare and announced.
 ##
@@ -121,12 +121,22 @@ func _run() -> void:
 func _wait_for_body(timeout: float) -> void:
 	if _arrived:
 		return
+	if timeout <= 0.0:
+		# Awaiting a signal on self is safe if the scene is torn down mid-wait
+		# (F5 / F6 / F7, a restart): the pending state dies with the node, quietly.
+		await body_arrived
+		return
+	# Timed race: poll. Keep the SceneTree in a local — a scene change detaches
+	# this node before freeing it, and the next frame would resume this loop on
+	# the detached node, where get_tree() is null (an engine ERROR plus a script
+	# error — caught by day_chain's "interrupt a transition mid-wait"). The tree
+	# outlives us: the loop spins one more frame and is dropped with the node.
+	var tree: SceneTree = get_tree()
 	var waiting: Array[bool] = [true]
 	body_arrived.connect(func() -> void: waiting[0] = false, CONNECT_ONE_SHOT)
-	if timeout > 0.0:
-		get_tree().create_timer(timeout).timeout.connect(func() -> void: waiting[0] = false)
+	tree.create_timer(timeout).timeout.connect(func() -> void: waiting[0] = false)
 	while waiting[0]:
-		await get_tree().process_frame
+		await tree.process_frame
 
 
 func _process(_delta: float) -> void:
