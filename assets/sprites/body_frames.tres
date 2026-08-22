@@ -1,24 +1,8 @@
-[gd_resource type="SpriteFrames" load_steps=12 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://b2t0p72hq8rfo"]
 
-[ext_resource type="Texture2D" path="res://assets/sprites/body_walk.png" id="1_walk"]
-[ext_resource type="Texture2D" path="res://assets/sprites/body_idle.png" id="2_idle"]
-[ext_resource type="Texture2D" path="res://assets/sprites/body_throw.png" id="3_throw"]
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_w0"]
-atlas = ExtResource("1_walk")
-region = Rect2(0, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_w1"]
-atlas = ExtResource("1_walk")
-region = Rect2(32, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_w2"]
-atlas = ExtResource("1_walk")
-region = Rect2(64, 0, 32, 32)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_w3"]
-atlas = ExtResource("1_walk")
-region = Rect2(96, 0, 32, 32)
+[ext_resource type="Texture2D" uid="uid://bf3nwp5yuu34w" path="res://assets/sprites/body_walk.png" id="1_walk"]
+[ext_resource type="Texture2D" uid="uid://bnoeofjc7w201" path="res://assets/sprites/body_idle.png" id="2_idle"]
+[ext_resource type="Texture2D" uid="uid://dy7v1m7nwud0v" path="res://assets/sprites/body_throw.png" id="3_throw"]
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_i0"]
 atlas = ExtResource("2_idle")
@@ -36,13 +20,29 @@ region = Rect2(32, 0, 32, 32)
 atlas = ExtResource("3_throw")
 region = Rect2(64, 0, 32, 32)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_w0"]
+atlas = ExtResource("1_walk")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w1"]
+atlas = ExtResource("1_walk")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w2"]
+atlas = ExtResource("1_walk")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w3"]
+atlas = ExtResource("1_walk")
+region = Rect2(96, 0, 32, 32)
+
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_i0")
 }],
-"loop": true,
+"loop": 1,
 "name": &"idle",
 "speed": 5.0
 }, {
@@ -56,7 +56,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_t2")
 }],
-"loop": false,
+"loop": 0,
 "name": &"throw",
 "speed": 8.0
 }, {
@@ -73,7 +73,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_w3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"walk",
 "speed": 8.0
 }]
