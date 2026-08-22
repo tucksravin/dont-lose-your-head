@@ -64,9 +64,15 @@ func go_to(index: int) -> void:
 	change_scene(DAY_SCENES[index])
 
 
-## Advance one day. From -1 (a day run directly in the editor) this loads the
-## first day, so testing a single scene still exercises the chain.
+## Advance one scene in the run. From -1 (a scene run directly in the editor
+## with F6) it first looks up where the current scene sits in DAY_SCENES, so
+## testing a single day still goes on to the *right* next day. A scene that
+## isn't in the list at all starts the run from the top.
 func next_day() -> void:
+	if current_day < 0:
+		var scene: Node = get_tree().current_scene
+		if scene != null:
+			current_day = DAY_SCENES.find(scene.scene_file_path)
 	go_to(current_day + 1)
 
 
