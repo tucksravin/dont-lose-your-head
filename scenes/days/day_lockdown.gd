@@ -98,7 +98,7 @@ func _open_pedestal() -> void:
 		.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
 	tw.tween_callback(func() -> void:
 		_pedestal_open = true
-		pedestal_area.monitoring = true
+		pedestal_area.set_deferred("monitoring", true)
 		call_deferred("_sync_pedestal_occupation")
 	)
 
@@ -128,7 +128,7 @@ func _before_head_release() -> void:
 		return
 	head.detach()
 	head.set_solid(false)
-	pedestal_area.monitoring = false
+	pedestal_area.set_deferred("monitoring", false)
 	_reparent_keep_global(head, mount)
 	head.position = Vector2.ZERO
 	var tw: Tween = create_tween()

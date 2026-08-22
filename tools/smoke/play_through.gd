@@ -35,6 +35,24 @@ var plans: Dictionary = {
 	# The intro ends when the PLAYER runs off the right edge (the head leaves on
 	# its own) — so run right until the scene changes.
 	"res://scenes/intro/intro.tscn": [{"run": "move_right"}],
+	"res://scenes/days/day_velma.tscn": [
+		# Four one-way steps, 36 px apart (max jump 45.9 px) — same spacing
+		# platforming_day proved out. Stand under each, jump, land. Glasses
+		# sit on Platform4 (320,176); touching them -> satisfied "body",
+		# now carried. Then walk off the stack back toward the head at
+		# (560,306) — glasses.gd's delivery_radius is 50 px from the carried
+		# position (body + (0,-30)), so x=525 (dist ~40 px once back on the
+		# floor) is inside it with room for walk_to's ±4 px tolerance.
+		{"walk_to": 115.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 175.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 235.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 295.0}, {"jump": true}, {"wait": 0.7},
+		# Now on Platform4's surface — walk over to the glasses' exact x
+		# rather than relying on the jump to land precisely on them
+		# (platforming_day's HighGoal step does the same after its climb).
+		{"walk_to": 320.0}, {"satisfied": "body"},
+		{"walk_to": 525.0}, {"satisfied": "mind"},
+	],
 	"res://scenes/days/day_template.tscn": [
 		{"walk_to": 200.0}, {"satisfied": "mind"},
 		{"walk_to": 500.0}, {"satisfied": "body"},

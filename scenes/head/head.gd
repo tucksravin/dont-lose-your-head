@@ -123,6 +123,11 @@ func detach() -> void:
 		set_physics_process(false)
 
 
+## Deferred: release() (and attach()/detach()) can run from inside a
+## WinCondition's `satisfied` signal, which fires during the physics engine's
+## query flush — toggling a CollisionShape2D's `disabled` state synchronously
+## there throws "Can't change this state while flushing queries." Same fix as
+## the pickup nodes' `monitoring` toggles (glasses.gd, answer_pad.gd).
 func set_solid(solid: bool) -> void:
 	if _hitbox != null:
 		# Deferred: release() reaches here from inside a physics callback (a
