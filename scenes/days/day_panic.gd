@@ -1,11 +1,13 @@
 extends Node2D
 ## Panic day (rework, thoughts.md): the head hangs in a cage in the air.
 ## Moving winds panic up (PanicCounter fails the day at max). Kikis fly
-## out of the cage — jump them; a hit is `DayManager.fail("kiki")`. Stand
+## toward the button — jump them; a hit is `DayManager.fail("kiki")`. Stand
 ## on the floor button and press `interact` to open the cage.
 ##
 ## Body need + mind need both live on the button: one action, two needs,
-## same as Velma's glasses. PanicCounter is fail-only now.
+## same as Velma's glasses. PanicCounter is fail-only here (`win_on_zero`
+## is the stand-still day, `day_panic_still`). A KikiCloud closes in as
+## panic rises — visual only, same node as the still day.
 ##
 ## FlyingKiki is reused from the mirror day. They spawn just left of the
 ## button and fly left. Standing on the button puts the body in `kiki_safe`

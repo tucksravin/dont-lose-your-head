@@ -18,9 +18,12 @@ extends Node
 ## transition scene (scenes/transition/) ends by calling next_day() itself, so
 ## the run is simply "the scenes, in order". See transition.gd for how to make one.
 ##
-## Glasses story: intro wears them; cage transition keeps them; panic is
-## caged-with-glasses; glasses transition knocks them off; Velma finds them.
+## Glasses story: intro wears them; still-panic is caged-with-glasses; the
+## head falls out of the tree / off the cliff into the cage transition;
+## hanging panic keeps them; glasses transition knocks them off; Velma
+## finds them. Order: still → cage transition → hanging panic.
 const DAY_SCENES: Array[String] = [
+	"res://scenes/days/day_panic_still.tscn",
 	"res://scenes/transition/transition_cage.tscn",
 	"res://scenes/days/day_panic.tscn",
 	"res://scenes/transition/transition_glasses.tscn",

@@ -5,7 +5,10 @@
 ### Don't panic
 Day One? Don't panic -> when you move, the panic meter goes up
 
-**Rework (smahr, Sat 14:50, thoughts.md):** cage in the air; moving winds panic; E on a floor button opens it; jump kikis on the way. Fail = panic max or kiki or sunset. File: `day_panic.tscn`.
+**Two days (smahr, Sat 15:18 / 15:23):**
+1. **Still** — stand still until panic hits 0. Head in a tree on the right-edge cliff; it sighs and falls backward out of the canopy. File: `day_panic_still.tscn`. Then `transition_cage`.
+2. **Cage** — rework: cage in the air; moving winds panic; E on a floor button opens it; jump kikis on the way. Fail = panic max or kiki or sunset. File: `day_panic.tscn`.
+Both have a kiki cloud that closes in as panic rises.
 
 ### Velma
 
