@@ -1,4 +1,4 @@
-[gd_resource type="SpriteFrames" load_steps=8 format=3]
+[gd_resource type="SpriteFrames" format=3 uid="uid://bde5tdw2qau5v"]
 
 [ext_resource type="Texture2D" uid="uid://bt3yxj13o0lfa" path="res://assets/sprites/head_front.png" id="1_front"]
 [ext_resource type="Texture2D" uid="uid://ds52tev5jl026" path="res://assets/sprites/head_keyed.png" id="2_keyed"]
@@ -38,7 +38,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_c3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"imprisoned",
 "speed": 10.0
 }, {
@@ -46,7 +46,7 @@ animations = [{
 "duration": 1.0,
 "texture": ExtResource("1_front")
 }],
-"loop": true,
+"loop": 1,
 "name": &"loose",
 "speed": 5.0
 }, {
@@ -54,7 +54,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_wink")
 }],
-"loop": true,
+"loop": 1,
 "name": &"wink",
 "speed": 5.0
 }]
