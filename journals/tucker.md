@@ -127,3 +127,17 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - **Journal convention:** my three entries (17:33, 17:44, 17:45) were still in the frozen shared `claudeWorkJournal.md` from before the per-person rule (PR #4) — moved verbatim to the top of this file, in time order. `claudeWorkJournal.md` now ends at Ben's entries; nothing rewritten, only relocated.
 **Verified:** `--import` clean on the sprites worktree; `--quit-after` on `res://scenes/days/day_template.tscn` and the main scene — no ERROR/WARNING. No conflict markers left in TASKS.md; `grep -i "physics\|slope"` across the docs returns only the deliberate "slopes cut Fri 18:45" notes. **Not verified:** how the sun *looks* arcing at 2× — needs a human in the editor.
 **Open:** T3 (sunset → fail → restart) still unwired; T7 HUD unowned; Day-1 card unpicked; P1 (itch page) not done — Tucker asked where the web export lives: `tools/export_web.sh` from the repo root.
+
+## 2026-08-21 20:41 — Sprites into the intro / day / reunion scenes; PR flow corrected
+**Driver:** Tucker · **Agent:** Claude (Fable 5, opus) + 21-agent review workflow
+**Asked:** "can i get the sprites hooked into what they should actually be in the day and intro scenes so we're not looking at squares?" then "can i check before you open prs please"
+**Did:** Branch `tucker/sprites-in-scenes` (stacked on PR #8 body + PR #9 sun/palette).
+- `scenes/head/head.tscn`: `Visual` ColorRect → `Sprite2D` (`head_front.png`, 2×, centered so `head.gd`'s release spin pivots on the skull). Day + reunion inherit it.
+- `scenes/intro/intro.tscn`: `HeadBlob` rect → `Sprite2D` (`head_side.png` — it runs to the right).
+- `scenes/days/day_template.tscn`: added a sky `Background` Polygon2D (there was none — the day was rendering on Godot's default grey), floor → `#006a3d`; removed the dead `next_scene` line under SpatialGoalMind.
+- `scenes/reunion/reunion.tscn`: sky/ground/prompt onto the palette.
+- `scenes/gameplay/spatial_goal.gd`: markers colour per need (`@export body_color` `#25c04b` / `mind_color` `#b2f167`) — still rectangles, no art exists for them.
+- Wrote all Color literals at full precision: truncated floats floor a channel (`0.596078`×255 = 151.99989 → **#978277**, not #988277).
+**Verified:** headless `--import` + intro/day/reunion/full-chain runs — no ERROR/SCRIPT ERROR/WARNING. Rendered each scene to PNG via a throwaway `SceneTree` capture script (not committed) and measured pixels: every sprite's lowest pixel y=319 vs floor top y=320 (nothing floats/sinks); day scene = 7 distinct colours, **all exact palette entries**. Web export built and loaded in a real browser earlier.
+- **Review workflow caught a real bug I shipped:** intro sky was `#201c02` — the sprites' own outline colour. The rendered frame had only 4 colours and all 680 outline pixels merged into the sky, so neither character had a silhouette on the opening screen. Eyeballing missed it; pixel counting found it. Fixed to `#988277`.
+**Open:** **Design call for Tucker** — intro was near-black `#1b1b2a` before; it's now the same mauve sky as the days (continuous cut, but daylit). One-line change to `#645543` if the intro should stay dark; it must never go back to `#201c02`. Also: PR #10 was opened before Tucker asked to review first — converted to **draft**, not closed. New rule recorded: push the branch, hand over the diff, let Tucker open PRs.
