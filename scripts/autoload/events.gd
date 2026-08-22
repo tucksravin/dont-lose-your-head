@@ -4,8 +4,21 @@ extends Node
 ## Declare cross-scene signals here so scenes don't need hard references to each other.
 ## Emit with `Events.some_signal.emit(args)`, connect with `Events.some_signal.connect(handler)`.
 ##
-## TODO(team): add signals once the day loop is designed. Likely candidates, as examples only:
-##   signal need_satisfied(kind)     # kind: "body" | "mind"
-##   signal day_completed
-##   signal day_failed(reason)
-##   signal sunset
+## Only the day-flow signals are here so far. Add more as systems land — but keep
+## it to things that genuinely cross scenes. A signal used inside one scene should
+## be declared on that scene's script instead (README → conventions).
+
+## One keyed win condition in the current day was satisfied. `key` is "body" or
+## "mind" (DESIGN.md §2.2). The HUD listens to light up its indicators (TASKS.md T7).
+signal condition_satisfied(key: String)
+
+## Every win condition in the current day is now satisfied — the day is won.
+## `WinConditions` emits this; the `Game` autoload listens and moves the day on.
+signal day_completed
+
+## The current day was lost and should restart. `reason` is free-form for now
+## ("sunset" is the only one planned — DESIGN.md §2.1 "Timer & fail").
+signal day_failed(reason: String)
+
+## The sun finished its arc. The Sun timer emits this (TASKS.md T3).
+signal sunset

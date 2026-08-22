@@ -86,5 +86,7 @@ func _scroll_blob(blob: CharacterBody2D, delta: float) -> void:
 	blob.move_and_slide()
 
 
+## Hand off to the day chain. Game owns the day order, so the intro doesn't name
+## a specific scene — it just says "the intro is over, start the days".
 func _on_exit_delay() -> void:
-	Game.change_scene(next_scene)
+	Game.start_days()

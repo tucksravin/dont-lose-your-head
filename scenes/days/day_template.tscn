@@ -2,12 +2,19 @@
 
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_body"]
 [ext_resource type="PackedScene" uid="uid://bl5agwe6qbg1n" path="res://scenes/gameplay/spatial_goal.tscn" id="2_wb443"]
+[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="3_sun"]
+[ext_resource type="Script" uid="uid://cprrihu5t4kig" path="res://scenes/gameplay/win_conditions.gd" id="4_win_conditions"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
 
 [node name="DayTemplate" type="Node2D" unique_id=531226403]
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
 
 [node name="Camera" type="Camera2D" parent="." unique_id=453660723]
 position = Vector2(320, 180)
@@ -23,13 +30,22 @@ offset_top = 320.0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.32, 0.22, 0.16, 1)
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 
 [node name="Body" parent="." unique_id=1999184252 instance=ExtResource("1_body")]
 position = Vector2(100, 320)
 
+[node name="Head" parent="." unique_id=439176854 instance=ExtResource("3_head")]
+position = Vector2(560, 306)
+
+[node name="WinConditions" type="Node" parent="." unique_id=734146883]
+script = ExtResource("4_win_conditions")
+
 [node name="SpatialGoal" parent="." unique_id=1109840832 instance=ExtResource("2_wb443")]
 position = Vector2(500, 320)
-next_scene = "res://scenes/reunion/reunion.tscn"
+
+[node name="SpatialGoalMind" parent="." unique_id=769477093 instance=ExtResource("2_wb443")]
+position = Vector2(200, 320)
+key = "mind"
 
 [node name="Sun" parent="." unique_id=837465219 instance=ExtResource("3_sun")]

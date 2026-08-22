@@ -13,6 +13,25 @@ extends CharacterBody2D
 ## fails with "body->get_space() is null".
 var is_scripted: bool = false
 
+## Sprite animation: "walk" while moving, "idle" otherwise; faces the direction of travel.
+## Driven by velocity (not input) so cutscenes that set velocity directly animate too.
+@onready var _sprite: AnimatedSprite2D = $Visual
+
+
+func _process(_delta: float) -> void:
+	if absf(velocity.x) > 1.0:
+		_sprite.flip_h = velocity.x < 0.0
+		if _sprite.animation != &"walk":
+			_sprite.play(&"walk")
+	elif _sprite.animation != &"idle":
+		_sprite.play(&"idle")
+
+
+func _ready() -> void:
+	# Same idiom head.gd uses: a script that wants "the" body (e.g.
+	# PanicCounter) shouldn't need a hard node path to find it.
+	add_to_group("body")
+
 
 func _physics_process(delta: float) -> void:
 	if is_scripted:

@@ -3,8 +3,9 @@ extends Node2D
 ##
 ## Player walks the body (body.tscn, CharacterBody2D) toward the stationary
 ## head (head.tscn, RigidBody2D). body.gd drives player input automatically.
-## head.gd holds the head frozen in place, so it is placed directly on the floor
-## in the scene rather than dropped onto it — no gravity, no settling.
+## head.tscn ships with freeze = true, so it is placed directly on the floor in
+## the scene rather than dropped onto it — no gravity, no settling. head.gd's
+## release() is never called here, so the head stays put for good.
 ##
 ## When within interact_distance and the player presses "interact", a chained
 ## Tween snaps the body to the head, fades to black, then loads next_scene.
@@ -28,7 +29,7 @@ enum Phase { WALKING, MERGING, DONE }
 ## Scene to load after the reunion. Swap for credits / ending when ready.
 @export var next_scene: String = "res://scenes/main.tscn"
 
-## head.tscn root is a RigidBody2D, held frozen by head.gd — it never moves here.
+## head.tscn root is a frozen RigidBody2D — a prop, it never moves here.
 @onready var head_blob: RigidBody2D = $Head
 ## body.tscn root is a CharacterBody2D — body.gd drives player input.
 @onready var body_blob: CharacterBody2D = $Body
@@ -56,8 +57,6 @@ func _check_interact() -> void:
 func _begin_merge() -> void:
 	phase = Phase.MERGING
 	interact_prompt.visible = false
-
-	# The head needs no freezing here — head.gd already holds it frozen for life.
 
 	# Disable body.gd so it stops reading input and calling move_and_slide().
 	# With process_mode DISABLED, the CharacterBody2D holds position, letting

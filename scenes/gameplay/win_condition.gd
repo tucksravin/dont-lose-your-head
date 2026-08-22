@@ -1,24 +1,32 @@
-class_name WinCondition
 extends Node
-## One named need in a day (DESIGN.md §2.2 "Win conditions").
+class_name WinCondition
+## One keyed requirement a day needs met before it can end (DESIGN.md §2.2).
 ##
-## A pure flag with no logic of its own. Some sensor in the scene (a SpatialGoal,
-## a timer, whatever the day uses) calls satisfy(); this emits `satisfied` UP to
-## the WinConditionManager. It never touches the head or scene flow — that is the
-## DayManager's job. This is the "signal up, call down" leaf.
+## This node holds no logic of its own — it is a flag with a name. Something in
+## the world decides when it's met and calls satisfy(): a SpatialGoal when the
+## body arrives, a food item when it's eaten, whatever the day is about. Keeping
+## the flag separate from the thing that trips it means the day's HUD and its
+## `WinConditions` manager don't care *how* a need was met.
+##
+## `class_name WinCondition` registers this as a global type, which is what lets
+## WinConditions find every one of them with find_children(..., "WinCondition").
+## Docs: https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_basics.html#class-name
 
-## Emitted once, the first time this need is met. Carries the key so the manager
-## and day can tell body/mind apart without holding a reference to this node.
+## Emitted the first time this condition is met. Carries `key` so listeners
+## don't need a reference back to this node.
 signal satisfied(key: String)
 
-## Which need this is. Matched against the day's expectations on the HUD (T7).
+## Which of the day's two needs this is. DESIGN.md §2.1: one body need + one
+## mind need per day. @export_enum gives a dropdown in the Inspector instead of
+## a free-text field you can typo.
 @export_enum("body", "mind") var key: String = "body"
 
+## True once satisfy() has been called. Read it; don't set it.
 var is_satisfied: bool = false
 
 
-## Mark this need met. Idempotent: a body wandering in and out of a goal can't
-## re-fire it, so the day-won check stays correct.
+## Mark this need as met. Idempotent — a body that wanders in and out of a goal
+## area shouldn't fire the day-won check over and over.
 func satisfy() -> void:
 	if is_satisfied:
 		return
@@ -26,6 +34,7 @@ func satisfy() -> void:
 	satisfied.emit(key)
 
 
-## For restart-in-place (e.g. a fail that doesn't reload the scene).
+## Clear the flag. Used when a day restarts after the sun runs out (TASKS.md T3)
+## if we ever restart in place rather than reloading the scene.
 func reset() -> void:
 	is_satisfied = false

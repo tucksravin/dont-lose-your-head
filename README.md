@@ -26,16 +26,16 @@ Everything is a **Node**; a **Scene** (`.tscn`, a text file) is a saved node tre
 
 | Thing | Value | Why |
 |---|---|---|
-| Viewport | 640×360, window opens at 1280×720 | **Provisional** pixel-art default — art direction isn't decided ([DESIGN.md §3.14](docs/DESIGN.md)). Scales 2×/3× cleanly to 720p/1080p |
+| Viewport | 640×360, window opens at 1280×720 | **Decided Friday: pixel art at 640×360** ([DESIGN.md §2.1](docs/DESIGN.md)). Scales 2×/3× cleanly to 720p/1080p |
 | Stretch | `canvas_items` / `keep` | Sprites scale with nearest filtering, UI text stays crisp. Letterboxes on odd aspect ratios. (Prefer true integer scaling? set `display/window/stretch/scale_mode = integer` in Project Settings.) |
-| Texture filter | Nearest (pixel-perfect) | Pixel art (provisional) |
+| Texture filter | Nearest (pixel-perfect) | Pixel art |
 | 2D pixel snap | On (transforms + vertices) | No half-pixel shimmer |
 | Renderer | **GL Compatibility** | Required for web export — Forward+ does not run in browsers |
 | Autoloads | `Events` (signal bus), `Game` (scene flow) | Empty stubs with TODOs in `scripts/autoload/` |
 | Input actions | `move_left` `move_right` `jump` `interact` `restart` `pause` | Keyboard + gamepad bound (see below). Use `Input.is_action_pressed("jump")`, never raw keys. |
 | Web export preset | `export_presets.cfg` → "Web", threads **off** | Runs on itch.io without SharedArrayBuffer headers; works from a plain local http server |
 
-**Not going pixel art?** Project → Project Settings (turn on *Advanced Settings*): set `display/window/size/viewport_width|height` to 1280×720 or 1920×1080, `rendering/textures/canvas_textures/default_texture_filter` to **Linear**, and turn off both `rendering/2d/snap/*` options. Keep GL Compatibility — that one is for the web, not for pixels.
+**If that ever changes** (it's decided — pixel art): Project → Project Settings (turn on *Advanced Settings*): set `display/window/size/viewport_width|height` to 1280×720 or 1920×1080, `rendering/textures/canvas_textures/default_texture_filter` to **Linear**, and turn off both `rendering/2d/snap/*` options. Keep GL Compatibility — that one is for the web, not for pixels.
 
 ### Input map
 
@@ -64,6 +64,7 @@ build/                 export output (git-ignored, except build/.gdignore — ke
 docs/DESIGN.md         design doc
 docs/TASKS.md          the task list (IDs, owners, sizes, done-when)
 docs/task-dependencies.md  what blocks what (Mermaid)
+docs/days/brainstorm.md    day ideas scratchpad (team)
 brainstorm.md          original brainstorm
 meeting-notes-friday.md    Friday kickoff decisions (source for DESIGN §2)
 CLAUDE.md              instructions for LLM assistants
@@ -90,7 +91,7 @@ Web gotchas to keep in mind: audio can't start until the player clicks/presses s
 
 ## Git conventions (jam edition)
 
-- **Branch per task, PR into `main`** (team decision Friday). Keep PRs small and short-lived — hours, not days; a `.tscn` sitting on a branch overnight is a conflict in the morning. Approval/merge rules: DESIGN §3.6 until decided.
+- **Branch per task, PR into `main`** (team decision Friday). Keep PRs small and short-lived — hours, not days; a `.tscn` sitting on a branch overnight is a conflict in the morning. Merge rules (DESIGN §2.3): anyone can merge someone else's PR; self-merge if necessary.
 - `.import` and `.uid` files **are committed** (they sit next to assets/scripts). `.godot/` and `build/` are **ignored**.
 - **One owner per `.tscn` file.** Scene files merge badly. Before editing a scene someone else made, say so in Discord. Scripts (`.gd`) merge fine.
 - Naming: `snake_case` for files and variables, `PascalCase` for node names and `class_name`s. Scene and its script share a name (`body.tscn` + `body.gd`).
