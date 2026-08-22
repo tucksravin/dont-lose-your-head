@@ -1,6 +1,6 @@
 # Codebase overview — Sat 22 Aug, 08:00
 
-*What is in the repo and how it fits together, with links. This describes the integrated branch `night/all` (= `main` + PR #16 + the five `night/*` branches). Where a part lives on a `night/*` branch that isn't merged yet, it says so. Keep this true when you change a contract; the full per-task story is in `journals/*.md`.*
+*What is in the repo and how it fits together, with links. Written Sat 08:00 against the integration branch `night/all`; **everything here is on `main` since Sat 16:48** (PR #16 + PR #17). Keep this true when you change a contract; the full per-task story is in `journals/*.md`.*
 
 Godot **4.7.1**, GDScript with static typing, **640×360** pixel art, exported to the web. One run = **intro → the scenes in `Game.DAY_SCENES` → reunion**. Parts find each other by **signals and groups**, never by long node paths, and five autoloads hold the glue.
 
@@ -48,9 +48,9 @@ flowchart LR
 
 ## 2. Folder map
 
-*`origin/main` still holds only Friday's state. "Lives on" names the branch(es) carrying a file's **current** state: `main` = Friday's main, `#16` = PR #16 (`tucker/palette-pass`), the rest are `night/*`.*
+*All of this is on `main` (merged Sat 16:48). The "from" column says which Friday/overnight branch each part came from — useful only for reading the journals and PRs; it is not where the code lives now.*
 
-| path | what | lives on |
+| path | what | from |
 |---|---|---|
 | [project.godot](../project.godot) | 640×360, GL Compatibility, nearest filter + pixel snap, input map (`move_left/right`, `jump`, `interact`, `restart`, `pause`), autoloads | main (+ autoload lines on daykit/sfx) |
 | [export_presets.cfg](../export_presets.cfg) | the one "Web" preset (threads off); excludes `tools/*` | main (+ base) |
@@ -86,7 +86,7 @@ Autoloads are nodes Godot adds under the root before any scene, by name, in this
 
 Every day instances all three. None of them knows about anything else by path: they add themselves to **groups** (`body`, `head`) or are found by **what they have** (the Sun by its `sunset` signal — DayManager checks just that; `sky_drift` also wants `progress()`; `Sfx`/`Dev` also want `day_length`).
 
-**Body** — [scenes/body/body.tscn](../scenes/body/body.tscn) / [body.gd](../scenes/body/body.gd). `CharacterBody2D`, 24×32 collision, origin at the **feet**; `Visual` is an `AnimatedSprite2D` on [assets/sprites/body_frames.tres](../assets/sprites/body_frames.tres) (`idle`, `walk`, `throw`; `throw` unused) at 2×, `centered = false`, `offset (-16,-32)`. Exports `speed 150`, `jump_velocity -300`, `gravity 980` → **max rise 45.9 px, hang 0.61 s, 92 px reach**. Signals `jumped`, `landed`. `is_scripted = true` hands control to a cutscene (intro, transition) which must then drive velocity + `move_and_slide()` itself. Group `body`. Child `Juice` ([body_juice.gd](../scenes/body/body_juice.gd), *night/anim*): breathing, stretch/squash on `jumped`/`landed`, lean — scale/rotation only, `reset()` for cutscenes; delete the node and the body is as before.
+**Body** — [scenes/body/body.tscn](../scenes/body/body.tscn) / [body.gd](../scenes/body/body.gd). `CharacterBody2D`, 24×32 collision, origin at the **feet**; `Visual` is an `AnimatedSprite2D` on [assets/sprites/body_frames.tres](../assets/sprites/body_frames.tres) (`idle`, `walk`, `throw`; `throw` unused) at 2×, `centered = false`, `offset (-16,-32)`. Exports `speed 150`, `jump_velocity -300`, `gravity 980` → **max rise 45.9 px, hang 0.61 s, 92 px reach**. Signals `jumped`, `landed`. `is_scripted = true` hands control to a cutscene (intro, transition) which must then drive velocity + `move_and_slide()` itself. Group `body`. Child `Juice` ([body_juice.gd](../scenes/body/body_juice.gd)): breathing, stretch/squash on `jumped`/`landed`, lean — scale/rotation only, `reset()` for cutscenes; delete the node and the body is as before.
 
 **Head** — [scenes/head/head.tscn](../scenes/head/head.tscn) / [head.gd](../scenes/head/head.gd) (`class_name Head`). A **frozen** `RigidBody2D` (kinematic freeze — scripted, not simulated, DESIGN §2.1), 28×28 collision centred — **solid to the body**. `Visual` on [head_frames.tres](../assets/sprites/head_frames.tres): `loose`, `imprisoned` (4-frame cage loop), `wink`. Exports `exit_speed 180`, `exit_direction RIGHT`, `spin_speed 360`, `exit_margin 64`, `caged` (plays the cage loop), `jitter_px`/`jitter_full_agitation` (*anim*: sprite-only shake). `release()` (idempotent) → translates + spins off screen → `left_scene`. `attach(carrier, offset)` / `detach()` — follow a node without reparenting (lockdown carry); collision off while attached; `offset.x` flips with the carrier's `Visual.flip_h`. `set_solid(bool)`. Signals `released`, `left_scene`. `set_agitation(x)` scales the cage loop speed (and the shake). Group `head`. Placement: y = 306 sits on a y = 320 floor.
 
@@ -123,7 +123,7 @@ The atom is **`WinCondition`** ([win_condition.gd](../scenes/gameplay/win_condit
 
 Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` on template/panic) · `Camera2D` at (320,180), fixed · floor top at **y = 320** · Body · Head · Sun · a manager · needs · an `Instruction` Label. The template ships as the first day today — a decision for the team.
 
-### 6.2 Transition — [scenes/transition/](../scenes/transition/) *(night/transition)*
+### 6.2 Transition — [scenes/transition/](../scenes/transition/)
 
 [transition.tscn](../scenes/transition/transition.tscn) / [transition.gd](../scenes/transition/transition.gd): **one straight slope** (y = 100 + (x+40)/3, (−40,100)→(740,360); a `StaticBody2D` + `CollisionPolygon2D`). The head (an `AnimatedSprite2D` on head_frames — *not* head.tscn; a frozen RigidBody2D under a PathFollow2D fights it) rides a `Path2D`/`PathFollow2D` 15 px above the slope from x=140 to x=500 (Tween on `progress_ratio`: `roll_time` 1.8 s accelerating to `brake_ratio` 0.85, `brake_time` 0.4 s; sprite rotates by distance ÷ radius = real rolling). **The body is the player's** (decided Sat 08:40 — body.gd untouched; the scene only sets `floor_snap_length` = `body_floor_snap` 8 so it doesn't hop downhill). Then: `_play_arrival()` plays when the body is within `arrive_distance` 40 px of the head or after `arrival_wait` 2.5 s; the beat ends only once the body has reached the head (controls off via `is_scripted`, settles; `body_arrived`), `hold_after_arrival` 0.6 s, `fade_duration` 0.4 s, `Game.next_day()`. ~4.6 s if the player runs straight there; open-ended if not (no timeout — `HUD/Instruction` says to go after it; placeholder copy).
 
@@ -148,7 +148,7 @@ Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` o
 
 ## 8. Tools — [tools/](../tools/)
 
-**[tools/smoke_test.sh](../tools/smoke_test.sh)** *(night/base)* runs `--import` then six `SceneTree` scripts headless (`godot --headless --path . -s tools/smoke/<name>.gd`); red on any `FAIL`, any engine `ERROR`/`Parse Error`, or a missing `SMOKE PASS`. `tools/smoke_test.sh <suite>` runs one; `--web` also exports.
+**[tools/smoke_test.sh](../tools/smoke_test.sh)** runs `--import` then six `SceneTree` scripts headless (`godot --headless --path . -s tools/smoke/<name>.gd`); red on any `FAIL`, any engine `ERROR`/`Parse Error`, or a missing `SMOKE PASS`. `tools/smoke_test.sh <suite>` runs one; `--web` also exports.
 
 | suite | proves |
 |---|---|
