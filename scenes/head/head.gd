@@ -123,9 +123,14 @@ func detach() -> void:
 		set_physics_process(false)
 
 
+## Deferred: release() (and attach()/detach()) can run from inside a
+## WinCondition's `satisfied` signal, which fires during the physics engine's
+## query flush — toggling a CollisionShape2D's `disabled` state synchronously
+## there throws "Can't change this state while flushing queries." Same fix as
+## the pickup nodes' `monitoring` toggles (glasses.gd, answer_pad.gd).
 func set_solid(solid: bool) -> void:
 	if _hitbox != null:
-		_hitbox.disabled = not solid
+		_hitbox.set_deferred("disabled", not solid)
 
 
 ## How fast the caged head's loop runs. 1.0 is the rate authored in

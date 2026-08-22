@@ -1,0 +1,141 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_body"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/glasses.tscn" id="2_glasses"]
+[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
+[ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="3_sun"]
+[ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="4_win_conditions"]
+[ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
+[ext_resource type="Script" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="11_game_over"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/vision_blur.tscn" id="12_vision_blur"]
+[ext_resource type="Texture2D" uid="uid://dvglcr4kgfj7k" path="res://assets/sprites/bridge.png" id="13_bridge_tex"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(640, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_platform"]
+size = Vector2(76, 16)
+
+[node name="DayVelma" type="Node2D"]
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
+script = ExtResource("9_sky_drift")
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(320, 180)
+
+[node name="Floor" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+position = Vector2(320, 340)
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="Visual" type="ColorRect" parent="Floor"]
+offset_top = 320.0
+offset_right = 640.0
+offset_bottom = 360.0
+mouse_filter = 2
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
+
+[node name="Platform1" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform1"]
+position = Vector2(140, 292)
+shape = SubResource("RectangleShape2D_platform")
+one_way_collision = true
+
+[node name="Visual" type="Sprite2D" parent="Platform1"]
+texture_repeat = 2
+z_index = 1
+position = Vector2(140, 280)
+scale = Vector2(2, 2)
+texture = ExtResource("13_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 38, 8)
+
+[node name="Platform2" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform2"]
+position = Vector2(200, 256)
+shape = SubResource("RectangleShape2D_platform")
+one_way_collision = true
+
+[node name="Visual" type="Sprite2D" parent="Platform2"]
+texture_repeat = 2
+z_index = 1
+position = Vector2(200, 244)
+scale = Vector2(2, 2)
+texture = ExtResource("13_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 38, 8)
+
+[node name="Platform3" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform3"]
+position = Vector2(260, 220)
+shape = SubResource("RectangleShape2D_platform")
+one_way_collision = true
+
+[node name="Visual" type="Sprite2D" parent="Platform3"]
+texture_repeat = 2
+z_index = 1
+position = Vector2(260, 208)
+scale = Vector2(2, 2)
+texture = ExtResource("13_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 38, 8)
+
+[node name="Platform4" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform4"]
+position = Vector2(320, 184)
+shape = SubResource("RectangleShape2D_platform")
+one_way_collision = true
+
+[node name="Visual" type="Sprite2D" parent="Platform4"]
+texture_repeat = 2
+z_index = 1
+position = Vector2(320, 172)
+scale = Vector2(2, 2)
+texture = ExtResource("13_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 38, 8)
+
+[node name="Body" parent="." instance=ExtResource("1_body")]
+position = Vector2(100, 320)
+
+[node name="Head" parent="." instance=ExtResource("3_head")]
+position = Vector2(560, 306)
+
+[node name="WinConditionManager" type="Node" parent="."]
+script = ExtResource("4_win_conditions")
+
+[node name="DayManager" type="Node" parent="."]
+script = ExtResource("10_day_manager")
+conditions_path = NodePath("../WinConditionManager")
+head_path = NodePath("../Head")
+game_over_path = NodePath("../GameOver")
+
+[node name="Glasses" parent="." instance=ExtResource("2_glasses")]
+position = Vector2(320, 176)
+
+[node name="VisionBlur" parent="." instance=ExtResource("12_vision_blur")]
+
+[node name="Sun" parent="." instance=ExtResource("3_sun")]
+
+[node name="Instruction" type="Label" parent="."]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 628.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "Climb up for the glasses, then bring them to your head."
+
+[node name="GameOver" parent="." instance=ExtResource("11_game_over")]
