@@ -2,13 +2,13 @@
 
 What has to exist before what. The task list is [TASKS.md](TASKS.md) (same IDs); this is the *order* view. `E*` rows (setup, hard stop, stand-up, scope check, freeze) are clock events and live only in TASKS.md; `P1r`/`P2·0` are repeats of P1/P2. Built from [DESIGN.md](DESIGN.md) §2. GitHub renders the chart; in VS Code you need a Mermaid preview extension, or read the text version below.
 
-**Critical path:** *API contract (T0) → head roll/stuck/release (T2) → day template (T8) → day 1 (C2) → days 2–3 (C3) → reunion (C5, or its text card) → submit (P4).* Art and sound run beside it and gate the *look*, not the *code*. Decisions D1–D4, D6, D7 are answered (✔); open: **D5** fail details (default stated), **D8** cut order (proposal in TASKS.md), **D11** R / Esc / after the end card.
+**Critical path:** *API contract (T0) → scripted head release (T2) → day template (T8) → day 1 (C2) → days 2–3 (C3) → reunion (C5, or its text card) → submit (P4).* Art and sound run beside it and gate the *look*, not the *code*. Decisions D1–D4, D6, D7 are answered (✔); open: **D5** fail details (default stated), **D8** cut order (proposal in TASKS.md), **D11** R / Esc / after the end card.
 
 ```mermaid
 flowchart TD
   subgraph D["Decisions (✔ = answered)"]
     D1["✔ D1 Deadline: Sat 23:59"]
-    D2["✔ D2 Head = physics (RigidBody2D)"]
+    D2["✔ D2 Head = scripted<br/>(frozen RigidBody2D, moved by code)"]
     D3["✔ D3 Fixed camera per scene"]
     D4["✔ D4 PRs: anyone merges, self-merge if needed"]
     D6["✔ D6 Pixel art 640×360"]
@@ -20,14 +20,14 @@ flowchart TD
 
   subgraph T["Scene template — Sean, Ben"]
     T0["T0 API contract (10 min)<br/>signal + method names"]
-    T1["T1 Body controller<br/>run / jump / slopes"]
-    T2["T2 Head: roll in → stuck on snag<br/>→ release → roll out"]
+    T1["T1 Body controller<br/>run / jump"]
+    T2["T2 Head: starts stuck<br/>→ release → off screen"]
     T3["T3 Sun timer + arc<br/>timeout → restart day"]
     T4["T4 Keyed win-condition nodes<br/>all satisfied → Head.release()"]
     T5["T5 Day flow<br/>day list · next · restart (Game autoload)"]
     T6["T6 Fixed camera"]
     T7["T7 HUD: instruction text<br/>+ win-key lights"]
-    T8["T8 Day template scene<br/>slope in · flat middle · slope out"]
+    T8["T8 Day template scene<br/>flat ground · head · body · sun · HUD"]
   end
 
   subgraph C["Content"]

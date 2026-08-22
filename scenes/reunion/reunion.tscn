@@ -36,7 +36,7 @@ mouse_filter = 2
 color = Color(0.32, 0.22, 0.16, 1)
 
 [node name="Head" parent="." instance=ExtResource("3_head")]
-position = Vector2(480, 250)
+position = Vector2(480, 306)
 
 [node name="Body" parent="." instance=ExtResource("2_body")]
 position = Vector2(100, 320)

@@ -25,9 +25,6 @@ enum Phase { CHASE, EXIT }
 @export var exit_margin: float = 120.0
 ## Seconds to wait after EXIT starts before changing scene.
 @export var exit_delay: float = 1.2
-## Scene to load after the intro. body.tscn drives the player in CHASE;
-## once wired, swap to the real day 1 path.
-@export var next_scene: String = "res://scenes/days/day_template.tscn"
 
 @onready var head_blob: CharacterBody2D = $HeadBlob
 ## Instanced body.tscn — body.gd drives player input in CHASE phase.
@@ -67,9 +64,11 @@ func _check_exit() -> void:
 	var right_edge: float = get_viewport_rect().size.x
 	if head_blob.global_position.x > right_edge + exit_margin:
 		_exiting = true
-		# Disable body.gd so we can drive the body manually in EXIT phase.
-		# PROCESS_MODE_DISABLED stops _physics_process without removing the node.
-		body_blob.process_mode = Node.PROCESS_MODE_DISABLED
+		# Hand body.gd off so we can drive the body manually in EXIT phase.
+		# NOT process_mode = DISABLED: that also drops a CharacterBody2D out
+		# of the physics space, so move_and_slide() below fails every tick
+		# with "body->get_space() is null" (confirmed via headless repro).
+		body_blob.is_scripted = true
 		phase = Phase.EXIT
 		get_tree().create_timer(exit_delay).timeout.connect(_on_exit_delay)
 
@@ -84,5 +83,7 @@ func _scroll_blob(blob: CharacterBody2D, delta: float) -> void:
 	blob.move_and_slide()
 
 
+## Hand off to the day chain. Game owns the day order, so the intro doesn't name
+## a specific scene — it just says "the intro is over, start the days".
 func _on_exit_delay() -> void:
-	Game.change_scene(next_scene)
+	Game.start_days()
