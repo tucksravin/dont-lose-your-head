@@ -23,6 +23,8 @@ func _run() -> void:
 
 	for i in days.size():
 		var path: String = str(days[i])
+		if not path.begins_with("res://scenes/days/"):
+			continue  # transitions have no sun and no fail state
 		print("-- ", path.get_file())
 
 		# 1. sunset on a live day → fail path

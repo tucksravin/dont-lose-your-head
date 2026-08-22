@@ -283,3 +283,21 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - `restart` (R) and `pause` (Esc) are bound but nothing listens (D11).
 - `day_01.tscn` still references a missing `day_01.gd` — in `known_broken.txt`, Sean's call to delete or restore.
 - `scenes/reunion/preview/sprites_preview.tscn` exists — a preview scene; fine, but it's in the export.
+
+## 2026-08-21 23:18 — Overnight run, part 2: transition scene (head rolls down a hill, body follows, head gets caged)
+**Driver:** Tucker · **Agent:** Claude Opus 5 (claude-opus-5[1m])
+**Asked:** "build a forkable transition scene of the head rolling down a hill followed by the body, with the forkable bit being the head getting into its new situation". Fork mechanism: Tucker chose **inherited scenes** (over an arrival-slot scene, which I'd recommended, and duplicate-and-edit). Branch `night/transition` off `night/base`.
+**Did:**
+- `scenes/transition/transition.tscn` + `.gd` — the base: sky, a hill (`StaticBody2D` + `CollisionPolygon2D`, ground green), the head on a `Path2D`/`PathFollow2D` that traces the hill (a `Tween` drives `progress_ratio` — accelerates down the slope, coasts out on the flat; the sprite rotates by distance ÷ radius = real rolling without slipping), the normal `body.tscn` with `is_scripted = true` fed a velocity + `move_and_slide()` so gravity/slope/walk animation come from `body.gd` for free, a fade overlay, then `Game.next_day()`. Scripted, not playable — a ~4 s beat, identical every run (DESIGN §2.1 "scripted, not simulated"); flipping it to the intro's playable-chase pattern later is easy. The arrival waits for the body to catch up (cap 2.5 s) so the body is standing there when the head's situation happens.
+- `_play_arrival()` is the one hook a fork overrides. `transition_cage.tscn` / `.gd` is the worked example: an inherited scene (`[node name=… instance=ExtResource(base)]` with the root's script overridden to a script that `extends "transition.gd"`), adding one `Cage` AnimatedSprite2D. The "cage" is **not new art** — it's the head's own `imprisoned` frames (head_keyed.png) falling from above onto the loose head, which then switches to the same loop.
+- Slotted into `Game.DAY_SCENES` right before `day_panic` (the caged-head day). The comment in game.gd explains: transitions sit in the same list, before the day they lead into, and end by calling `next_day()` themselves.
+- Smoke suite taught about non-day entries: `day_lint` (entry must be a day or a transition; a transition must have `_play_arrival`; nothing may sit after a DayManager day), `day_chain` (a transition must advance by itself), `day_sunset` (skips transitions).
+- DESIGN §2.1: new **Transitions** row recording the mechanic, the fork decision, the alternatives, and the trade-off.
+- **Rejected:** instancing `head.tscn` as the rolling head. A frozen `RigidBody2D` under a moving `PathFollow2D` fights it — the physics-state callback writes the body's transform back one tick behind and the lag accumulates; measured: the head ended 128 px short of the path's end. The transition head is a plain `AnimatedSprite2D` on the same `head_frames.tres`. Also fixed: `_process` kept writing the roll angle after the roll, so the landed cage was tilted — rotation is only driven while rolling.
+**Verified:**
+- Windowed capture harness, positions logged every 0.1 s: body on-floor every sample down the slope; head ends exactly at the path's foot (520,306); body pulls up at (472,320); cage lands and `rot=0.00`. Frames eyeballed: roll on slope, head parked, cage falling as the body arrives, caged head upright.
+- `tools/smoke_test.sh` → ALL GREEN (37/37/15/9/13). Bot play-through now passes through the transition (hands off in 4.9 s).
+**Open:**
+- Scripted vs playable is my call — say the word and the body becomes player-driven like the intro.
+- Only the cage fork exists; a fork into the platforming day (head on the far ledge) would be the natural second one — the recipe is in `transition.gd`'s header.
+- No sound hooks yet (the SFX branch adds cue names: roll loop, thud, cage clang).

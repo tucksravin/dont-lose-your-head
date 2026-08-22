@@ -25,8 +25,13 @@ extends Node
 ## `Game.change_scene(its own next_scene)`, which defaults to the reunion. So a
 ## DayManager day has to sit LAST here, or it will skip everything after it.
 ## Unifying the two systems is an open team decision — see journals/tucker.md.
+##
+## Transitions live in this same list, right BEFORE the day they lead into: a
+## transition scene (scenes/transition/) ends by calling next_day() itself, so
+## the run is simply "the scenes, in order". See transition.gd for how to make one.
 const DAY_SCENES: Array[String] = [
 	"res://scenes/days/day_template.tscn",
+	"res://scenes/transition/transition_cage.tscn",
 	"res://scenes/days/day_panic.tscn",
 	"res://scenes/days/platforming_day.tscn",
 ]

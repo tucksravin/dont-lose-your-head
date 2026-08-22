@@ -39,16 +39,21 @@ func _run() -> void:
 
 	print("-- Game.DAY_SCENES")
 	var last_manager_index: int = -1
-	var first_events_after_manager: bool = false
+	var anything_after_manager: bool = false
 	for i in day_list.size():
 		var p: String = str(day_list[i])
 		Smoke.check(FileAccess.file_exists(p), "DAY_SCENES[%d] exists: %s" % [i, p])
+		var is_day: bool = p.begins_with("res://scenes/days/")
+		var is_transition: bool = p.begins_with("res://scenes/transition/")
+		Smoke.check(is_day or is_transition, "DAY_SCENES[%d] is a day or a transition" % i)
+		if is_transition:
+			await _lint_transition(p)
 		if _uses_day_manager(p):
 			last_manager_index = i
 		elif last_manager_index >= 0:
-			first_events_after_manager = true
-	Smoke.check(not first_events_after_manager,
-			"no Events-system day sits after a DayManager day (DayManager jumps straight to its own next_scene — see game.gd)")
+			anything_after_manager = true
+	Smoke.check(not anything_after_manager,
+			"nothing sits after a DayManager day (DayManager jumps straight to its own next_scene — see game.gd)")
 	Smoke.check(day_list.size() > 0, "DAY_SCENES is not empty")
 
 	Smoke.finish(self, "day_lint")
@@ -100,6 +105,17 @@ func _lint_day(path: String) -> void:
 	await process_frame
 	# The head/body groups are per-node; freeing the scene empties them.
 	await process_frame
+
+
+## A transition must be a scene whose script has the fork hook, leading into a day.
+func _lint_transition(path: String) -> void:
+	var ps: PackedScene = load(path)
+	if ps == null:
+		Smoke.fail("%s failed to load" % path)
+		return
+	var t: Node = ps.instantiate()
+	Smoke.check(t.has_method("_play_arrival"), "  %s is a transition (has _play_arrival)" % path.get_file())
+	t.free()
 
 
 func _first_with_script(scene: Node, script_path: String) -> Node:

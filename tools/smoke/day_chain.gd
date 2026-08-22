@@ -39,6 +39,12 @@ func _run() -> void:
 		if scene == null:
 			break
 		sid = scene.get_instance_id()
+		if path.begins_with("res://scenes/transition/"):
+			var after: Node = await Smoke.wait_for_scene(self, sid, 10.0)
+			Smoke.check(after != null, "  transition played and moved on by itself")
+			if after == null:
+				break
+			continue
 		await Smoke.sleep(self, 0.3)
 
 		var conds: Array[Node] = Smoke.win_conditions(scene)
