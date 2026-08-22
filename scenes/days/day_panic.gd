@@ -75,6 +75,11 @@ func _on_button_entered(other: Node2D) -> void:
 		var prompt: Label = release.get_node_or_null("Prompt") as Label
 		if prompt != null:
 			prompt.visible = false
+		# The plate pushes down under the body (button.png, Tucker's: off →
+		# mid → on). One-shot, so it stays held down afterwards.
+		var plate: AnimatedSprite2D = release.get_node_or_null("Visual") as AnimatedSprite2D
+		if plate != null and plate.sprite_frames != null and plate.sprite_frames.has_animation(&"press"):
+			plate.play(&"press")
 		_open_cage()
 
 
@@ -85,6 +90,11 @@ func _on_button_exited(other: Node2D) -> void:
 		var prompt: Label = release.get_node_or_null("Prompt") as Label
 		if prompt != null:
 			prompt.visible = false
+		# Stepping off springs it back — unless the cage is already open.
+		var plate: AnimatedSprite2D = release.get_node_or_null("Visual") as AnimatedSprite2D
+		if not _opened and plate != null and plate.sprite_frames != null \
+				and plate.sprite_frames.has_animation(&"off"):
+			plate.play(&"off")
 
 
 func _open_cage() -> void:

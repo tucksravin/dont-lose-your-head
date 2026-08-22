@@ -12,6 +12,7 @@
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="11_game_over"]
 [ext_resource type="Script" uid="uid://cc46s87eug7f5" path="res://scenes/gameplay/win_condition.gd" id="12_win"]
 [ext_resource type="PackedScene" uid="uid://tt53kd82hn5o" path="res://scenes/gameplay/kiki_cloud.tscn" id="13_cloud"]
+[ext_resource type="SpriteFrames" uid="uid://v3pomc0to6l7" path="res://assets/sprites/button_frames.tres" id="20_button"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -91,12 +92,12 @@ position = Vector2(520, 320)
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_button")
 
-[node name="Visual" type="ColorRect" parent="ReleaseButton" unique_id=82009601]
-offset_left = -28.0
-offset_top = -16.0
-offset_right = 28.0
-mouse_filter = 2
-color = Color(0.39215687, 0.33333334, 0.2627451, 1)
+[node name="Visual" type="AnimatedSprite2D" parent="ReleaseButton" unique_id=82009601]
+scale = Vector2(2, 2)
+sprite_frames = ExtResource("20_button")
+animation = &"off"
+centered = false
+offset = Vector2(-8, -16)
 
 [node name="Prompt" type="Label" parent="ReleaseButton" unique_id=1256580234]
 visible = false
