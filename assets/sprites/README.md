@@ -7,9 +7,13 @@ All art is 1× pixel art on a 32×32 (body) / 16×16 (head) canvas. **Render at 
 2. In `body.gd`: `$AnimatedSprite2D.flip_h = velocity.x < 0.0` when moving; play `walk` when `abs(velocity.x) > 1`, else `idle` (add `if` around `play()` so it doesn't restart every frame).
 3. Collider: the body is now 26×38 on screen; a `RectangleShape2D` ≈ `Vector2(20, 38)` at `position (0, -19)` hugs it (the old 24×32 was for the rectangle). Tune to taste.
 
-**Head** (`scenes/head/head.tscn`, `RigidBody2D`):
+**Head** (`scenes/head/head.tscn` — scripted, not simulated: a frozen `RigidBody2D` moved by code, DESIGN §2.1):
 1. Replace `Visual` with a **`Sprite2D`**: `texture = res://assets/sprites/head_front.png` (or `head_side.png`), `scale = Vector2(2, 2)` (centered). 16×16 → 32×32 on screen.
-2. A rolling head needs a **`CircleShape2D`** (`radius ≈ 14`) instead of the 28×28 rectangle, or it won't roll.
-3. Rotation: either let the body rotate the sprite (jaggies at 2× are mild) or keep the sprite upright and swap frames by angle later (`head_roll.png` isn't made yet).
+2. The collider shape no longer matters for the roll-off (it's scripted) — keep the rectangle.
+3. Rotation: spin the sprite from the release script (`rotation += spin_speed * delta`; jaggies at 2× are mild) or keep it upright and swap frames by angle later (`head_roll.png` isn't made yet).
+
+**Sun** (`scenes/sun/sun.tscn`) — wired: `Visual` is a `Sprite2D`, `texture = res://assets/sprites/sun.png` (Tucker's 16×16, palette #f1ffaf disc / #b2f167 rays), `scale = Vector2(2, 2)`, centered so `Sun.position` is still the arc centre. Source `src/sun.aseprite`.
 
 Texture filtering is Nearest project-wide; nothing to set per sprite. Sources are in `src/` (Aseprite); credits in `CREDITS.md`.
+
+**Palette:** [`assets/palette/`](../palette/README.md) — the `.gpl` to load in Aseprite, and the swatch strip. All shipped art comes from it.
