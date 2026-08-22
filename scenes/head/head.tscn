@@ -18,3 +18,6 @@ scale = Vector2(2, 2)
 sprite_frames = ExtResource("2_head_frames")
 animation = &"loose"
 autoplay = "loose"
+
+[node name="PanicSound" type="AudioStreamPlayer" parent="."]
+bus = &"SFX"

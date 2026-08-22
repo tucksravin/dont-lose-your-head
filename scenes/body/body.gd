@@ -13,6 +13,9 @@ extends CharacterBody2D
 ## Jump sounds, cycled in order (not random) each time the body jumps — set
 ## in the scene, one per jump_N.wav. Empty is fine (no jump sound).
 @export var jump_sounds: Array[AudioStream] = []
+## Same idea, cycled each time the body lands (air → floor edge). Empty is
+## fine (no landing sound).
+@export var landing_sounds: Array[AudioStream] = []
 
 ## The body left the ground by jumping (not by walking off a ledge).
 signal jumped
@@ -31,6 +34,7 @@ var is_scripted: bool = false
 var _was_on_floor: bool = true
 var _was_walking: bool = false
 var _jump_sound_index: int = 0
+var _landing_sound_index: int = 0
 
 ## Sprite animation: "walk" while moving, "idle" otherwise; faces the direction of travel.
 ## Driven by velocity (not input) so cutscenes that set velocity directly animate too.
@@ -45,6 +49,8 @@ var _jump_sound_index: int = 0
 ## cycles through `jump_sounds` in order so four presses in a row don't sound
 ## identical, without a global sfx script picking the variant for it.
 @onready var _jump_sound: AudioStreamPlayer = $JumpSound
+## Same idea as `_jump_sound`, cycled on landing instead of jumping.
+@onready var _landing_sound: AudioStreamPlayer = $LandSound
 
 
 func _process(_delta: float) -> void:
@@ -107,6 +113,16 @@ func _play_jump_sound() -> void:
 	_jump_sound_index = (_jump_sound_index + 1) % jump_sounds.size()
 
 
+## Play the next landing variant in order and advance the cycle, wrapping
+## back to the start. No-op if landing_sounds is empty (nothing wired yet).
+func _play_landing_sound() -> void:
+	if landing_sounds.is_empty():
+		return
+	_landing_sound.stream = landing_sounds[_landing_sound_index]
+	_landing_sound.play()
+	_landing_sound_index = (_landing_sound_index + 1) % landing_sounds.size()
+
+
 func _jump_requested() -> bool:
 	if invert_vertical:
 		return Input.is_action_just_pressed("move_down")
@@ -120,6 +136,7 @@ func _track_landing() -> void:
 	var on_floor: bool = is_on_floor()
 	if on_floor and not _was_on_floor:
 		landed.emit()
+		_play_landing_sound()
 	_was_on_floor = on_floor
 
 

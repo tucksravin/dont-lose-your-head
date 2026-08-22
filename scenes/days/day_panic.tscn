@@ -2,13 +2,13 @@
 
 [ext_resource type="Script" path="res://scenes/days/day_panic.gd" id="1_day"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_uxlmw"]
-[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="2_wgxpk"]
-[ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="3_vx7en"]
+[ext_resource type="PackedScene" uid="uid://icgagian0sgo" path="res://scenes/head/head.tscn" id="2_wgxpk"]
+[ext_resource type="Script" uid="uid://b52e5l8in6h8c" path="res://scenes/gameplay/win_condition_manager.gd" id="3_vx7en"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_jila2"]
 [ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="6_panic_counter"]
 [ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="7_panic_label"]
-[ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
-[ext_resource type="Script" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
+[ext_resource type="Script" uid="uid://drgvctg8sgork" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
+[ext_resource type="Script" uid="uid://cdgvssoc46s8n" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="11_game_over"]
 [ext_resource type="Script" path="res://scenes/gameplay/win_condition.gd" id="12_win"]
 [ext_resource type="PackedScene" uid="uid://c8kicloudpanic1" path="res://scenes/gameplay/kiki_cloud.tscn" id="13_cloud"]
@@ -78,7 +78,7 @@ counter = NodePath("../PanicCounter")
 [node name="WinConditionManager" type="Node" parent="." unique_id=734146883]
 script = ExtResource("3_vx7en")
 
-[node name="DayManager" type="Node" parent="."]
+[node name="DayManager" type="Node" parent="." unique_id=624272911]
 script = ExtResource("10_day_manager")
 conditions_path = NodePath("../WinConditionManager")
 head_path = NodePath("../Head")
@@ -145,4 +145,4 @@ text = "E at the button frees the cage. Moving winds panic. Jump the thoughts."
 
 [node name="Sun" parent="." unique_id=837465219 instance=ExtResource("5_jila2")]
 
-[node name="GameOver" parent="." instance=ExtResource("11_game_over")]
+[node name="GameOver" parent="." unique_id=1660501174 instance=ExtResource("11_game_over")]

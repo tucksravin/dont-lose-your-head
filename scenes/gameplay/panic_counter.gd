@@ -82,6 +82,7 @@ func _ready() -> void:
 	value = start_panic
 	_body = get_tree().get_first_node_in_group("body") as CharacterBody2D
 	_head = get_tree().get_first_node_in_group("head")
+	_head.call("set_panic_level", 1)
 	if _body == null:
 		push_warning("PanicCounter: no node in group 'body' — panic will never change.")
 	_apply()
@@ -136,6 +137,8 @@ func _apply() -> void:
 	if shown != _last_reported:
 		_last_reported = shown
 		panic_changed.emit(shown)
+		if _head != null and _head.has_method("set_panic_level"):
+			_head.call("set_panic_level", level())
 	if _head != null:
 		if _head.has_method("set_agitation"):
 			_head.call("set_agitation", lerpf(calm_agitation, frantic_agitation, ratio()))
@@ -153,6 +156,18 @@ func _is_moving() -> bool:
 ## 0.0–1.0 against the starting value, for a HUD that wants a bar.
 func ratio() -> float:
 	return clampf(value / max_panic, 0.0, 1.0)
+
+
+## Discrete panic band against max_panic, in thirds: 1 below a third, 2 below
+## two thirds, 3 above — the sound (and anything else that wants a coarse
+## reading instead of the continuous ratio) picks off this instead of value.
+func level() -> int:
+	var r: float = ratio()
+	if r < 1.0 / 3.0:
+		return 1
+	elif r < 2.0 / 3.0:
+		return 2
+	return 3
 
 
 ## 1.0 at `proximity_range` or beyond, ramping linearly up to

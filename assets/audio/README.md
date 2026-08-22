@@ -1,9 +1,11 @@
 # Audio — what to make, where to put it
 
 Everything below Sfx.CUES is already wired. **Drop a file in with the right name and it plays.** Nothing else to touch. Until a file exists its cue is silent (no error), and the game prints the missing list at boot:
-`Sfx: 15/15 cues have no file yet — …`
+`Sfx: 13/13 cues have no file yet — …`
 
-**Jump and footsteps are the exception** — they're wired directly on the Body node (`scenes/body/body.gd`: `jump_sounds` array on `JumpSound`, the loop on `Sound`), not through `Sfx.CUES`. `jump`: light hop / bone click, ~80 ms, one-shot, cycled on every jump — several short variants (`assets/audio/sfx/jump/jump_1.wav`, `jump_2.wav`, …) read better than one file playing on repeat; add more and assign them in `body.tscn`'s `jump_sounds` array (order = play order, not random). Footsteps: `assets/audio/sfx/walk/walk_2.wav`, looped while the body is moving on the ground.
+**Jump, landing, footsteps, and panic are the exception** — they're wired directly on the node that owns the state, not through `Sfx.CUES`. `jump` and `land` (`scenes/body/body.gd`): light hop / dull knock (heavier than jump), ~80–100 ms, one-shot, cycled in order each time — several short variants (`assets/audio/sfx/jump/jump_1.wav`, `jump_2.wav`, … and `assets/audio/sfx/landing/landing_1.wav`, `landing_2.wav`, …) read better than one file on repeat; add more and assign them in `body.tscn`'s `jump_sounds` / `landing_sounds` arrays (order = play order, not random). Footsteps: `assets/audio/sfx/walk/walk_2.wav`, looped while the body is moving on the ground.
+
+Panic (`scenes/head/head.gd`, caged heads only): **discrete, not continuous** — `PanicCounter.level()` (thirds of `max_panic`: <⅓ = 1, <⅔ = 2, else 3) picks one of `assets/audio/sfx/panic/panic_level_1_1.wav` / `panic_level_2_1.wav` / `panic_level_3_1.wav`, a heartbeat-style thump that replays every time the shown panic number ticks over (so its cadence naturally speeds up as panic rises faster). Not a smooth pitch-shift like the old `panic_tick` cue was — three fixed takes, swapped by band. Add more per level and wire them into `head.gd`'s `panic_sounds` array (index 0 = level 1 … index 2 = level 3).
 
 ## SFX — `assets/audio/sfx/<cue>.wav` (or `.ogg`)
 
@@ -11,14 +13,12 @@ One-shots. **WAV, mono, 44.1 kHz, 16-bit**, trimmed tight (no leading silence �
 
 | cue (file name) | fires when | suggestion | ~length |
 |---|---|---|---|
-| `land` | body touches down | dull knock; heavier than jump | 100 ms |
 | `step` | each walk-cycle foot (optional — only if a file exists) | tiny tick | 40 ms |
 | `need_met` | one of the day's two needs satisfied | bright blip, major | 200 ms |
 | `day_won` | both needs met, head released | 2-note rising "ta-da", small | 400 ms |
 | `head_roll` | the head starts rolling away | rattle / marble on wood, one-shot not loop | 500 ms |
 | `day_failed` | day lost (sunset, pit, panic maxed) | descending 2-note "womp" | 400 ms |
 | `sunset_warning` | 5 s before sunset, once | low tick-tock or a single low tone | 300 ms |
-| `panic_tick` | panic meter moves by 1 (pitch rises with panic automatically) | single heartbeat thump | 120 ms |
 | `calm` | panic reaches zero | soft exhale / chime | 400 ms |
 | `bridge_drop` | bridge lands (platforming day) | wood thunk + creak | 400 ms |
 | `dive` | body leaps for the head (reunion) | whoosh | 300 ms |

@@ -4,10 +4,10 @@ extends SceneTree
 ## fail — silence is the designed state until Tucker/Ben record), an unknown
 ## cue is a warning not a crash, and the cues actually FIRE at the right
 ## moments: satisfying a need produces need_met, winning produces day_won +
-## head_roll, sunset produces day_failed. Jump and footsteps are NOT part of
-## this — they're local to Body (scenes/body/body.gd), not Sfx.CUES; a
-## scripted jump/land here only checks land (still a cue) and Body's own
-## JumpSound node (not through Sfx).
+## head_roll, sunset produces day_failed. Jump, landing, and footsteps are NOT
+## part of this — they're local to Body (scenes/body/body.gd), not Sfx.CUES;
+## a scripted jump/land here checks Body's own JumpSound/LandSound nodes
+## directly instead (not through Sfx).
 
 const Smoke := preload("res://tools/smoke/smoke_lib.gd")
 
@@ -60,8 +60,10 @@ func _run() -> void:
 	var jump_sound: AudioStreamPlayer = (
 		body.get_node_or_null("JumpSound") if body != null else null
 	)
+	var land_sound: AudioStreamPlayer = (
+		body.get_node_or_null("LandSound") if body != null else null
+	)
 
-	_fired.clear()
 	Input.action_press("jump")
 	await physics_frame
 	await physics_frame
@@ -69,7 +71,8 @@ func _run() -> void:
 			"jump plays Body's own JumpSound (local, not Sfx)")
 	Input.action_release("jump")
 	await Smoke.sleep(self, 1.0)  # hang time is 0.61 s
-	Smoke.check(_fired.has(&"land"), "landing fired 'land'")
+	Smoke.check(land_sound != null and land_sound.playing,
+			"landing plays Body's own LandSound (local, not Sfx)")
 
 	_fired.clear()
 	var conds: Array[Node] = Smoke.win_conditions(scene)

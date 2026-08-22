@@ -1,5 +1,5 @@
 extends Node
-## Sound effects by name (autoload: `Sfx`). `Sfx.play(&"jump")` — that's the API.
+## Sound effects by name (autoload: `Sfx`). `Sfx.play(&"day_won")` — that's the API.
 ##
 ## Every cue the game can make is declared in CUES below, with what it is for.
 ## A cue plays `res://assets/audio/sfx/<cue>.wav` (or .ogg) if that file
@@ -9,12 +9,14 @@ extends Node
 ## to-record list (also in assets/audio/README.md).
 ##
 ## Who calls play(): mostly nobody by hand. This node listens to the signals
-## the game already emits — the Events bus, plus the body/head/sun/panic nodes
-## as they enter the tree (`SceneTree.node_added`, once, here) — and maps them
+## the game already emits — the Events bus, plus the head/sun/panic nodes as
+## they enter the tree (`SceneTree.node_added`, once, here) — and maps them
 ## to cues. Gameplay scripts stay free of audio knowledge; a new day gets its
 ## sounds by using the same signals everything else uses. A scene with a
 ## one-off sound (the reunion dive) calls Sfx.play() directly, which is the
-## normal Godot idiom for autoloads.
+## normal Godot idiom for autoloads. The body's own sounds (jump, land,
+## footsteps) are the exception — local to scenes/body/body.gd, not here;
+## see assets/audio/README.md.
 ##
 ## Godot bits: AudioStreamPlayer (non-positional — 2D panning is noise at this
 ## screen size) · a small pool so overlapping cues don't cut each other off ·
@@ -29,14 +31,12 @@ extends Node
 
 ## cue → what it is for. Keep this the single source of truth.
 const CUES: Dictionary = {
-	&"land": "body touches down after a jump or fall",
 	&"step": "optional footstep; fires from the walk cycle only if a file exists",
 	&"need_met": "one of the day's two needs just got satisfied (body or mind)",
 	&"day_won": "both needs met — the head is released",
 	&"head_roll": "the head starts rolling away (release) — a short roll/rattle, not a loop",
 	&"day_failed": "the day is lost (sunset, pit, panic maxed) — the restart sting",
 	&"sunset_warning": "the sun is low (last ~5 s of the day) — a tick/ambience swell, once",
-	&"panic_tick": "the panic meter changed by one — a heartbeat tick; rate follows the meter",
 	&"calm": "panic reached zero",
 	&"bridge_drop": "the bridge falls into place (platforming day)",
 	&"dive": "the body leaps for the head (reunion)",
@@ -128,15 +128,9 @@ func has_file(cue: StringName) -> bool:
 ## hard node paths, no per-scene setup. node_added fires before the node's
 ## _ready, so groups aren't set yet; match on signals/methods instead.
 func _on_node_added(node: Node) -> void:
-	if node is CharacterBody2D and node.has_signal("jumped") and node.has_signal("landed"):
-		# jumped is body.gd's own local sound now (jump_sounds/_jump_sound) —
-		# only landed is still a global cue here.
-		node.connect(
-			"landed",
-			func() -> void:
-				play(&"land"),
-		)
-	elif node.has_signal("released") and node.has_signal("left_scene"):
+	# Body's own jumped/landed sounds are local now (jump_sounds/landing_sounds
+	# on scenes/body/body.gd) — Sfx no longer matches CharacterBody2D at all.
+	if node.has_signal("released") and node.has_signal("left_scene"):
 		node.connect(
 			"released",
 			func() -> void:
@@ -150,7 +144,8 @@ func _on_node_added(node: Node) -> void:
 			CONNECT_ONE_SHOT,
 		)
 	elif node.has_signal("panic_changed") and node.has_signal("calmed"):
-		node.connect("panic_changed", _on_panic_changed)
+		# panic_changed's own sound is local now (PanicCounter.level() calls
+		# Head.set_panic_level() directly) — calmed is still a global cue.
 		node.connect(
 			"calmed",
 			func() -> void:
@@ -170,11 +165,6 @@ func _arm_sunset_warning(sun: Node) -> void:
 			if live is Node and (live as Node).is_inside_tree():
 				play(&"sunset_warning"),
 	)
-
-
-func _on_panic_changed(value: int) -> void:
-	# A heartbeat that tightens as panic climbs: higher pitch at higher panic.
-	play(&"panic_tick", 0.8 + 0.4 * clampf(value / 30.0, 0.0, 1.0))
 
 
 func _load_cue(cue: StringName) -> AudioStream:
