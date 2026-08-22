@@ -1,11 +1,12 @@
 extends Node2D
-## Transition — the interstitial beat between days: the head rolls down a hill,
-## the body runs after it, and at the bottom the head lands in its NEXT
-## predicament. That last part is the only thing that changes per day.
+## Transition — the interstitial beat between days: the head rolls away down
+## one long slope, the player runs the body after it, and where the head stops
+## it lands in its NEXT predicament. That last part is the only thing that
+## changes per day.
 ##
 ## HOW TO FORK ONE FOR A NEW DAY (decided Fri 22:50: inherited scenes)
 ##   1. In Godot: right-click transition.tscn → New Inherited Scene. Save it as
-##      scenes/transition/transition_<situation>.tscn. Everything here — hill,
+##      scenes/transition/transition_<situation>.tscn. Everything here — slope,
 ##      path, body, fade — is inherited and greyed out; you only add/override.
 ##   2. Make scenes/transition/transition_<situation>.gd with
 ##          extends "res://scenes/transition/transition.gd"
@@ -23,12 +24,23 @@ extends Node2D
 ## base-scene edits rare and announced.
 ##
 ## Mechanics, in Godot terms: the head rides a PathFollow2D along a Path2D that
-## traces the hill (a Tween drives `progress`, so the roll is identical every
-## run — DESIGN §2.1 "scripted, not simulated"). Its sprite is rotated by
-## distance ÷ radius, which is real rolling without slipping. The body is the
-## normal body.tscn with `is_scripted = true`: this script feeds it a velocity
-## and calls move_and_slide(), so gravity, the slope and the walk animation all
-## come for free from body.gd.
+## runs just above the slope (a Tween drives `progress_ratio`, so the roll is
+## identical every run — DESIGN §2.1 "scripted, not simulated"). Its sprite is
+## rotated by distance ÷ radius, which is real rolling without slipping.
+## The body is the normal body.tscn and the PLAYER drives it (decided Sat
+## 08:40: "still control the body") — walk, jump, body.gd untouched. The slope
+## is a StaticBody2D with a CollisionPolygon2D, so move_and_slide() handles the
+## incline by itself. This script touches the body twice: it lengthens the
+## floor snap (downhill at run speed the default 1 px lets it skip off the
+## slope), and once the body has reached the head it takes the controls away
+## (`is_scripted`) so it pulls up and stands there for the fade.
+##
+## Timeline: roll (accelerating) → brake → the head has stopped. The situation
+## (`_play_arrival`) plays when the body gets within `arrive_distance` of the
+## head — or after `arrival_wait` seconds if the player dawdles, so it never
+## looks stuck — but the beat does not END until the body is actually there:
+## reach the head → `hold_after_arrival` → fade → Game.next_day(). There is no
+## timeout on that last wait; the player has to go and get their head.
 ##
 ## The head here is a plain AnimatedSprite2D on the same head_frames.tres as
 ## head.tscn — NOT an instance of head.tscn. Tried that first: a frozen
@@ -38,29 +50,28 @@ extends Node2D
 ## business being a physics body anyway.
 ## Docs: https://docs.godotengine.org/en/stable/classes/class_pathfollow2d.html
 
-## Seconds for the head to roll the sloped part of the path (it accelerates).
-@export var roll_slope_time: float = 1.4
-## Seconds to coast the flat part and stop (it decelerates).
-@export var roll_flat_time: float = 0.8
-## Where along the path (0–1) the slope ends and the flat run-out begins.
-@export_range(0.0, 1.0) var slope_end_ratio: float = 0.8
+## Seconds for the head to roll most of the way (it accelerates).
+@export var roll_time: float = 1.8
+## Seconds to brake to a stop over the last stretch (it decelerates).
+@export var brake_time: float = 0.4
+## Where along the path (0–1) the braking starts.
+@export_range(0.0, 1.0) var brake_ratio: float = 0.85
 ## Radius of the head on screen (px) — the spin rate is progress / radius.
 @export var head_radius: float = 14.0
-## The body starts running this long after the head starts rolling.
-@export var body_delay: float = 0.4
-## Body run speed (px/s) and where it pulls up (world x) — on the flat, a
-## couple of strides behind where the head stops.
-@export var body_run_speed: float = 150.0
-@export var body_stop_x: float = 470.0
-@export var body_gravity: float = 980.0
-## The arrival beat waits for the body to catch up (so it is watching when the
-## head's situation happens), but never longer than this.
-@export var body_catch_up_timeout: float = 2.5
-## Pause after the arrival beat before the fade.
+## Floor snap for the body while it is here (px). Downhill at run speed the
+## default 1 px lets it skip off the slope; 8 keeps its feet on the ground.
+@export var body_floor_snap: float = 8.0
+## The body has "reached" the head once its x is within this many px of the
+## head's (or past it). It pulls up there — a couple of strides short.
+@export var arrive_distance: float = 40.0
+## The situation waits for the body to get close (so the player is watching
+## when it happens), but not longer than this after the head has stopped.
+@export var arrival_wait: float = 2.5
+## Pause after the arrival beat, with the body there, before the fade.
 @export var hold_after_arrival: float = 0.6
 @export var fade_duration: float = 0.4
 
-## Emitted when the body has pulled up at body_stop_x.
+## Emitted once, when the body reaches the head (see arrive_distance).
 signal body_arrived
 
 @onready var follow: PathFollow2D = $HeadPath/Follow
@@ -69,9 +80,9 @@ signal body_arrived
 @onready var body: CharacterBody2D = $Body
 @onready var fade: ColorRect = $FadeOverlay/Fade
 
-var _body_running: bool = false
-var _body_done: bool = false
 var _rolling: bool = true
+var _head_stopped: bool = false
+var _arrived: bool = false
 var _done: bool = false
 var _head_scale: Vector2 = Vector2(2, 2)
 
@@ -79,37 +90,43 @@ var _head_scale: Vector2 = Vector2(2, 2)
 func _ready() -> void:
 	follow.progress_ratio = 0.0
 	_head_scale = head.scale
-	body.is_scripted = true
-	# Downhill at run speed the default 1 px floor snap lets the body skip off
-	# the slope; a longer snap keeps its feet on the ground.
-	body.floor_snap_length = 8.0
+	body.floor_snap_length = body_floor_snap
 	_run()
 
 
 func _run() -> void:
 	var roll: Tween = create_tween()
-	roll.tween_property(follow, "progress_ratio", slope_end_ratio, roll_slope_time)\
+	roll.tween_property(follow, "progress_ratio", brake_ratio, roll_time)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
-	roll.tween_property(follow, "progress_ratio", 1.0, roll_flat_time)\
+	roll.tween_property(follow, "progress_ratio", 1.0, brake_time)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
-	get_tree().create_timer(body_delay).timeout.connect(func() -> void: _body_running = true)
 	await roll.finished
 	_rolling = false  # from here the arrival owns the head's rotation
-	if not _body_done:
-		# Whichever comes first: the body pulls up, or we stop waiting for it.
-		var catch_up: SceneTreeTimer = get_tree().create_timer(body_catch_up_timeout)
-		var waiting: Array[bool] = [true]
-		body_arrived.connect(func() -> void: waiting[0] = false, CONNECT_ONE_SHOT)
-		catch_up.timeout.connect(func() -> void: waiting[0] = false)
-		while waiting[0]:
-			await get_tree().process_frame
+	_head_stopped = true
+	# The situation happens when the body gets close — or when we tire of waiting.
+	await _wait_for_body(arrival_wait)
 	await _play_arrival()
+	# ...but the beat only ends once the body is actually there.
+	await _wait_for_body(0.0)
 	await get_tree().create_timer(hold_after_arrival).timeout
 	var out: Tween = create_tween()
 	out.tween_property(fade, "modulate:a", 1.0, fade_duration)
 	await out.finished
 	_done = true
 	Game.next_day()
+
+
+## Returns when the body has reached the head, or — if timeout > 0 — after that
+## many seconds of game time, whichever is first.
+func _wait_for_body(timeout: float) -> void:
+	if _arrived:
+		return
+	var waiting: Array[bool] = [true]
+	body_arrived.connect(func() -> void: waiting[0] = false, CONNECT_ONE_SHOT)
+	if timeout > 0.0:
+		get_tree().create_timer(timeout).timeout.connect(func() -> void: waiting[0] = false)
+	while waiting[0]:
+		await get_tree().process_frame
 
 
 func _process(_delta: float) -> void:
@@ -123,19 +140,27 @@ func _process(_delta: float) -> void:
 func _physics_process(delta: float) -> void:
 	if _done:
 		return
+	if not _arrived:
+		# The player is driving. "Reached" = level with the stopped head, or past it.
+		if _head_stopped and body.global_position.x >= head.global_position.x - arrive_distance:
+			_arrived = true
+			body.is_scripted = true  # controls off; we settle it from here
+			body_arrived.emit()
+		return
+	# Pulled up: no input, but keep gravity and friction so a mid-jump arrival
+	# still lands and the body is standing still for the fade. Numbers come from
+	# the body itself so this matches how it moves everywhere else.
 	if not body.is_on_floor():
-		body.velocity.y += body_gravity * delta
-	var running: bool = _body_running and body.global_position.x < body_stop_x
-	body.velocity.x = body_run_speed if running else 0.0
+		body.velocity.y += float(body.get("gravity")) * delta
+	body.velocity.x = move_toward(body.velocity.x, 0.0, float(body.get("speed")))
 	body.move_and_slide()
-	if _body_running and not running and not _body_done:
-		_body_done = true
-		body_arrived.emit()
 
 
-## The forkable beat. Called once the head has stopped at the foot of the hill;
-## override it in the inherited scene's script and await whatever tweens the
-## situation needs. The base does a small settle-bounce and nothing else.
+## The forkable beat. Called once the head has stopped on the slope (and the
+## body is close, or arrival_wait ran out); override it in the inherited scene's
+## script and await whatever tweens the situation needs. The base does a small
+## settle-bounce and nothing else — note nothing visibly STOPS the head here; a
+## fork's situation is what explains why it stopped (the cage lands on it).
 func _play_arrival() -> void:
 	var bounce: Tween = create_tween()
 	bounce.tween_property(head, "scale", _head_scale * Vector2(1.15, 0.85), 0.08)

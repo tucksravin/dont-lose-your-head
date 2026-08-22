@@ -1,5 +1,5 @@
 extends "res://scenes/transition/transition.gd"
-## Transition fork: the head rolls to the bottom of the hill and a cage drops on
+## Transition fork: the head rolls down the slope, stops, and a cage drops on
 ## it → leads into day_panic (whose head opens `caged = true`).
 ##
 ## The worked example of the fork recipe in transition.gd: this file overrides

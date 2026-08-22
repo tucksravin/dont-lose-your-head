@@ -18,7 +18,11 @@ extends SceneTree
 ##   {"press": "interact"}      tap an action
 ##   {"satisfied": "body"}      wait until the WinCondition with that key is met
 ##   {"release_all": true}      let go of every held action
-## A scene with no plan just waits for the scene to change (the intro).
+##   {"run": "move_right"}      hold an action until the scene changes (10 s cap)
+## A scene with no plan just waits for the scene to change (the intro). A
+## TRANSITION with no plan gets {"run": "move_right"}: the body is the player's
+## there and the beat ends when it reaches the head, so running right is the
+## plan for every fork.
 
 const Smoke := preload("res://tools/smoke/smoke_lib.gd")
 
@@ -84,6 +88,8 @@ func _run() -> void:
 		var started: int = Time.get_ticks_msec()
 		await Smoke.sleep(self, 0.25)
 		var plan: Array = plans.get(path, [])
+		if plan.is_empty() and path.begins_with("res://scenes/transition/"):
+			plan = [{"run": "move_right"}]
 		var plan_ok: bool = await _execute(sid, plan)
 		_release_all()
 		if not plan_ok:
@@ -124,6 +130,14 @@ func _execute(sid: int, plan: Array) -> bool:
 				return false
 		elif s.has("release_all"):
 			_release_all()
+		elif s.has("run"):
+			var action: String = str(s["run"])
+			_hold(action)
+			var gone: bool = (await Smoke.wait_for_scene(self, sid, 10.0)) != null
+			_release(action)
+			Smoke.check(gone, "  holding '%s' got the scene to hand off" % action)
+			if not gone:
+				return false
 	return true
 
 

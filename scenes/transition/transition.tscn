@@ -6,9 +6,9 @@
 
 [sub_resource type="Curve2D" id="Curve2D_hill"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 120, 186, 0, 0, 0, 0, 140, 186, 0, 0, 0, 0, 440, 306, 0, 0, 0, 0, 520, 306)
+"points": PackedVector2Array(0, 0, 0, 0, 140, 145, 0, 0, 0, 0, 500, 265)
 }
-point_count = 4
+point_count = 2
 
 [node name="Transition" type="Node2D"]
 script = ExtResource("1_transition")
@@ -24,11 +24,11 @@ position = Vector2(320, 180)
 [node name="Hill" type="StaticBody2D" parent="."]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Hill"]
-polygon = PackedVector2Array(-40, 200, 140, 200, 440, 320, 680, 320, 680, 400, -40, 400)
+polygon = PackedVector2Array(-40, 100, 740, 360, 740, 440, -40, 440)
 
 [node name="Visual" type="Polygon2D" parent="Hill"]
 color = Color(0, 0.415686274509804, 0.23921568627451, 1)
-polygon = PackedVector2Array(-40, 200, 140, 200, 440, 320, 680, 320, 680, 400, -40, 400)
+polygon = PackedVector2Array(-40, 100, 740, 360, 740, 440, -40, 440)
 
 [node name="HeadPath" type="Path2D" parent="."]
 curve = SubResource("Curve2D_hill")
@@ -44,7 +44,20 @@ animation = &"loose"
 autoplay = "loose"
 
 [node name="Body" parent="." instance=ExtResource("2_body")]
-position = Vector2(40, 200)
+position = Vector2(50, 130)
+
+[node name="HUD" type="CanvasLayer" parent="."]
+
+[node name="Instruction" type="Label" parent="HUD"]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 628.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "Go after your head."
 
 [node name="FadeOverlay" type="CanvasLayer" parent="."]
 layer = 10
