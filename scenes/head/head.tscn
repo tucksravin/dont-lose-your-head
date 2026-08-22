@@ -1,20 +1,27 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene format=3 uid="uid://icgagian0sgo"]
 
-[ext_resource type="Script" path="res://scenes/head/head.gd" id="1_head_script"]
-[ext_resource type="SpriteFrames" path="res://assets/sprites/head_frames.tres" id="2_head_frames"]
+[ext_resource type="Script" uid="uid://bpricpl5dlnpg" path="res://scenes/head/head.gd" id="1_head_script"]
+[ext_resource type="SpriteFrames" uid="uid://bde5tdw2qau5v" path="res://assets/sprites/head_frames.tres" id="2_head_frames"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_head"]
 size = Vector2(28, 28)
 
-[node name="Head" type="RigidBody2D"]
+[node name="Head" type="RigidBody2D" unique_id=705379557]
 freeze = true
 script = ExtResource("1_head_script")
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1936875996]
 shape = SubResource("RectangleShape2D_head")
 
-[node name="Visual" type="AnimatedSprite2D" parent="."]
+[node name="Visual" type="AnimatedSprite2D" parent="." unique_id=828256150]
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("2_head_frames")
 animation = &"loose"
 autoplay = "loose"
+
+[node name="PanicSound" type="AudioStreamPlayer" parent="." unique_id=1610215940]
+bus = &"SFX"
+
+[node name="CalmSound" type="AudioStreamPlayer" parent="." unique_id=1543848886]
+volume_db = 16.45
+bus = &"SFX"

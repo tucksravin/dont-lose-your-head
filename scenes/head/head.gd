@@ -55,14 +55,34 @@ signal left_scene
 ## colour. Harmless on an uncaged head.
 @export var calm_tint: Color = Color.WHITE
 @export var panic_tint: Color = Colors.DARK_GREEN
+## Caged only: the discrete panic-level sound (index 0 = level 1 .. index 2 =
+## level 3) — PanicCounter picks the level off its own thirds-of-max_panic
+## bands (PanicCounter.level()) and calls set_panic_level() with it; this
+## script only knows how to play whichever index that is. Local to the head,
+## not a global sfx script — same reasoning as Body's jump/landing sounds.
+## Defaults preloaded here (not wired per-instance in day_panic.tscn) so a
+## caged head works out of the box, same as calm_tint/panic_tint above.
+@export var panic_sounds: Array[AudioStream] = [
+	preload("res://assets/audio/sfx/panic/panic_level_1_1.wav"),
+	preload("res://assets/audio/sfx/panic/panic_level_2_1.wav"),
+	preload("res://assets/audio/sfx/panic/panic_level_3_1.wav"),
+]
+## Caged only: the one-shot for PanicCounter's `calmed` moment (panic hit 0
+## and the day won that way — `win_on_zero` days only). Its own player
+## (`_calm_sound`, not `_panic_sound`) so it can be mixed independently —
+## volume_db on CalmSound in the scene, no code change needed to retune it.
+@export var calm_sound: AudioStream = preload("res://assets/audio/sfx/calm/calm_1.wav")
 
 var _leaving: bool = false
 var _agitation: float = 1.0
 var _carrier: Node2D = null
 var _carry_offset: Vector2 = Vector2(12.0, -40.0)
+var panic_level = -1
 
 @onready var _sprite: AnimatedSprite2D = $Visual
 @onready var _hitbox: CollisionShape2D = $CollisionShape2D
+@onready var _panic_sound: AudioStreamPlayer = $PanicSound
+@onready var _calm_sound: AudioStreamPlayer = $CalmSound
 
 
 func _ready() -> void:
@@ -149,6 +169,33 @@ func set_agitation(scale: float) -> void:
 ## `calm_tint` toward `panic_tint`. Harmless on an uncaged head.
 func set_panic_ratio(ratio: float) -> void:
 	_sprite.modulate = calm_tint.lerp(panic_tint, clampf(ratio, 0.0, 1.0))
+
+
+## Play the level-`level` panic sound (1..3 — PanicCounter's discrete thirds
+## band, not a continuous value). Retriggers on every call, same as a
+## heartbeat thump restarting itself; PanicCounter only calls this when the
+## panic *label's* integer value changes, so it can't spam every physics
+## frame. No-op if `level` is out of range or panic_sounds isn't wired up
+## with all 3 entries. Harmless on an uncaged head.
+func set_panic_level(level: int) -> void:
+	var index: int = level - 1
+	if index < 0 or index >= panic_sounds.size():
+		return
+	if index == panic_level:
+		return
+	panic_level = index
+	_panic_sound.stream = panic_sounds[index]
+	_panic_sound.play()
+
+
+## Play the "calmed" cue once — PanicCounter calls this from its own `calmed`
+## signal. Harmless on an uncaged head; no-op if calm_sound isn't assigned.
+func play_calm() -> void:
+	_panic_sound.stop()
+	if calm_sound == null:
+		return
+	_calm_sound.stream = calm_sound
+	_calm_sound.play()
 
 
 ## Let the head go. Game calls this once every WinCondition is satisfied.
