@@ -149,8 +149,27 @@ func release() -> void:
 		return
 	_leaving = true
 	detach()
+	if not caged and _sprite != null and _sprite.sprite_frames.has_animation(&"loose"):
+		_sprite.play(&"loose")
 	released.emit()
 	set_physics_process(true)
+
+
+## Face left (−1), right (+1), or the plain front (0). Plays look_left /
+## look_right from head_frames.tres (head_keyed.png f1 / f3). No-op if caged
+## or already rolling — panic keeps the imprisoned loop.
+func look(dir: int) -> void:
+	if _leaving or caged or _sprite == null:
+		return
+	var frames: SpriteFrames = _sprite.sprite_frames
+	if frames == null:
+		return
+	if dir < 0 and frames.has_animation(&"look_left"):
+		_sprite.play(&"look_left")
+	elif dir > 0 and frames.has_animation(&"look_right"):
+		_sprite.play(&"look_right")
+	elif frames.has_animation(&"loose"):
+		_sprite.play(&"loose")
 
 
 func _follow_carrier() -> void:
