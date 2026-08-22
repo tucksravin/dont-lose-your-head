@@ -73,10 +73,12 @@ var _body_running: bool = false
 var _body_done: bool = false
 var _rolling: bool = true
 var _done: bool = false
+var _head_scale: Vector2 = Vector2(2, 2)
 
 
 func _ready() -> void:
 	follow.progress_ratio = 0.0
+	_head_scale = head.scale
 	body.is_scripted = true
 	# Downhill at run speed the default 1 px floor snap lets the body skip off
 	# the slope; a longer snap keeps its feet on the ground.
@@ -136,7 +138,7 @@ func _physics_process(delta: float) -> void:
 ## situation needs. The base does a small settle-bounce and nothing else.
 func _play_arrival() -> void:
 	var bounce: Tween = create_tween()
-	bounce.tween_property(head, "scale", Vector2(2.3, 1.7), 0.08)
-	bounce.tween_property(head, "scale", Vector2(2.0, 2.0), 0.16)\
+	bounce.tween_property(head, "scale", _head_scale * Vector2(1.15, 0.85), 0.08)
+	bounce.tween_property(head, "scale", _head_scale, 0.16)\
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await bounce.finished
