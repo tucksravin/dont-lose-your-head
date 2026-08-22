@@ -10,6 +10,9 @@ _data = {
 }
 point_count = 2
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
+size = Vector2(16, 600)
+
 [node name="Transition" type="Node2D"]
 script = ExtResource("1_transition")
 
@@ -29,6 +32,12 @@ polygon = PackedVector2Array(-40, 100, 740, 360, 740, 440, -40, 440)
 [node name="Visual" type="Polygon2D" parent="Hill"]
 color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 polygon = PackedVector2Array(-40, 100, 740, 360, 740, 440, -40, 440)
+
+[node name="WallLeft" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="WallLeft"]
+position = Vector2(-16, 180)
+shape = SubResource("RectangleShape2D_wall")
 
 [node name="HeadPath" type="Path2D" parent="."]
 curve = SubResource("Curve2D_hill")
