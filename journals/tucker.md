@@ -322,4 +322,5 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Nothing in the base explains why the head stops mid-slope; the fork's situation is the reason (the cage lands on it). A fork with no "stopper" will look odd — fork-authors' call.
 - On night/transition alone `Game.next_day()` from a directly-run transition goes to day 0 (the −1 lookup fix is on night/base) — fine once merged (night/all).
 - N7 (`thud`/`cage` Sfx calls) still not added — Sfx isn't on this branch.
+- Correction, same task: added an invisible `WallLeft` (StaticBody2D, 16×600 at x=−16) to the base scene — the slope's collision ended at x=−40, so a player who walked left at the start fell into the void and the beat could never end. Days have no walls (the floor is the only guard), but here the body is load-bearing.
 - Follow-up commits: CODEBASE.md §6.2 + TASKS N6 on night/base; `thud` cue wording on night/sfx; all merged into night/all.
