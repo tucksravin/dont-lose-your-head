@@ -414,3 +414,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Did:** opened https://github.com/tucksravin/dont-lose-your-head/pull/17 (base `main`, head `night/all` @ dda5b92; +3032 −228, 68 files). Body lists what's in it, the verify commands, the stand-up decisions, and that it contains PR #16 (so #16 becomes redundant once this merges). Tucker's two uncommitted local edits are not in it. This entry is committed on `night/all` itself (the PR branch).
 **Verified:** `gh pr view 17` → mergeable, state CLEAN (no conflicts with main).
 **Open:** merge order if taking #16 first: fine either way — this PR already has it.
+
+## 2026-08-22 09:48 — PR #17 made mergeable again after #16 squash-merged
+**Driver:** Tucker ("did the readme I'm looking at make it onto main?") · **Agent:** Claude (Fable 5)
+**Asked:** whether the README on night/all is on main (no — main's README is Friday's; it only changes in PR #17)
+**Did:** #16 was squash-merged to main (8a13668), which made #17 CONFLICTING on six files (assets/sprites/README.md, docs/TASKS.md, journals/tucker.md, scenes/days/day_panic.tscn, scenes/head/head.gd, scripts/autoload/game.gd). main's tree == the palette-pass tip (4c6e87a, `git diff --stat` empty), which is an ancestor of night/all, so night/all already contained everything on main: merged origin/main into night/all with ours on all six (98b6c3d). Tucker's two uncommitted local files were not touched.
+**Verified:** `git diff a109880 HEAD` → empty: the merge changed nothing in the tree, so the last ALL GREEN (42/37/18/9/14/28) still holds. `gh pr view 17` after the push — see below.
+**Open:** nothing.
