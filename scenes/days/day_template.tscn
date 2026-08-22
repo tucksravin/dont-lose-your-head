@@ -1,7 +1,8 @@
 [gd_scene format=3 uid="uid://crfpw2h4k5y8b"]
 
-[ext_resource type="PackedScene" path="res://scenes/body/body.tscn" id="1_body"]
+[ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_body"]
 [ext_resource type="PackedScene" uid="uid://bl5agwe6qbg1n" path="res://scenes/gameplay/spatial_goal.tscn" id="2_wb443"]
+[ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="3_sun"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -30,3 +31,5 @@ position = Vector2(100, 320)
 [node name="SpatialGoal" parent="." unique_id=1109840832 instance=ExtResource("2_wb443")]
 position = Vector2(500, 320)
 next_scene = "res://scenes/reunion/reunion.tscn"
+
+[node name="Sun" parent="." unique_id=837465219 instance=ExtResource("3_sun")]
