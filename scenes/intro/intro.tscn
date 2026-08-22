@@ -14,7 +14,7 @@ script = ExtResource("1_intro")
 
 [node name="Background" type="Polygon2D" parent="." unique_id=1896323117]
 z_index = -1
-color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
+color = Color(0.59607846, 0.50980395, 0.46666667, 1)
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
 
 [node name="Camera2D" type="Camera2D" parent="." unique_id=2066016079]
@@ -27,7 +27,7 @@ position = Vector2(0, 320)
 shape = SubResource("WorldBoundaryShape2D_1")
 
 [node name="Visual" type="Polygon2D" parent="Ground" unique_id=1939201382]
-color = Color(0.270588235294118, 0.219607843137255, 0.109803921568627, 1)
+color = Color(0.27058825, 0.21960784, 0.10980392, 1)
 polygon = PackedVector2Array(-5000, 0, 5000, 0, 5000, 50, -5000, 50)
 
 [node name="HeadBlob" type="CharacterBody2D" parent="." unique_id=1717716912]

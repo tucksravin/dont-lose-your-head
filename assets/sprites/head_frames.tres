@@ -4,6 +4,18 @@
 [ext_resource type="Texture2D" uid="uid://ds52tev5jl026" path="res://assets/sprites/head_keyed.png" id="2_keyed"]
 [ext_resource type="Texture2D" uid="uid://b24k6jkspashe" path="res://assets/sprites/head_keyed_glasses.png" id="3_glasses"]
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_g2"]
+atlas = ExtResource("3_glasses")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g1"]
+atlas = ExtResource("3_glasses")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g4"]
+atlas = ExtResource("3_glasses")
+region = Rect2(64, 0, 16, 16)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_c0"]
 atlas = ExtResource("2_keyed")
 region = Rect2(64, 0, 16, 16)
@@ -18,26 +30,6 @@ region = Rect2(96, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_c3"]
 atlas = ExtResource("2_keyed")
-region = Rect2(112, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_wink"]
-atlas = ExtResource("2_keyed")
-region = Rect2(48, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_g1"]
-atlas = ExtResource("3_glasses")
-region = Rect2(16, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_g2"]
-atlas = ExtResource("3_glasses")
-region = Rect2(32, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_g4"]
-atlas = ExtResource("3_glasses")
-region = Rect2(64, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_g7"]
-atlas = ExtResource("3_glasses")
 region = Rect2(112, 0, 16, 16)
 
 [sub_resource type="AtlasTexture" id="AtlasTexture_g8"]
@@ -56,8 +48,40 @@ region = Rect2(160, 0, 16, 16)
 atlas = ExtResource("3_glasses")
 region = Rect2(176, 0, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_wink"]
+atlas = ExtResource("2_keyed")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_g7"]
+atlas = ExtResource("3_glasses")
+region = Rect2(112, 0, 16, 16)
+
 [resource]
 animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g2")
+}],
+"loop": 1,
+"name": &"glasses",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g1")
+}],
+"loop": 1,
+"name": &"glasses_look_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g4")
+}],
+"loop": 1,
+"name": &"glasses_look_right",
+"speed": 5.0
+}, {
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_c0")
@@ -73,6 +97,23 @@ animations = [{
 }],
 "loop": 1,
 "name": &"imprisoned",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g8")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g9")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g10")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_g11")
+}],
+"loop": 1,
+"name": &"imprisoned_glasses",
 "speed": 10.0
 }, {
 "frames": [{
@@ -93,50 +134,9 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_g2")
-}],
-"loop": true,
-"name": &"glasses",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_g1")
-}],
-"loop": true,
-"name": &"glasses_look_left",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_g4")
-}],
-"loop": true,
-"name": &"glasses_look_right",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_g7")
 }],
-"loop": true,
+"loop": 1,
 "name": &"wink_glasses",
 "speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_g8")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_g9")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_g10")
-}, {
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_g11")
-}],
-"loop": true,
-"name": &"imprisoned_glasses",
-"speed": 10.0
 }]
