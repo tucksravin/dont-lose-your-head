@@ -35,7 +35,7 @@ Use it as the test for every idea this weekend: *does this make the player feel 
 | **Intrusive thoughts** | Abstracted as **kiki / bouba** shapes (spiky vs. round). |
 | **Player controls** | The body. **The head is a physics object** (`RigidBody2D`): it rolls down the entry slope, stops against the day's snag, and is released to roll out when both needs are met. |
 | **Perspective** | 2D side-scroller. **Fixed camera per scene** — each day is one framed screen. |
-| **Art** | Locked rule: **no generative art.** **Pixel art at 640×360** (confirmed — the project config stays). Tucker does art direction to start. |
+| **Art** | Locked rule: **no generative art.** **Pixel art at 640×360** (confirmed — the project config stays). Palette: Gooseberry Ghost (8). **Body base: tbbk's CC0 32×32 skeleton** (opengameart.org/content/pixel-art-skeleton — "no credits needed"; credit anyway), recoloured to the palette and beheaded; **head: ours** (16×16). Tucker's own 16×32 body front is dropped. Tucker does art direction. |
 | **Sound** | Tucker & Ben. Different music per day is the intent — "burn that bridge once we have some scenes". |
 | **Stretch (from Friday)** | each day = a *mental* task + a *physical* task · the end scene is a **battle against the intrusive thoughts** |
 
