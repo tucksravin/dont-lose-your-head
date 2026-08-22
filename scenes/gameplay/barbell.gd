@@ -1,8 +1,9 @@
 class_name Barbell
 extends Area2D
-## Floor barbell: stand on it, press `interact` to pick it up. Area2D so it
-## doesn't push. After pickup it follows the body (scripted offset) — not
-## Head.attach, which is for the skull.
+## Floor barbell: **walking into it picks it up** — no key (Tucker, Sat:
+## "when we hit a trigger it just happens"). Area2D so it doesn't push. After
+## pickup it follows the body (scripted offset) — not Head.attach, which is
+## for the skull.
 ##
 ## Docs: https://docs.godotengine.org/en/stable/tutorials/physics/using_area_2d.html
 
@@ -22,18 +23,10 @@ var _pump_tween: Tween
 
 
 func _ready() -> void:
-	set_process(false)
 	set_physics_process(false)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	_set_occupied(false)
-
-
-func _process(_delta: float) -> void:
-	if _held:
-		return
-	if Input.is_action_just_pressed("interact"):
-		_pick_up()
 
 
 func _physics_process(_delta: float) -> void:
@@ -63,10 +56,12 @@ func _pick_up() -> void:
 	if _held or _bodies <= 0:
 		return
 	_held = true
-	set_process(false)
 	if prompt != null:
 		prompt.visible = false
-	monitoring = false
+	# Deferred: _pick_up() runs from inside body_entered, and Godot blocks
+	# changes to an Area2D's monitoring state during its own in/out signal
+	# ("Function blocked during in/out signal" + an engine ERROR otherwise).
+	set_deferred("monitoring", false)
 	var body: Node2D = _find_body()
 	if body != null:
 		_carrier = body
@@ -87,6 +82,7 @@ func _on_body_entered(body: Node2D) -> void:
 	_bodies += 1
 	if _bodies == 1:
 		_set_occupied(true)
+		_pick_up()
 
 
 func _on_body_exited(body: Node2D) -> void:
@@ -98,6 +94,5 @@ func _on_body_exited(body: Node2D) -> void:
 
 
 func _set_occupied(occupied: bool) -> void:
-	set_process(occupied)
 	if prompt != null:
 		prompt.visible = occupied

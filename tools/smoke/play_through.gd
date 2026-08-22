@@ -4,7 +4,7 @@ extends SceneTree
 ## This is the test that asks "is it completable", not "does it load". A tiny
 ## bot presses the real input actions (Input.action_press / action_release —
 ## the same path a keyboard takes, so body.gd is exercised unmodified) and
-## follows a per-scene plan: walk to x, jump, wait, press interact, wait for a
+## follows a per-scene plan: walk to x, jump, wait, tap an action, wait for a
 ## need to be satisfied. Every scene must hand off to the next within its
 ## budget, and no scene may reappear (that would mean a restart/fail fired).
 ##
@@ -15,7 +15,7 @@ extends SceneTree
 ##   {"walk_to": x}             hold left/right until |body.x − x| < 4 (8 s cap)
 ##   {"jump": true}             tap jump for one physics tick
 ##   {"wait": s}                sleep s seconds of game time
-##   {"press": "interact"}      tap an action
+##   {"press": "restart"}       tap an action (no scene needs one today)
 ##   {"satisfied": "body"}      wait until the WinCondition with that key is met
 ##   {"release_all": true}      let go of every held action
 ##   {"run": "move_right"}      hold an action until the scene changes (10 s cap)
@@ -75,8 +75,9 @@ var plans: Dictionary = {
 		{"walk_to": 405.0}, {"jump": true},
 		{"walk_to": 560.0}, {"satisfied": "mind"},
 	],
+	# Nothing to press any more: walking within 64 px of the head dives.
 	"res://scenes/reunion/reunion.tscn": [
-		{"walk_to": 430.0}, {"wait": 0.2}, {"press": "interact"},
+		{"walk_to": 430.0}, {"wait": 0.5},
 	],
 }
 
