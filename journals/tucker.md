@@ -84,3 +84,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Status assessment (3 agents: code-vs-TASKS, PR #6, journals) launched ~19:45 — results pending; will be synthesised into priorities.
 **Verified:** palette PNG 288×32; body PR: `--import` clean, body/intro/day_template/reunion each ran 90 frames headless with no errors; no `.gd` referenced the old `Visual` ColorRect (grep).
 **Open:** PR #8 review/merge; sun.png from Tucker → wire `sun.tscn`; PR #6 resolution gates head + palette pass.
+
+## 2026-08-21 19:59 — Status assessment → priorities
+**Driver:** Tucker · **Agent:** Claude (Fable 5) + 3 read-only assessors (code-vs-TASKS, PR #6, journals/decisions)
+**Asked:** "see where we stand now, what are next prios?"
+**Did:** Assessed origin/main (now 172aa98: PR #6 head logic + PR #7 sprites merged by Sean 19:47–19:52) in a detached read-only worktree and scratch exports; assessors ran Godot headless probes. Findings given in chat. Key: loop intro → day_template ×2 → reunion runs clean; T1/T2(scripted)/T4/T5/T6 done; T3 sun arcs but no fail/restart; T7 HUD missing; C2 Day 1 missing; P1 itch/export not run tonight; two design decisions were made by Sean alone with his agent (18:45 head scripted + slopes cut; 19:15 roll-off = outro, Game/Events architecture) and written to DESIGN §2 on main — docs now self-contradict (tonight's-target wording, task-dependencies, sprites README); PR #1 is now the conflicting one and needs a rebase + wording reconcile once the team ratifies or reverses. Stray dead `next_scene` line in day_template.tscn. Process drift: direct pushes to main, self-merge in 26 min, Ben silent ~1 h.
+**Verified:** assessors' headless runs (import clean; intro/day_template/reunion/sprites_preview 300 frames no errors; both-conditions → release → left_scene → next_day observed).
+**Open:** team to ratify/reverse the 18:45 + 19:15 decisions; then I rebase PR #1 and fix the contradicting lines (task-dependencies D2/T2, TASKS C2, sprites README CircleShape2D note).
