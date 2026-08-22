@@ -1,0 +1,19 @@
+[gd_scene format=3 uid="uid://dywubfw7x2440"]
+
+[ext_resource type="Script" path="res://scenes/gameplay/bounce_kiki.gd" id="1_kiki"]
+[ext_resource type="SpriteFrames" uid="uid://0pa5ul0vm38s" path="res://assets/sprites/kiki_frames.tres" id="2_frames"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_kiki"]
+size = Vector2(20, 20)
+
+[node name="BounceKiki" type="Area2D"]
+script = ExtResource("1_kiki")
+frames = ExtResource("2_frames")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="."]
+shape = SubResource("RectangleShape2D_kiki")
+
+[node name="Visual" type="AnimatedSprite2D" parent="."]
+scale = Vector2(2, 2)
+sprite_frames = ExtResource("2_frames")
+animation = &"big_kiki"

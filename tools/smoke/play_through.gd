@@ -60,20 +60,8 @@ var plans: Dictionary = {
 		# Panic no longer wins on zero. Kikis may still hit the bot.
 		{"walk_to": 520.0}, {"press": "interact"}, {"satisfied": "mind"},
 	],
-	"res://scenes/days/platforming_day.tscn": [
-		# Three one-way steps, 36 px apart (max jump 45.9 px): stand under
-		# each, jump straight up, land on it. Then the high goal drops the
-		# bridge, then walk across to the far goal.
-		{"walk_to": 60.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 118.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 178.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 203.0}, {"satisfied": "body"},
-		{"wait": 0.8},
-		# The head (450,306) is a solid 28×28 box on the path to the far goal —
-		# a running jump from x≈405 clears it (see journal: intended?).
-		{"walk_to": 405.0}, {"jump": true},
-		{"walk_to": 560.0}, {"satisfied": "mind"},
-	],
+	# platforming_day: stomp-bounce isn't in the bot vocabulary — no plan
+	# (suite force-satisfies and warns). Add a plan once we have a hop step.
 	"res://scenes/reunion/reunion.tscn": [
 		{"walk_to": 430.0}, {"wait": 0.2}, {"press": "interact"},
 	],

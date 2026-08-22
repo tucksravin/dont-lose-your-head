@@ -618,3 +618,61 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Split the opening hold from post-move calm. `open_hold` 0.5 still blocks decrement at load. `calm_delay` 0.08 after a walk. `ignore_vertical` so a jump in place (`velocity.y`) does not reset the still timer or add panic — only `velocity.x` counts. Still day unchanged.
 **Verified:** not verified — F6 hop two kikis. Smoke skipped.
 **Open:** Human F6 — should a forward hop while walking still climb.
+
+## 2026-08-22 15:56 — Platforming day: stomp, spikes, drawbridge
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** New platforming layout — head on a centre perch, right-half spike pit, bridge up, button in the pit with a kiki above it, bounce on the kiki to press the button, bridge swings down and the perch tips the head off; mixed platform sizes + one moving rider.
+**Did:**
+- Rewrote `platforming_day.tscn` / `.gd`. Drawbridge hinged at (320,320), starts at −90°. `AnimatableBody2D` rider (x 210–460). `bounce_kiki` stomps vs fail. Button satisfies body+mind; `_before_head_release` swings the bridge then dumps the head onto it.
+- Spike `Area2D` fails. Bot plan removed (can't stomp). DESIGN C2 updated.
+**Verified:** not verified — F6 the ride, stomp, and dump. Smoke skipped.
+**Open:** Human F6 — mover range, bounce height, whether the up-bridge blocks the perch, spike vs button overlap.
+
+## 2026-08-22 15:59 — Drawbridge is visual until it lands
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** The bridge can't block the player.
+**Did:** Bridge `collision_layer`/`mask` 0 while upright (and during the swing). Layer 1 only after it lies down.
+**Verified:** not verified — F6 ride past the upright plank. Smoke skipped.
+**Open:** —
+
+## 2026-08-22 16:00 — Kiki drops onto the button
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Bounce on the kiki drops the kiki onto the button (player does not press it).
+**Did:** `stomped` signal; hover stops; Tween falls onto the button; that satisfies both needs. Player overlap on the button no longer wins.
+**Verified:** not verified — F6 the stomp and watch it slam. Smoke skipped.
+**Open:** Human F6 — drop time / whether the bounce sends you into the spikes.
+
+## 2026-08-22 16:02 — Button is not a safe pad
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Remove the platform beneath the kiki — just a button, no spike protection.
+**Did:** Deleted `ButtonPad` (the StaticBody2D). Button is an `Area2D` + ColorRect on the spike floor at (520, 318). Kiki still Tweens onto it; the body falls through to the spikes.
+**Verified:** not verified — F6 a miss. Smoke skipped.
+**Open:** —
+
+## 2026-08-22 16:04 — Placeholder red button
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Button isn't visible — small red box until official sprite.
+**Did:** Button visual is a 16×16 red ColorRect (`z_index` 2) on the spike floor. Off-palette on purpose until Tucker has a sprite.
+**Verified:** not verified — F6. Smoke skipped.
+**Open:** Swap when the sprite lands.
+
+## 2026-08-22 16:05 — Safe platform right of the kiki
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Add a platform to the right of the kiki to bounce onto after killing it.
+**Did:** `PlatSafe` at (592, 208), 64 px wide, one-way. Hold right off the stomp to land; missing it is still spikes.
+**Verified:** not verified — F6 the hop. Smoke skipped.
+**Open:** Human F6 — x/y if the bounce overshoots the 640 edge.
+
+## 2026-08-22 16:06 — Lockdown math juiced; last one is calc
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Juice up the math; last question really really difficult, like multivariable calculus.
+**Did:** Chain is now 17−9 / 6×7 / derivative of x² at 5 / `∇·(∇×F)` (answer 0). Question label autowraps and shrinks on the long last prompt. The identity is instant if you know it and a brick if you don't — while thoughts fall.
+**Verified:** not verified — F6 the last pad. Smoke skipped.
+**Open:** Human F6 — font size / whether 0 is too "gotcha" vs a longer integral.
+
+## 2026-08-22 16:07 — Last lockdown question is a flux integral
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** (same) last one really really difficult, like multivariable calculus.
+**Did:** Swapped the div-curl identity for a closed-surface flux: `∯ ⟨x³,y³,z³⟩ · dS` on the unit sphere, outward. Correct pad is `12π/5` (divergence theorem; the other two are the volume and the surface area, the usual traps).
+**Verified:** not verified — F6 whether ∯ / π / ⟨⟩ render in the default font.
+**Open:** Human F6 — if glyphs tofu, we ASCII-ify.
