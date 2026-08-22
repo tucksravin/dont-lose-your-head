@@ -4,7 +4,9 @@ This is a 48-hour game-jam project ("Don't Lose Your Head", Godot 4.7.1, theme *
 
 ## 1. Keep the work journal — non-negotiable
 
-After every task (or at a natural stopping point in a long one), append an entry to `claudeWorkJournal.md`. The team reads it back to understand what was done and why. Format:
+After every task (or at a natural stopping point in a long one), append an entry to **`journals/<driver>.md`** — one file per person (e.g. `journals/smahr.md`, `journals/tucker.md`, `journals/ben.md`). One file per person prevents merge conflicts when all three teammates are working in parallel. If the file doesn't exist yet, create it with a one-line header (`# Work Journal — <name>`) and start appending. The team reads these back to understand what was done and why.
+
+Format:
 
 ```
 ## YYYY-MM-DD HH:MM — <short task title>
@@ -16,6 +18,8 @@ After every task (or at a natural stopping point in a long one), append an entry
 ```
 
 Rules: timestamp from the real clock (`date '+%Y-%m-%d %H:%M'`), not a guess; newest entry at the **bottom**; never rewrite old entries (append a correction instead); be honest about what didn't work; link files as paths. If you did nothing but answer a question, a two-line entry is fine.
+
+`claudeWorkJournal.md` is the original shared log — leave it as historical record, don't append to it.
 
 ## 2. The team decides design — you present options
 
