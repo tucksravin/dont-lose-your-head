@@ -13,6 +13,8 @@ const Smoke := preload("res://tools/smoke/smoke_lib.gd")
 
 ## Generous: the slowest exit is the head travelling from x≈450 to x=704 at 180 px/s.
 const EXIT_TIMEOUT: float = 6.0
+## A day's pre-release beat (DayManager awaits `_before_head_release()`).
+const RELEASE_TIMEOUT: float = 3.0
 
 
 func _initialize() -> void:
@@ -61,8 +63,13 @@ func _run() -> void:
 			head.connect("released", func() -> void: released[0] = true)
 		for c in conds:
 			c.call("satisfy")
-		await Smoke.sleep(self, 0.1)
-		Smoke.check(head == null or released[0], "  head.release() was called after the last need")
+		# A day may play a beat before letting the head go — DayManager awaits
+		# `_before_head_release()` (day_panic_still sighs then falls out of the
+		# tree: 1.42 s measured). So poll instead of checking at a fixed 0.1 s.
+		if head != null:
+			await Smoke.wait_until(self, func() -> bool: return released[0], RELEASE_TIMEOUT)
+		Smoke.check(head == null or released[0],
+				"  head.release() was called after the last need (within %.1f s)" % RELEASE_TIMEOUT)
 
 		var next: Node = await Smoke.wait_for_scene(self, sid, EXIT_TIMEOUT)
 		Smoke.check(next != null, "  scene advanced after the head left")

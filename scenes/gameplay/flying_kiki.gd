@@ -15,8 +15,13 @@ var _failed: bool = false
 func _ready() -> void:
 	add_to_group("flying_kiki")
 	body_entered.connect(_on_body_entered)
+	# $Visual is a Kiki (scenes/gameplay/kiki.gd): it loads kiki_frames itself and
+	# scrambles its start frame + 90° rotation in its own _ready(), which runs
+	# BEFORE this one (children are ready first). Touching it here would restart
+	# the animation on frame 0 and undo the scramble, so leave it alone; `frames`
+	# stays as an override hook for anyone who wants different art.
 	var sprite: AnimatedSprite2D = $Visual
-	if frames != null and sprite != null:
+	if sprite != null and not (sprite is Kiki) and frames != null:
 		sprite.sprite_frames = frames
 		if frames.has_animation(&"lil_kiki"):
 			sprite.play(&"lil_kiki")

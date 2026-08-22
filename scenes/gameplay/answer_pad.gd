@@ -1,30 +1,53 @@
 class_name AnswerPad
 extends Area2D
-## A floor pad the body stands on, then confirms with the `interact` action
-## (E / down — same binding as the reunion). Area2D so it doesn't push.
+## A floor answer plate. **You choose it by LANDING on it** — no key press
+## (Tucker, Sat: "remove all uses of the E key, when we hit a trigger it just
+## happens"). Area2D so it never pushes the body around.
 ##
-## Standing on it only lights the pad and shows the prompt. PuzzleChain still
-## owns right/wrong; this node just emits `chosen(value)` on the press.
+## Why landing and not merely touching: the plates sit on the floor the body
+## walks along, and a wrong answer fails the day — with touch-to-choose, the
+## walk from the pedestal to the plate you want crosses the ones you don't
+## (the body starts to the RIGHT of all three), so the day would be lost
+## before the player had done anything. Landing is a deliberate act: walking
+## across a plate is always safe, a hop onto one commits. That is what makes
+## the plates small enough to jump over (32x8) worth doing — you hop the
+## answers you don't want and land on the one you do.
 ##
-## Docs: https://docs.godotengine.org/en/stable/tutorials/inputs/input_examples.html
+## The test is geometric on purpose. The body's `landed` signal (body.gd, the
+## air->floor edge) fires inside the body's own _physics_process, but an
+## Area2D's `body_entered` is delivered at the END of the physics step — so on
+## a hop onto a plate the landing arrives BEFORE this node knows the body is
+## overlapping, and an occupancy-gated check misses it every time (measured:
+## 0 of 4 hops registered). So we ask where the body is instead of whether the
+## overlap has been processed: it landed on us if its centre is within
+## `land_tolerance` of ours. The Area2D still does the highlight.
+##
+## Docs: https://docs.godotengine.org/en/stable/classes/class_area2d.html
 
 signal chosen(value: String)
 
 @export var value: String = ""
 @export var idle_color: Color = Color("645543")
 @export var active_color: Color = Color("25c04b")
+## How far the body's centre may be from the plate's centre and still count as
+## landing on it (px). 16 = the plate's own half-width, so the body has to come
+## down over the plate, not merely clip its edge.
+@export var land_tolerance: float = 16.0
+## Ignore a landing this far above the plate (px) — a landing on something
+## else (a platform overhead) is not an answer.
+@export var land_height: float = 24.0
 
 @onready var label: Label = $Label
 @onready var visual: ColorRect = $Visual
-@onready var prompt: Label = $Prompt
 
 var _bodies: int = 0
 var _enabled: bool = true
+## The body we are listening to, while the pad is live.
+var _body: Node2D = null
 
 
 func _ready() -> void:
 	add_to_group("answer_pad")
-	set_process(false)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	_refresh_label()
@@ -36,17 +59,19 @@ func set_choice(next_value: String) -> void:
 	_refresh_label()
 
 
-## Hide and ignore the pad (setup beat) or show it and accept interact (puzzle).
-## Toggling `monitoring` deferred so we don't change physics mid-query; then
-## recount overlaps because enabling does not re-fire `body_entered` for a
+## Hide and ignore the plate (setup beat) or show it and accept landings
+## (puzzle). Toggling `monitoring` deferred so we don't change physics mid-query;
+## then recount overlaps because enabling does not re-fire `body_entered` for a
 ## body that is already standing here.
 func set_enabled(on: bool) -> void:
 	_enabled = on
 	visible = on
 	set_deferred("monitoring", on)
 	if on:
+		_listen()
 		call_deferred("_sync_occupation")
 	else:
+		_unlisten()
 		_bodies = 0
 		_set_occupied(false)
 
@@ -56,8 +81,29 @@ func _refresh_label() -> void:
 		label.text = value
 
 
-func _process(_delta: float) -> void:
-	if _enabled and Input.is_action_just_pressed("interact"):
+## Start/stop listening to the body's landings. The body adds itself to the
+## "body" group in its _ready (body.gd), so no node path is needed.
+func _listen() -> void:
+	_unlisten()
+	var body: Node2D = get_tree().get_first_node_in_group("body") as Node2D
+	if body != null and body.has_signal("landed"):
+		_body = body
+		body.connect("landed", _on_body_landed)
+
+
+func _unlisten() -> void:
+	if _body != null and is_instance_valid(_body) \
+			and _body.is_connected("landed", _on_body_landed):
+		_body.disconnect("landed", _on_body_landed)
+	_body = null
+
+
+## The body touched down. If it came down on this plate, that is the answer.
+func _on_body_landed() -> void:
+	if not _enabled or _body == null or not is_instance_valid(_body):
+		return
+	var offset: Vector2 = _body.global_position - global_position
+	if absf(offset.x) <= land_tolerance and absf(offset.y) <= land_height:
 		chosen.emit(value)
 
 
@@ -68,6 +114,8 @@ func _sync_occupation() -> void:
 	for body in get_overlapping_bodies():
 		if body is CharacterBody2D:
 			_bodies += 1
+	# No `chosen` here on purpose: this runs when the plates switch ON under a
+	# body that is already standing there, which is not a landing.
 	_set_occupied(_bodies > 0)
 
 
@@ -87,9 +135,7 @@ func _on_body_exited(body: Node2D) -> void:
 		_set_occupied(false)
 
 
+## Just the highlight — the choice is made in _on_body_landed().
 func _set_occupied(occupied: bool) -> void:
-	set_process(_enabled and occupied)
 	if visual != null:
 		visual.color = active_color if occupied else idle_color
-	if prompt != null:
-		prompt.visible = occupied

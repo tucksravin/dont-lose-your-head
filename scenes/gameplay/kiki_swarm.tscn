@@ -1,7 +1,7 @@
 [gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/gameplay/kiki_swarm.gd" id="1_swarm"]
-[ext_resource type="SpriteFrames" uid="uid://22kea81rt18j5" path="res://assets/sprites/kiki_frames.tres" id="2_frames"]
+[ext_resource type="SpriteFrames" uid="uid://0pa5ul0vm38s" path="res://assets/sprites/kiki_frames.tres" id="2_frames"]
 [ext_resource type="Script" path="res://scenes/gameplay/win_condition.gd" id="3_win"]
 
 [node name="KikiSwarm" type="Node2D"]
