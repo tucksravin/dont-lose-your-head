@@ -70,20 +70,17 @@ func _process(delta: float) -> void:
 
 
 func _spawn() -> void:
-	if frames == null:
-		push_warning("KikiSwarm: no SpriteFrames assigned.")
-		return
+	# `frames` is no longer needed to build them (Kiki carries its own), but keep
+	# the export so the scene still documents which sheet these come from.
 	var total: int = lil_count + big_count
 	for i in total:
-		var sprite: AnimatedSprite2D = AnimatedSprite2D.new()
-		sprite.sprite_frames = frames
-		sprite.scale = Vector2(2.0, 2.0)
+		# Kiki.spawn (scenes/gameplay/kiki.gd) builds the sprite, sets the frames
+		# and 2x scale, adds it here and scrambles it — random start frame and a
+		# random 90° rotation — so the ring doesn't animate in lockstep. It is an
+		# AnimatedSprite2D subclass, so _layout()'s position/modulate writes below
+		# (which run after this) still work exactly as before.
 		var is_big: bool = i >= lil_count
-		if is_big and frames.has_animation(&"big_kiki"):
-			sprite.play(&"big_kiki")
-		elif frames.has_animation(&"lil_kiki"):
-			sprite.play(&"lil_kiki")
-		add_child(sprite)
+		var sprite: Kiki = Kiki.spawn(self, &"big_kiki" if is_big else &"lil_kiki")
 		_kikis.append(sprite)
 		_base_angles.append(TAU * float(i) / float(maxi(total, 1)))
 

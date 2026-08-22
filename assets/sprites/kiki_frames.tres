@@ -2,42 +2,6 @@
 
 [ext_resource type="Texture2D" uid="uid://b8dp4hohkwuk1" path="res://assets/sprites/kikis.png" id="1_kikis"]
 
-[sub_resource type="AtlasTexture" id="AtlasTexture_k0"]
-atlas = ExtResource("1_kikis")
-region = Rect2(0, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k1"]
-atlas = ExtResource("1_kikis")
-region = Rect2(16, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k2"]
-atlas = ExtResource("1_kikis")
-region = Rect2(32, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k3"]
-atlas = ExtResource("1_kikis")
-region = Rect2(48, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k4"]
-atlas = ExtResource("1_kikis")
-region = Rect2(64, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k5"]
-atlas = ExtResource("1_kikis")
-region = Rect2(80, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k6"]
-atlas = ExtResource("1_kikis")
-region = Rect2(96, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k7"]
-atlas = ExtResource("1_kikis")
-region = Rect2(112, 0, 16, 16)
-
-[sub_resource type="AtlasTexture" id="AtlasTexture_k8"]
-atlas = ExtResource("1_kikis")
-region = Rect2(128, 0, 16, 16)
-
 [sub_resource type="AtlasTexture" id="AtlasTexture_k9"]
 atlas = ExtResource("1_kikis")
 region = Rect2(144, 0, 16, 16)
@@ -86,97 +50,114 @@ region = Rect2(304, 0, 16, 16)
 atlas = ExtResource("1_kikis")
 region = Rect2(320, 0, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_k0"]
+atlas = ExtResource("1_kikis")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k1"]
+atlas = ExtResource("1_kikis")
+region = Rect2(16, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k2"]
+atlas = ExtResource("1_kikis")
+region = Rect2(32, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k3"]
+atlas = ExtResource("1_kikis")
+region = Rect2(48, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k4"]
+atlas = ExtResource("1_kikis")
+region = Rect2(64, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k5"]
+atlas = ExtResource("1_kikis")
+region = Rect2(80, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k6"]
+atlas = ExtResource("1_kikis")
+region = Rect2(96, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k7"]
+atlas = ExtResource("1_kikis")
+region = Rect2(112, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_k8"]
+atlas = ExtResource("1_kikis")
+region = Rect2(128, 0, 16, 16)
+
 [resource]
 animations = [{
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k0")
-},
-{
+"texture": SubResource("AtlasTexture_k9")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k1")
-},
-{
+"texture": SubResource("AtlasTexture_k10")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k2")
-},
-{
+"texture": SubResource("AtlasTexture_k11")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k3")
-},
-{
+"texture": SubResource("AtlasTexture_k12")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k4")
-},
-{
+"texture": SubResource("AtlasTexture_k13")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k5")
-},
-{
+"texture": SubResource("AtlasTexture_k14")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k6")
-},
-{
+"texture": SubResource("AtlasTexture_k15")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k7")
-},
-{
+"texture": SubResource("AtlasTexture_k16")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k8")
+"texture": SubResource("AtlasTexture_k17")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k18")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k19")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_k20")
 }],
-"loop": true,
-"name": &"lil_kiki",
+"loop": 1,
+"name": &"big_kiki",
 "speed": 10.0
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k9")
-},
-{
+"texture": SubResource("AtlasTexture_k0")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k10")
-},
-{
+"texture": SubResource("AtlasTexture_k1")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k11")
-},
-{
+"texture": SubResource("AtlasTexture_k2")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k12")
-},
-{
+"texture": SubResource("AtlasTexture_k3")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k13")
-},
-{
+"texture": SubResource("AtlasTexture_k4")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k14")
-},
-{
+"texture": SubResource("AtlasTexture_k5")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k15")
-},
-{
+"texture": SubResource("AtlasTexture_k6")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k16")
-},
-{
+"texture": SubResource("AtlasTexture_k7")
+}, {
 "duration": 1.0,
-"texture": SubResource("AtlasTexture_k17")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_k18")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_k19")
-},
-{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_k20")
+"texture": SubResource("AtlasTexture_k8")
 }],
-"loop": true,
-"name": &"big_kiki",
+"loop": 1,
+"name": &"lil_kiki",
 "speed": 10.0
 }]

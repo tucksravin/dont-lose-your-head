@@ -1,8 +1,10 @@
 extends Node2D
 ## Panic day (rework, thoughts.md): the head hangs in a cage in the air.
 ## Moving winds panic up (PanicCounter fails the day at max). Kikis fly
-## toward the button — jump them; a hit is `DayManager.fail("kiki")`. Stand
-## on the floor button and press `interact` to open the cage.
+## toward the button — jump them; a hit is `DayManager.fail("kiki")`. **Getting
+## to the floor button opens the cage** — no key (Tucker, Sat: "remove all uses
+## of the E key, when we hit a trigger it just happens"); the challenge is the
+## kikis between you and it, not the press.
 ##
 ## Body need + mind need both live on the button: one action, two needs,
 ## same as Velma's glasses. PanicCounter is fail-only here (`win_on_zero`
@@ -21,7 +23,7 @@ extends Node2D
 @export var kiki_spawn_offset: Vector2 = Vector2(-40.0, -16.0)
 @export var drop_time: float = 0.35
 @export var floor_y: float = 306.0
-@export var instruction_text: String = "E at the button frees the cage. Moving winds panic. Jump the thoughts."
+@export var instruction_text: String = "Reach the button to free the cage. Moving winds panic. Jump the thoughts."
 
 @onready var body: CharacterBody2D = $Body
 @onready var head: Head = $Head
@@ -63,20 +65,17 @@ func _on_kiki_start() -> void:
 	_kiki_timer.start()
 
 
-func _process(_delta: float) -> void:
-	if _done:
-		return
-	if _on_button and Input.is_action_just_pressed("interact"):
-		_open_cage()
-
-
+## Reaching the button IS the release. `kiki_safe` still goes on while the
+## body is over it (the cage drop and the win beat both take a moment, and a
+## kiki landing in that window shouldn't fail a day you have already won).
 func _on_button_entered(other: Node2D) -> void:
 	if other is CharacterBody2D:
 		_on_button = true
 		other.add_to_group("kiki_safe")
 		var prompt: Label = release.get_node_or_null("Prompt") as Label
 		if prompt != null:
-			prompt.visible = true
+			prompt.visible = false
+		_open_cage()
 
 
 func _on_button_exited(other: Node2D) -> void:
@@ -117,6 +116,7 @@ func _before_head_release() -> void:
 	if not _opened:
 		return
 	head.caged = false
+	head.play_calm()
 	if head.has_method("refresh_face"):
 		head.refresh_face()
 	if chain != null:

@@ -1,25 +1,26 @@
 extends Node2D
 ## Lockdown's WarioWare setup beat, then the dodge-and-answer puzzle.
 ##
-## Sequence (smahr, Sat 10:56): head waits alone in the middle → interact
-## picks it up, a bar blocks the right exit, a pedestal opens → interact with
-## the pedestal seats the head → pads and thought-rain start.
+## Sequence (smahr, Sat 10:56; keys removed Tucker, Sat): head waits alone in
+## the middle → **walking up to it** picks it up, a bar blocks the right exit,
+## a pedestal opens → **standing on the pedestal** seats the head → pads and
+## thought-rain start. Nothing here is pressed; reaching the thing does it.
 ##
 ## Lives on the day root rather than a DayManager subclass because none of this
 ## is a win-condition hook — it happens *before* the needs. DayManager still
 ## owns fail / release / next_day. Carry is `head.attach(body)` / `detach()` —
 ## the day decides when, Head owns the follow (same pattern as `release()`).
-## Same `interact` action as the reunion and the pads.
 
 enum Phase { FIND_HEAD, PLACE_HEAD, PUZZLE }
 
+## How close the body must get to the head before it picks it up.
 @export var interact_distance: float = 56.0
 @export var carry_offset: Vector2 = Vector2(12.0, -40.0)
 @export var pedestal_open_time: float = 0.25
 @export var tip_time: float = 0.5
-@export var find_text: String = "Walk to the head and press E."
-@export var place_text: String = "The way out is blocked. Set the head on the pedestal (E)."
-@export var puzzle_text: String = "Dodge the thoughts. Stand on an answer and press E."
+@export var find_text: String = "Go get your head."
+@export var place_text: String = "The way out is blocked. Put the head on the pedestal."
+@export var puzzle_text: String = "Dodge the thoughts. Land on the right answer."
 
 @onready var body: CharacterBody2D = $Body
 @onready var head: Head = $Head
@@ -56,27 +57,25 @@ func _ready() -> void:
 func _physics_process(_delta: float) -> void:
 	match _phase:
 		Phase.FIND_HEAD:
-			_poll_head_interact()
+			_poll_head_reach()
 		Phase.PLACE_HEAD:
-			_poll_pedestal_interact()
+			_poll_pedestal_reach()
 		Phase.PUZZLE:
 			interact_prompt.visible = false
 
 
-func _poll_head_interact() -> void:
-	var in_range: bool = body.global_position.distance_to(head.global_position) < interact_distance
-	interact_prompt.visible = in_range
-	if in_range:
-		interact_prompt.global_position = head.global_position + Vector2(-8.0, -36.0)
-	if in_range and Input.is_action_just_pressed("interact"):
+## Reaching the head picks it up. No prompt any more — there is nothing to
+## press, so `InteractPrompt` stays hidden (the node is left in the scene).
+func _poll_head_reach() -> void:
+	interact_prompt.visible = false
+	if body.global_position.distance_to(head.global_position) < interact_distance:
 		_pick_up_head()
 
 
-func _poll_pedestal_interact() -> void:
-	interact_prompt.visible = _on_pedestal and _pedestal_open
-	if interact_prompt.visible:
-		interact_prompt.global_position = pedestal.global_position + Vector2(-8.0, -72.0)
-	if _on_pedestal and _pedestal_open and Input.is_action_just_pressed("interact"):
+## Standing on the open pedestal seats the head.
+func _poll_pedestal_reach() -> void:
+	interact_prompt.visible = false
+	if _on_pedestal and _pedestal_open:
 		_place_head()
 
 

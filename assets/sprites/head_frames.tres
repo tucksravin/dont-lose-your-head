@@ -126,14 +126,6 @@ animations = [{
 }, {
 "frames": [{
 "duration": 1.0,
-"texture": ExtResource("1_front")
-}],
-"loop": 1,
-"name": &"loose",
-"speed": 5.0
-}, {
-"frames": [{
-"duration": 1.0,
 "texture": SubResource("AtlasTexture_look_l")
 }],
 "loop": 1,
@@ -146,6 +138,14 @@ animations = [{
 }],
 "loop": 1,
 "name": &"look_right",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": ExtResource("1_front")
+}],
+"loop": 1,
+"name": &"loose",
 "speed": 5.0
 }, {
 "frames": [{

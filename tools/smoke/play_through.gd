@@ -4,7 +4,7 @@ extends SceneTree
 ## This is the test that asks "is it completable", not "does it load". A tiny
 ## bot presses the real input actions (Input.action_press / action_release —
 ## the same path a keyboard takes, so body.gd is exercised unmodified) and
-## follows a per-scene plan: walk to x, jump, wait, press interact, wait for a
+## follows a per-scene plan: walk to x, jump, wait, tap an action, wait for a
 ## need to be satisfied. Every scene must hand off to the next within its
 ## budget, and no scene may reappear (that would mean a restart/fail fired).
 ##
@@ -15,7 +15,7 @@ extends SceneTree
 ##   {"walk_to": x}             hold left/right until |body.x − x| < 4 (8 s cap)
 ##   {"jump": true}             tap jump for one physics tick
 ##   {"wait": s}                sleep s seconds of game time
-##   {"press": "interact"}      tap an action
+##   {"press": "restart"}       tap an action (no scene needs one today)
 ##   {"satisfied": "body"}      wait until the WinCondition with that key is met
 ##   {"release_all": true}      let go of every held action
 ##   {"run": "move_right"}      hold an action until the scene changes (10 s cap)
@@ -56,14 +56,28 @@ var plans: Dictionary = {
 		{"satisfied": "mind"},
 	],
 	"res://scenes/days/day_panic.tscn": [
-		# Run to the floor button under the hanging cage (520,320) and E.
-		# Panic no longer wins on zero. Kikis may still hit the bot.
-		{"walk_to": 520.0}, {"press": "interact"}, {"satisfied": "mind"},
+		# Run to the floor button under the hanging cage (520,320) — reaching
+		# it frees the cage, no key. Panic no longer wins on zero. Kikis may
+		# still hit the bot.
+		{"walk_to": 520.0}, {"wait": 0.3}, {"satisfied": "mind"},
 	],
-	# platforming_day: stomp-bounce isn't in the bot vocabulary — no plan
-	# (suite force-satisfies and warns). Add a plan once we have a hop step.
+	"res://scenes/days/platforming_day.tscn": [
+		# Three one-way steps, 36 px apart (max jump 45.9 px): stand under
+		# each, jump straight up, land on it. Then the high goal drops the
+		# bridge, then walk across to the far goal.
+		{"walk_to": 60.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 118.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 178.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 203.0}, {"satisfied": "body"},
+		{"wait": 0.8},
+		# The head (450,306) is a solid 28×28 box on the path to the far goal —
+		# a running jump from x≈405 clears it (see journal: intended?).
+		{"walk_to": 405.0}, {"jump": true},
+		{"walk_to": 560.0}, {"satisfied": "mind"},
+	],
+	# Nothing to press any more: walking within 64 px of the head dives.
 	"res://scenes/reunion/reunion.tscn": [
-		{"walk_to": 430.0}, {"wait": 0.2}, {"press": "interact"},
+		{"walk_to": 430.0}, {"wait": 0.5},
 	],
 }
 

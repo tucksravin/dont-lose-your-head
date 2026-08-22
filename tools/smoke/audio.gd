@@ -3,8 +3,11 @@ extends SceneTree
 ## stem, every declared cue either has a file or is reported missing (warn, not
 ## fail — silence is the designed state until Tucker/Ben record), an unknown
 ## cue is a warning not a crash, and the cues actually FIRE at the right
-## moments: a scripted jump produces jump + land, satisfying a need produces
-## need_met, winning produces day_won + head_roll, sunset produces day_failed.
+## moments: satisfying a need produces need_met, winning produces day_won +
+## head_roll, sunset produces day_failed. Jump, landing, and footsteps are NOT
+## part of this — they're local to Body (scenes/body/body.gd), not Sfx.CUES;
+## a scripted jump/land here checks Body's own JumpSound/LandSound nodes
+## directly instead (not through Sfx).
 
 const Smoke := preload("res://tools/smoke/smoke_lib.gd")
 
@@ -53,14 +56,23 @@ func _run() -> void:
 	await Smoke.sleep(self, 0.3)
 	Smoke.check(str(music.get("current_track")) == "day", "music picked the generic 'day' track for a day (got '%s')" % music.get("current_track"))
 
-	_fired.clear()
+	var body: Node = Smoke.first_of(scene, "CharacterBody2D")
+	var jump_sound: AudioStreamPlayer = (
+		body.get_node_or_null("JumpSound") if body != null else null
+	)
+	var land_sound: AudioStreamPlayer = (
+		body.get_node_or_null("LandSound") if body != null else null
+	)
+
 	Input.action_press("jump")
 	await physics_frame
 	await physics_frame
+	Smoke.check(jump_sound != null and jump_sound.playing,
+			"jump plays Body's own JumpSound (local, not Sfx)")
 	Input.action_release("jump")
 	await Smoke.sleep(self, 1.0)  # hang time is 0.61 s
-	Smoke.check(_fired.has(&"jump"), "jump fired 'jump'")
-	Smoke.check(_fired.has(&"land"), "landing fired 'land'")
+	Smoke.check(land_sound != null and land_sound.playing,
+			"landing plays Body's own LandSound (local, not Sfx)")
 
 	_fired.clear()
 	var conds: Array[Node] = Smoke.win_conditions(scene)
@@ -72,7 +84,10 @@ func _run() -> void:
 		c.call("satisfy")
 	await Smoke.sleep(self, 0.1)
 	Smoke.check(_fired.has(&"day_won"), "all needs → 'day_won'")
-	Smoke.check(_fired.has(&"head_roll"), "release → 'head_roll'")
+	# head_roll rides Head.released, which DayManager fires only after the day's
+	# `_before_head_release()` beat (day_panic_still takes 1.42 s), so wait for it.
+	await Smoke.wait_until(self, func() -> bool: return _fired.has(&"head_roll"), 3.0)
+	Smoke.check(_fired.has(&"head_roll"), "release → 'head_roll' (within 3 s)")
 
 	# Sunset on a fresh day → day_failed.
 	var next: Node = await Smoke.wait_for_scene(self, scene.get_instance_id(), 6.0)
