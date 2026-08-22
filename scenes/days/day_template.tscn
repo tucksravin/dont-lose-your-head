@@ -49,3 +49,14 @@ position = Vector2(200, 320)
 key = "mind"
 
 [node name="Sun" parent="." unique_id=837465219 instance=ExtResource("3_sun")]
+
+[node name="Instruction" type="Label" parent="."]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 628.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "Template day: touch both boxes."
