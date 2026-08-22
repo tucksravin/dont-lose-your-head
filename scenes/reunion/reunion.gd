@@ -92,6 +92,7 @@ func _begin_merge() -> void:
 			landing.y - dive_apex)
 
 	var tw: Tween = create_tween()
+	Sfx.play(&"dive")
 	# Step 1: up and over — the turn happens on the way up, in parallel with the
 	# rise so both finish together and step 2 starts clean.
 	tw.tween_property(body_blob, "global_position", apex, dive_rise)\
@@ -101,6 +102,7 @@ func _begin_merge() -> void:
 	# Step 2: the dive down onto the head — EASE_IN so it accelerates.
 	tw.tween_property(body_blob, "global_position", landing, dive_fall)\
 		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	tw.tween_callback(Sfx.play.bind(&"reunite"))
 	# Step 3: fade screen to black.
 	tw.tween_property(fade, "modulate:a", 1.0, fade_duration)
 	# Step 4: load the next scene once the fade completes.

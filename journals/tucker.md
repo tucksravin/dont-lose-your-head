@@ -314,3 +314,20 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Open:**
 - `Dev` is an autoload → one line in `project.godot`. If the team would rather not have it there, it can be a node in `day_template` instead (then it only exists in days).
 - HOWTO §3 describes both flow systems without picking — that's D-something for the stand-up.
+## 2026-08-21 23:26 — Overnight run, part 4: SFX + music scaffold, and the list of sounds to make
+**Driver:** Tucker · **Agent:** Claude Opus 5 (claude-opus-5[1m])
+**Asked:** "build out the sfx and music triggers that we have / might need going forward, give us a list of sounds to find make record, ben and i are musicians". Branch `night/sfx` off `night/base`.
+**Did:**
+- `scripts/autoload/sfx.gd` (`Sfx`) — cues by name: `Sfx.play(&"jump")`. **16 cues declared in `Sfx.CUES`** with what each is for; a cue plays `assets/audio/sfx/<cue>.wav|ogg` if the file exists and is **silent otherwise** — so the game is fully wired with zero audio files, and dropping a file in is the whole job. Boot prints the missing list (that *is* the to-record list). Pool of 6 `AudioStreamPlayer`s on an `SFX` bus. Nobody calls `play()` by hand for the common moments: Sfx listens to the Events bus and hooks nodes **by their signals as they enter the tree** (`SceneTree.node_added`): body `jumped`/`landed`, head `released`, Sun (arms a one-shot `sunset_warning` 5 s before sunset), PanicCounter (`panic_tick` per unit with pitch rising with panic; `calm`), and Sean's DayManager/WinConditionManager (`need_met`/`day_won`/`day_failed` without the bus). One-offs call it directly (reunion `dive`/`reunite`, game-over `ui_confirm`).
+- `scripts/autoload/music.gd` (`Music`) — per-scene track with 0.8 s crossfade. Resolution: `@export var music_track` on the scene root → `TRACKS` map by path → generic `day` for anything under `scenes/days/` → silence. Ogg loop switched on at runtime so nobody needs the Import-dock checkbox. Same silent-until-a-file-exists contract.
+- `default_bus_layout.tres` — Master → Music, SFX (Godot's default path, so no project.godot setting). Two autoload lines added to `project.godot`.
+- `scenes/body/body.gd` (Ben's): `signal jumped` / `signal landed` (air→floor edge after `move_and_slide()`, also in scripted mode). No audio knowledge in the body — anim polish will use the same signals. `reunion.gd`: `dive` at take-off, `reunite` on landing. `game_over.gd`: `ui_confirm` on Retry.
+- `assets/audio/README.md` — **the list for Tucker & Ben**: 16 SFX rows (cue = file name · when it fires · suggestion · ~length) + 5 music tracks, format notes (WAV mono 44.1k 16-bit for one-shots; OGG loops; clean loop points; web can't start audio before first input; keep total small), and three worth-recording-anyway cues that aren't wired (`pop` for the intro beat, `intrusive`, `roll_loop`).
+- `tools/smoke/audio.gd` (6th suite): cue names are legal file stems, buses exist, unknown cue = warning not crash, missing files = warn, and the cues **fire at the right moments** — scripted jump → `jump`+`land`, one need → exactly one `need_met` and no `day_won`, all needs → `day_won`+`head_roll`, sunset → `day_failed`, a day picks the `day` track.
+- Fixed along the way: Music created a crossfade Tween with no tweeners when fading silence into silence → engine ERROR; now guarded.
+**Verified:** `tools/smoke_test.sh` ALL GREEN (35/31/13/9/12/28). No audio files exist yet, by design — "16/16 cues have no file yet" is the expected warn.
+**Open:**
+- Transition cues (`cage`, `thud`) are declared but the transition lives on `night/transition` — wire two `Sfx.play()` calls there once both branches are in.
+- `bridge_drop` is declared; the call belongs in Sean's `platforming_day.gd` `_drop_bridge()` — left for him (one line).
+- `step` (footsteps) is declared but nothing fires it yet — needs a frame-change hook on the walk animation; trivial once someone wants it.
+- Music volume −6 dB default, SFX 0 dB — mix on the buses once there are files.
