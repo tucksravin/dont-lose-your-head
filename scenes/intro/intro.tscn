@@ -15,7 +15,7 @@ script = ExtResource("1_intro")
 [node name="Background" type="Polygon2D" parent="."]
 z_index = -1
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
-color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(320, 180)
