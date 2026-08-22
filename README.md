@@ -49,6 +49,10 @@ Everything is a **Node**; a **Scene** (`.tscn`, a text file) is a saved node tre
 
 Edit in **Project → Project Settings → Input Map**.
 
+**Dev keys (debug builds only — editor and headless, never the web export):** F1 satisfy body need · F2 mind need · F3 all · F4 fail the day · F5 restart · F6/F7 previous/next scene in the run · F8 reunion · F9 debug overlay (needs, sun %, panic, body position) · F10 slow motion. They live in `scripts/autoload/dev.gd` (`Dev` autoload) and register themselves as `debug_*` actions at runtime, so the input map above stays gameplay-only.
+
+**Making a day:** [docs/days/HOWTO.md](docs/days/HOWTO.md) — the 5 steps and the numbers to design against (jump height, reach, floor line, palette).
+
 ## Folder layout
 
 ```

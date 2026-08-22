@@ -301,3 +301,16 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Scripted vs playable is my call — say the word and the body becomes player-driven like the intro.
 - Only the cage fork exists; a fork into the platforming day (head on the far ledge) would be the natural second one — the recipe is in `transition.gd`'s header.
 - No sound hooks yet (the SFX branch adds cue names: roll loop, thud, cage clang).
+## 2026-08-21 23:22 — Overnight run, part 3: day-authoring kit (HOWTO + chassis numbers, dev keys, debug overlay)
+**Driver:** Tucker · **Agent:** Claude Opus 5 (claude-opus-5[1m])
+**Asked:** my own addition to the overnight list, agreed in the brainstorm: "a day-authoring kit — the biggest creativity unlock — a how-to-make-a-day page, the self-checking template, and dev keys". Branch `night/daykit` off `night/base`.
+**Did:**
+- `docs/days/HOWTO.md` — T8's missing "how to make a new day" note (5 steps), the **chassis card** (screen, floor line y=320, body speed/jump/rise 45.9 px/reach 92 px, head box + states, goal size, sun 30 s, palette hexes, sprites, fail path, transitions pointer), the two flow systems side by side with "pick one, don't mix" and the ordering rule, and a pre-push checklist.
+- `scripts/autoload/dev.gd` (`Dev` autoload, one line added to `project.godot [autoload]`) — **dev keys, debug builds only** (`OS.is_debug_build()` — editor + headless yes, web export no): F1/F2/F3 satisfy body/mind/all, F4 fail the day the way its own system would (DayManager.fail → card; else Events.day_failed → restart), F5 restart (unpauses a game-over card first), F6/F7 prev/next in `DAY_SCENES` (works even when a scene was opened straight from the editor — it looks up where it sits), F8 reunion, F9 overlay (scene, day i/n, each need ✓/✗, sun %, panic, body pos/vel/floor, fps, time scale), F10 slow motion ×0.25 (`Engine.time_scale`). The actions are registered at runtime with `InputMap.add_action` so the project's input map stays gameplay-only — explained in the file and README.
+- `day_template.tscn`: added an `Instruction` Label (same style as day_panic's) so a copied day has the one line of text DESIGN allows. Smallest diff — appended node, nothing reordered.
+- `play_through.gd`: a **day with no bot plan is now force-satisfied with a loud warn instead of failing** — so a WIP day tomorrow doesn't turn the suite red, but it isn't "proven completable" until someone adds a 3-line plan. Transitions/intro still just wait.
+- README: dev-keys paragraph + HOWTO pointer under the input map.
+**Verified:** headless probe injected every `debug_*` action: F1 → `body=true, mind=false`; F9 → overlay visible with the expected text; F10 → `time_scale 0.25`; F7 → day_panic; F5 → reloaded (new instance); F6 → day_template; F4 → restarted; F8 → reunion. `tools/smoke_test.sh` ALL GREEN (34/31/13/9/12).
+**Open:**
+- `Dev` is an autoload → one line in `project.godot`. If the team would rather not have it there, it can be a node in `day_template` instead (then it only exists in days).
+- HOWTO §3 describes both flow systems without picking — that's D-something for the stand-up.
