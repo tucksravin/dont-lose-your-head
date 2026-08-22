@@ -283,3 +283,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - `restart` (R) and `pause` (Esc) are bound but nothing listens (D11).
 - `day_01.tscn` still references a missing `day_01.gd` — in `known_broken.txt`, Sean's call to delete or restore.
 - `scenes/reunion/preview/sprites_preview.tscn` exists — a preview scene; fine, but it's in the export.
+
+## 2026-08-21 23:36 — Overnight run, part 6: integration branch, web build booted in Chrome, morning report
+**Driver:** Tucker · **Agent:** Claude Opus 5 (claude-opus-5[1m])
+**Asked:** close out the overnight run: prove the branches merge, a known-good web build, one report to read at 09:00.
+**Did:** `night/all` = base + transition + daykit + sfx + anim merged (conflicts: `journals/tucker.md` on every merge — kept both sides, chronological; `project.godot` `[autoload]` block between daykit and sfx — kept all five lines). `tools/export_web.sh` from `night/all` → `build/web.zip` (10 MB). Served locally and **opened in Chrome**: engine boots (WebGL2, single-threaded), canvas up, console clean; our `Sfx: 16/16 cues have no file yet` line prints; no `Dev keys` line → the Dev autoload is correctly inert in the release build. Wrote `docs/overnight-2026-08-22.md` — branch table + merge order, 10-minute review recipe, findings fixed vs. yours, a 13-item stand-up agenda, limits.
+**Verified:** `tools/smoke_test.sh` on `night/all` → ALL GREEN (42/37/15/9/13/28) after the Sfx freed-capture fix; web boot as above (screenshot in the session scratchpad).
+**Open:** everything in the report's §4. The local http server (port 8123) was for the check only.
