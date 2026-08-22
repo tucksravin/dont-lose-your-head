@@ -135,8 +135,12 @@ func _on_node_added(node: Node) -> void:
 func _arm_sunset_warning(sun: Node) -> void:
 	var lead: float = maxf(float(sun.get("day_length")) - sunset_warning_lead, 0.0)
 	var timer: SceneTreeTimer = get_tree().create_timer(lead)
+	# Capture the id, not the node: a day that ends early frees its Sun before
+	# this fires, and a lambda holding a freed Node is an engine error on call.
+	var sun_id: int = sun.get_instance_id()
 	timer.timeout.connect(func() -> void:
-		if is_instance_valid(sun) and sun.is_inside_tree():
+		var live: Object = instance_from_id(sun_id)
+		if live is Node and (live as Node).is_inside_tree():
 			play(&"sunset_warning"))
 
 
