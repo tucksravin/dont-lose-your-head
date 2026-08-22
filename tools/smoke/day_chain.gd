@@ -71,4 +71,27 @@ func _run() -> void:
 
 	var at_reunion: bool = current_scene != null and current_scene.scene_file_path == reunion
 	Smoke.check(at_reunion, "ended at the reunion: %s" % reunion.get_file())
+
+	# A transition waits for the player (open-ended) — so it must survive being
+	# torn down mid-wait (F5 restart, F6/F7 skip, a restart) without spraying
+	# errors: a coroutine that awaits get_tree().process_frame on a node that
+	# was just removed from the tree does exactly that. The runner greps the
+	# engine output for ERROR, so this check only has to provoke it.
+	print("-- interrupt a transition mid-wait")
+	for path in days:
+		if not str(path).begins_with("res://scenes/transition/"):
+			continue
+		sid = Smoke.scene_id(self)
+		change_scene_to_file(str(path))
+		var t: Node = await Smoke.wait_for_scene(self, sid, 3.0, str(path))
+		Smoke.check(t != null, "  %s loaded" % str(path).get_file())
+		if t == null:
+			continue
+		# Twice: at 2.6 s it is in the timed wait for the body (arrival_wait),
+		# at 5.5 s after the reload it is in the open-ended one (situation done).
+		for at in [2.6, 5.5]:
+			await Smoke.sleep(self, float(at))
+			reload_current_scene()
+			await Smoke.sleep(self, 0.5)
+			Smoke.ok("  %s reloaded at %.1f s mid-wait (any error is in the engine log)" % [str(path).get_file(), float(at)])
 	Smoke.finish(self, "day_chain")
