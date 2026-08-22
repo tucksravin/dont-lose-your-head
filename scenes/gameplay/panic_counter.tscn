@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dw8hb3tpyauj6"]
+
+[ext_resource type="Script" uid="uid://cm2u20ef2crkr" path="res://scenes/gameplay/panic_counter.gd" id="1_panic_counter_script"]
+
+[node name="PanicCounter" type="Node" unique_id=142159389]
+script = ExtResource("1_panic_counter_script")

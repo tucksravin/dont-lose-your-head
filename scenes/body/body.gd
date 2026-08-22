@@ -27,6 +27,12 @@ func _process(_delta: float) -> void:
 		_sprite.play(&"idle")
 
 
+func _ready() -> void:
+	# Same idiom head.gd uses: a script that wants "the" body (e.g.
+	# PanicCounter) shouldn't need a hard node path to find it.
+	add_to_group("body")
+
+
 func _physics_process(delta: float) -> void:
 	if is_scripted:
 		return
