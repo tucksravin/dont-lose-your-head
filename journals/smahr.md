@@ -562,3 +562,59 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - `transition_glasses._run` updated to the new base (`progress` + `_spin`); it still never parks.
 **Verified:** conflict markers gone. Smoke skipped.
 **Open:** F6 intro (chase + glasses + sun) and both transitions.
+
+## 2026-08-22 15:25 — Still-panic cliff outro → cage transition
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** First panic: head on the screen-edge cliff; after panic 0 it sighs and falls backward; that leads into the cage transition.
+**Did:**
+- Playlist is now still → cage transition → hanging panic (`scripts/autoload/game.gd`).
+- `day_panic_still.tscn`: floor ends at x=636, visual slope drops away, head at (622,306). Pit fails if the body walks off (`Area2D`, same idea as platforming_day).
+- `day_panic_still.gd` `_before_head_release`: uncage, look at the body, wink + squash sigh, Tween tip clockwise to (720, 460).
+- `KikiCloud` still follows the meter on both panic days.
+**Verified:** not verified — F6 still-panic (stand still, watch the tip) then the cage drop. Smoke skipped.
+**Open:** Human F6 — lip x / sigh timing / fall_end. Does the recage in the transition read after they just escaped?
+
+## 2026-08-22 15:30 — Still-panic head in a tree
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** In panic still, put the head in a tree instead.
+**Did:** Palette placeholder tree (`ColorRect` trunk + `Polygon2D` canopy, Gooseberry browns/greens — no tree sprite in `assets/sprites/`) on the existing cliff. Head moved to (600, 168) in the canopy, a front leaf clump overlaps it (`z_index`). Outro unchanged: sigh, then Tween off the drop. Tucker can swap a sprite later.
+**Verified:** not verified — F6 the nest and the fall. Smoke skipped.
+**Open:** Ask Tucker for a tree sprite if this day stays.
+
+## 2026-08-22 15:25 — Still-panic cliff + sigh into cage transition
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** First panic: head on the screen-edge cliff; after panic 0 it sighs and falls backward; that leads into the cage transition.
+**Did:**
+- Playlist is now still → `transition_cage` → hanging panic. Floor is a `CollisionPolygon2D` cliff (lip x=614); head at (600,306).
+- `_before_head_release` uncages, faces the body, squash-sigh Tween, then tips clockwise off the drop. Pit fails if the body walks off.
+- `KikiCloud` already on both panic days from the prior ask.
+**Verified:** not verified — F6 `day_panic_still` then watch it hand off to the cage beat.
+**Open:** Human F6 — cliff lip, sigh size, fall arc. Smoke skipped.
+
+## 2026-08-22 15:33 — Cage panic climbs faster
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Panic should increment faster in the cage panic scene.
+**Did:** `day_panic.tscn` `panic_per_second` 5 → 12 (still-day untouched). A full sprint from spawn to the button is ~2.8 s; at 12/s that overshoots max from the start value, so you have to stop on the way.
+**Verified:** not verified — F6 and run. Smoke skipped.
+**Open:** Human F6 — 12 may still be soft or too mean near the head (3× proximity).
+
+## 2026-08-22 15:34 — Cage panic calms faster between kikis
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Decrement more quickly when standing still — should count down a bit while waiting to jump the next flying kiki.
+**Did:** Cage day only: `calm_delay` 0.5 → 0.12, `calm_per_second` 3 → 8, `calm_max` 10 → 16, `calm_ramp_time` 2 → 0.5. A ~0.7 s pause between kikis now drops several points. Still day untouched. Jumping still counts as moving (velocity).
+**Verified:** not verified — F6 and wait between kikis. Smoke skipped.
+**Open:** Human F6 — if jumps wipe the wait-gain, we may need to ignore vertical velocity.
+
+## 2026-08-22 15:35 — Cage panic opens at 30
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** As the scene loads put panic at 30, and wait half a second before it starts to decrement.
+**Did:** Cage day `start_panic` 15 → 30, `calm_delay` 0.12 → 0.5. Fast calm rate after that hold is unchanged.
+**Verified:** not verified — F6 the open. Smoke skipped.
+**Open:** Opens 10 below fail — a short run can still dump you.
+
+## 2026-08-22 15:37 — Cage panic calms between kiki hops
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Countdown needs to happen faster after a jump — it never drops before the next kiki.
+**Did:** Split the opening hold from post-move calm. `open_hold` 0.5 still blocks decrement at load. `calm_delay` 0.08 after a walk. `ignore_vertical` so a jump in place (`velocity.y`) does not reset the still timer or add panic — only `velocity.x` counts. Still day unchanged.
+**Verified:** not verified — F6 hop two kikis. Smoke skipped.
+**Open:** Human F6 — should a forward hop while walking still climb.

@@ -16,7 +16,7 @@ The promise (TASKS.md T8): **a new day is one new file that runs end to end with
    - `SpatialGoal` ×2 (Area2D "get the body here" — set `key` = `body` / `mind` on each instance; the green box is placeholder art)
    - `Sun` (the 30 s timer; `day_length` per instance)
    - `Instruction` (Label, top of screen — the one line of text the day is allowed, DESIGN §2.1 "Words")
-3. **Add the day's idea.** A need that isn't "walk here" = any node that calls `satisfy()` on a `WinCondition` child with the right `key`. `scenes/gameplay/panic_counter.tscn` is the worked example of a non-spatial need (it satisfies `mind` when panic reaches 0, and fails the day at max panic via `DayManager.fail()` / group `"day_manager"`). Keep the tunables as `@export`s on your node.
+3. **Add the day's idea.** A need that isn't "walk here" = any node that calls `satisfy()` on a `WinCondition` child with the right `key`. `scenes/gameplay/panic_counter.tscn` is the worked example of a non-spatial need: it fails the day at max panic via `DayManager.fail()` / group `"day_manager"`. Tick `win_on_zero` and add WinCondition children if standing still should win (`day_panic_still`); leave it off if something else wins (`day_panic`'s button). Keep the tunables as `@export`s on your node.
 4. **Put it in the run:** add the path to `Game.DAY_SCENES` in `scripts/autoload/game.gd` (order = play order; a transition scene goes right before the day it leads into). Press **F7** in any running scene to skip to it.
 5. **Prove it:** `tools/smoke_test.sh`. `day_lint` checks the bones; `play_through` will *force-satisfy* a day it has no plan for and warn — add a 3-line plan in `tools/smoke/play_through.gd` once the layout is stable so the bot proves it's completable.
 
