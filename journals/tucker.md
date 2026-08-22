@@ -240,3 +240,15 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - **Platforms now match the bridge**: `z_index = 1` so the railing draws in front of the body, and each sprite dropped to `surface - 4` so the art's deck row lands on the walkable surface. The body walks behind the railing and the goal zone sits on top of it.
 **Verified:** `--import` clean, `platforming_day` and the full chain clean. Rendered the body standing on the middle step and zoomed 6× — posts uniform, the skeleton's legs behind the railing, the goal box resting on the top step's rail. No collision or geometry touched, so Sean's jump distances are unchanged.
 **Open:** exporting this sprite with `--trim` would silently reintroduce the double posts — recorded in `assets/sprites/README.md`.
+
+## 2026-08-21 22:19 — Panic day rebuilt: the goal is calming panic to zero
+**Driver:** Tucker · **Agent:** Claude (Fable 5)
+**Asked:** "panic goal should be getting panic to zero, have it start at 15 (the current eye speed), hold constant for maybe half a second and then slow down when you stop moving, rather than being 'just stand still for x amount of time'"
+**Did:** `panic_counter.gd` rewritten as the day's whole mechanic instead of just its fail condition.
+- Panic **starts at `start_panic = 15`** — the head is already agitated when the day opens (eye speed 4.0×, the agitated look).
+- Moving adds `panic_per_second = 6`. Stopping **holds the value for `calm_delay = 0.5` s**, then it falls at `calm_per_second = 3`/s. The hold is what stops twitchy movement from paying off — you have to commit to standing still.
+- **Reaching 0 satisfies the day's need.** `panic_counter.tscn` now carries its own `WinCondition` child (keyed `mind`), the same shape `spatial_goal.tscn` uses. `max_panic = 30` still fails the day.
+- Eye speed is mapped straight off the meter (`0.1×` at 0 → `4.0×` at 15), so the head *is* the progress bar.
+- `stillness_goal.gd/.tscn` deleted — superseded; day_panic no longer references it. Instruction text updated.
+**Verified:** probe through a full cycle — opens at **panic 15.0, eye 4.00**; 1 s of movement → **21.1**; **0.4 s after stopping the value is unchanged** (the hold works); then it falls to **0** with eye speed back to **0.10** and the WinCondition satisfied. Flow test still runs day_template → day_panic → platforming_day → **reunion**; full chain and import clean.
+**Open:** `panic_per_second = 6` vs `calm_per_second = 3` means panic climbs twice as fast as it falls — a guess, easy to retune. From 15, moving fails the day in 2.5 s of solid movement; that may be harsh once there is something in the day worth walking to.

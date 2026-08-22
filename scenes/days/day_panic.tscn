@@ -6,7 +6,6 @@
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_jila2"]
 [ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="6_panic_counter"]
 [ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="7_panic_label"]
-[ext_resource type="PackedScene" path="res://scenes/gameplay/stillness_goal.tscn" id="8_stillness"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -63,10 +62,6 @@ script = ExtResource("3_vx7en")
 
 [node name="PanicCounter" parent="." unique_id=1147921961 instance=ExtResource("6_panic_counter")]
 
-[node name="StillnessGoal" parent="." instance=ExtResource("8_stillness")]
-key = "mind"
-seconds_required = 3.0
-
 [node name="Instruction" type="Label" parent="."]
 offset_left = 12.0
 offset_top = 8.0
@@ -76,6 +71,6 @@ theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922
 theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
-text = "Your head is panicking in its cage. Stand still — moving makes it worse."
+text = "Your head is panicking in its cage. Hold still and calm it to zero — moving winds it back up."
 
 [node name="Sun" parent="." unique_id=837465219 instance=ExtResource("5_jila2")]
