@@ -77,6 +77,10 @@ func _begin_merge() -> void:
 	if body_sprite != null:
 		body_sprite.play(&"idle")
 		body_sprite.frame = 0
+	# And the procedural juice (breathing / lean) — same reason, same moment.
+	var juice: Node = body_blob.get_node_or_null("Juice")
+	if juice != null and juice.has_method("reset"):
+		juice.call("reset")
 
 	# Disable body.gd so it stops reading input and calling move_and_slide().
 	# With process_mode DISABLED, the CharacterBody2D holds position, letting
@@ -92,6 +96,7 @@ func _begin_merge() -> void:
 			landing.y - dive_apex)
 
 	var tw: Tween = create_tween()
+	Sfx.play(&"dive")
 	# Step 1: up and over — the turn happens on the way up, in parallel with the
 	# rise so both finish together and step 2 starts clean.
 	tw.tween_property(body_blob, "global_position", apex, dive_rise)\
@@ -101,6 +106,7 @@ func _begin_merge() -> void:
 	# Step 2: the dive down onto the head — EASE_IN so it accelerates.
 	tw.tween_property(body_blob, "global_position", landing, dive_fall)\
 		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	tw.tween_callback(Sfx.play.bind(&"reunite"))
 	# Step 3: fade screen to black.
 	tw.tween_property(fade, "modulate:a", 1.0, fade_duration)
 	# Step 4: load the next scene once the fade completes.

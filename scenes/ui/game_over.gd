@@ -24,6 +24,7 @@ func show_over() -> void:
 
 
 func _on_retry() -> void:
+	Sfx.play(&"ui_confirm")
 	# Unpause before reloading, or the fresh scene starts frozen.
 	get_tree().paused = false
 	get_tree().reload_current_scene()

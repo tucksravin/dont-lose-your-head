@@ -20,6 +20,9 @@ config/icon="res://icon.svg"
 
 Events="*res://scripts/autoload/events.gd"
 Game="*res://scripts/autoload/game.gd"
+Dev="*res://scripts/autoload/dev.gd"
+Sfx="*res://scripts/autoload/sfx.gd"
+Music="*res://scripts/autoload/music.gd"
 
 [display]
 

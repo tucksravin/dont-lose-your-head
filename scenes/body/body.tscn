@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://di2q7ndtx0ofg" path="res://scenes/body/body.gd" id="1_body_script"]
 [ext_resource type="SpriteFrames" path="res://assets/sprites/body_frames.tres" id="2_body_frames"]
+[ext_resource type="Script" path="res://scenes/body/body_juice.gd" id="3_body_juice"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(24, 32)
@@ -20,3 +21,8 @@ animation = &"idle"
 autoplay = "idle"
 centered = false
 offset = Vector2(-16, -32)
+
+[node name="Juice" type="Node" parent="." node_paths=PackedStringArray("body", "sprite")]
+script = ExtResource("3_body_juice")
+body = NodePath("..")
+sprite = NodePath("../Visual")

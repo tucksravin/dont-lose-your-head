@@ -27,6 +27,18 @@ func _ready() -> void:
 	condition.key = key
 	visual.color = body_color if key == "body" else mind_color
 	body_entered.connect(_on_body_entered)
+	condition.satisfied.connect(_on_satisfied)
+
+
+## A quick pop so meeting a need reads on screen before there is real art:
+## scale the marker up and settle back, pivoting on its bottom-centre (the
+## visual's rect is drawn from (-16,-32) to (16,0), so the pivot is its origin).
+func _on_satisfied(_key: String) -> void:
+	visual.pivot_offset = Vector2(16, 32)
+	var pop: Tween = create_tween()
+	pop.tween_property(visual, "scale", Vector2(1.35, 1.35), 0.08)
+	pop.tween_property(visual, "scale", Vector2.ONE, 0.22)\
+			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 
 
 func _on_body_entered(body: Node2D) -> void:

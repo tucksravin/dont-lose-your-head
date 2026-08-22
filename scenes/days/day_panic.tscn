@@ -6,6 +6,7 @@
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_jila2"]
 [ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="6_panic_counter"]
 [ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="7_panic_label"]
+[ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -22,6 +23,7 @@ outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1
 z_index = -1
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
 color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
+script = ExtResource("9_sky_drift")
 
 [node name="Camera" type="Camera2D" parent="." unique_id=453660723]
 position = Vector2(320, 180)

@@ -34,6 +34,7 @@ When you use a Godot concept, say what it is in a sentence and why you chose it 
 "It should work" is not done. Run the relevant check and report the output:
 
 ```sh
+tools/smoke_test.sh                                  # FIRST: loads every scene, lints every day, plays the game start→end by bot; must print ALL GREEN
 G=/Applications/Godot.app/Contents/MacOS/Godot
 $G --headless --path . --import                      # imports assets, compiles scripts; must be error-free
 $G --headless --path . --quit-after 60               # runs the main scene ~1s; grep output for ERROR/SCRIPT ERROR
