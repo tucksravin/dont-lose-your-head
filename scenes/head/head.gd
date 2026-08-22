@@ -67,6 +67,11 @@ signal left_scene
 	preload("res://assets/audio/sfx/panic/panic_level_2_1.wav"),
 	preload("res://assets/audio/sfx/panic/panic_level_3_1.wav"),
 ]
+## Caged only: the one-shot for PanicCounter's `calmed` moment (panic hit 0
+## and the day won that way — `win_on_zero` days only). Its own player
+## (`_calm_sound`, not `_panic_sound`) so it can be mixed independently —
+## volume_db on CalmSound in the scene, no code change needed to retune it.
+@export var calm_sound: AudioStream = preload("res://assets/audio/sfx/calm/calm_1.wav")
 
 var _leaving: bool = false
 var _agitation: float = 1.0
@@ -77,6 +82,7 @@ var panic_level = -1
 @onready var _sprite: AnimatedSprite2D = $Visual
 @onready var _hitbox: CollisionShape2D = $CollisionShape2D
 @onready var _panic_sound: AudioStreamPlayer = $PanicSound
+@onready var _calm_sound: AudioStreamPlayer = $CalmSound
 
 
 func _ready() -> void:
@@ -180,6 +186,16 @@ func set_panic_level(level: int) -> void:
 	panic_level = index
 	_panic_sound.stream = panic_sounds[index]
 	_panic_sound.play()
+
+
+## Play the "calmed" cue once — PanicCounter calls this from its own `calmed`
+## signal. Harmless on an uncaged head; no-op if calm_sound isn't assigned.
+func play_calm() -> void:
+	_panic_sound.stop()
+	if calm_sound == null:
+		return
+	_calm_sound.stream = calm_sound
+	_calm_sound.play()
 
 
 ## Let the head go. Game calls this once every WinCondition is satisfied.

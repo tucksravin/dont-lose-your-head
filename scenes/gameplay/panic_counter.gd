@@ -111,6 +111,8 @@ func _physics_process(delta: float) -> void:
 	if value <= 0.0 and win_on_zero:
 		_won = true
 		calmed.emit()
+		if _head != null and _head.has_method("play_calm"):
+			_head.call("play_calm")
 		_satisfy_needs()
 	elif value >= max_panic:
 		_failed = true

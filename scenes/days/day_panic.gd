@@ -117,6 +117,7 @@ func _before_head_release() -> void:
 	if not _opened:
 		return
 	head.caged = false
+	head.play_calm()
 	if head.has_method("refresh_face"):
 		head.refresh_face()
 	if chain != null:

@@ -19,5 +19,9 @@ sprite_frames = ExtResource("2_head_frames")
 animation = &"loose"
 autoplay = "loose"
 
-[node name="PanicSound" type="AudioStreamPlayer" parent="."]
+[node name="PanicSound" type="AudioStreamPlayer" parent="." unique_id=1610215940]
+bus = &"SFX"
+
+[node name="CalmSound" type="AudioStreamPlayer" parent="." unique_id=1543848886]
+volume_db = 16.45
 bus = &"SFX"

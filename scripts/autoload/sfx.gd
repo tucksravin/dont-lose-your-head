@@ -37,7 +37,6 @@ const CUES: Dictionary = {
 	&"head_roll": "the head starts rolling away (release) — a short roll/rattle, not a loop",
 	&"day_failed": "the day is lost (sunset, pit, panic maxed) — the restart sting",
 	&"sunset_warning": "the sun is low (last ~5 s of the day) — a tick/ambience swell, once",
-	&"calm": "panic reached zero",
 	&"bridge_drop": "the bridge falls into place (platforming day)",
 	&"dive": "the body leaps for the head (reunion)",
 	&"reunite": "the body lands on the head (reunion)",
@@ -143,14 +142,9 @@ func _on_node_added(node: Node) -> void:
 				_arm_sunset_warning(node),
 			CONNECT_ONE_SHOT,
 		)
-	elif node.has_signal("panic_changed") and node.has_signal("calmed"):
-		# panic_changed's own sound is local now (PanicCounter.level() calls
-		# Head.set_panic_level() directly) — calmed is still a global cue.
-		node.connect(
-			"calmed",
-			func() -> void:
-				play(&"calm"),
-		)
+	# panic_changed and calmed are both local now (Head.set_panic_level() /
+	# Head.play_calm(), called directly from PanicCounter) — Sfx doesn't
+	# match PanicCounter's signals at all anymore.
 
 
 func _arm_sunset_warning(sun: Node) -> void:

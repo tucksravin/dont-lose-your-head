@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://bw1p0aa6rbdm6"]
 
-[ext_resource type="Script" path="res://scenes/days/day_panic.gd" id="1_day"]
+[ext_resource type="Script" uid="uid://d2dpusf1d1whc" path="res://scenes/days/day_panic.gd" id="1_day"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_uxlmw"]
 [ext_resource type="PackedScene" uid="uid://icgagian0sgo" path="res://scenes/head/head.tscn" id="2_wgxpk"]
 [ext_resource type="Script" uid="uid://b52e5l8in6h8c" path="res://scenes/gameplay/win_condition_manager.gd" id="3_vx7en"]
@@ -10,20 +10,20 @@
 [ext_resource type="Script" uid="uid://drgvctg8sgork" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
 [ext_resource type="Script" uid="uid://cdgvssoc46s8n" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="11_game_over"]
-[ext_resource type="Script" path="res://scenes/gameplay/win_condition.gd" id="12_win"]
-[ext_resource type="PackedScene" uid="uid://c8kicloudpanic1" path="res://scenes/gameplay/kiki_cloud.tscn" id="13_cloud"]
+[ext_resource type="Script" uid="uid://cc46s87eug7f5" path="res://scenes/gameplay/win_condition.gd" id="12_win"]
+[ext_resource type="PackedScene" uid="uid://tt53kd82hn5o" path="res://scenes/gameplay/kiki_cloud.tscn" id="13_cloud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
-
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_button"]
-size = Vector2(56, 16)
 
 [sub_resource type="LabelSettings" id="LabelSettings_panic"]
 font_size = 10
 font_color = Color(0.94509804, 1, 0.6862745, 1)
 outline_size = 4
 outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_button"]
+size = Vector2(56, 16)
 
 [node name="DayPanic" type="Node2D" unique_id=1567717338]
 script = ExtResource("1_day")
@@ -50,7 +50,7 @@ offset_bottom = 360.0
 mouse_filter = 2
 color = Color(0, 0.41568628, 0.23921569, 1)
 
-[node name="Chain" type="ColorRect" parent="."]
+[node name="Chain" type="ColorRect" parent="." unique_id=1643906949]
 offset_left = 516.0
 offset_right = 524.0
 offset_bottom = 154.0
@@ -84,21 +84,21 @@ conditions_path = NodePath("../WinConditionManager")
 head_path = NodePath("../Head")
 game_over_path = NodePath("../GameOver")
 
-[node name="ReleaseButton" type="Area2D" parent="."]
+[node name="ReleaseButton" type="Area2D" parent="." unique_id=1531975093]
 position = Vector2(520, 320)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="ReleaseButton"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ReleaseButton" unique_id=901642634]
 position = Vector2(0, -8)
 shape = SubResource("RectangleShape2D_button")
 
-[node name="Visual" type="ColorRect" parent="ReleaseButton"]
+[node name="Visual" type="ColorRect" parent="ReleaseButton" unique_id=82009601]
 offset_left = -28.0
 offset_top = -16.0
 offset_right = 28.0
 mouse_filter = 2
-color = Color(0.39215686, 0.33333334, 0.2627451, 1)
+color = Color(0.39215687, 0.33333334, 0.2627451, 1)
 
-[node name="Prompt" type="Label" parent="ReleaseButton"]
+[node name="Prompt" type="Label" parent="ReleaseButton" unique_id=1256580234]
 visible = false
 offset_left = -28.0
 offset_top = -36.0
@@ -111,11 +111,10 @@ theme_override_font_sizes/font_size = 10
 text = "E"
 horizontal_alignment = 1
 
-[node name="BodyNeed" type="Node" parent="."]
+[node name="BodyNeed" type="Node" parent="." unique_id=691815105]
 script = ExtResource("12_win")
-key = "body"
 
-[node name="MindNeed" type="Node" parent="."]
+[node name="MindNeed" type="Node" parent="." unique_id=1880874324]
 script = ExtResource("12_win")
 key = "mind"
 
@@ -130,7 +129,7 @@ calm_per_second = 8.0
 calm_max_per_second = 16.0
 calm_ramp_time = 0.5
 
-[node name="KikiCloud" parent="." instance=ExtResource("13_cloud")]
+[node name="KikiCloud" parent="." unique_id=1533850814 instance=ExtResource("13_cloud")]
 
 [node name="Instruction" type="Label" parent="." unique_id=1223928203]
 offset_left = 12.0
