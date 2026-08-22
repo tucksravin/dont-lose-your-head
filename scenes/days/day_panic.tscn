@@ -6,23 +6,23 @@
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_jila2"]
 [ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="6_panic_counter"]
 [ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="7_panic_label"]
-[ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
+[ext_resource type="Script" uid="uid://drgvctg8sgork" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
 
 [sub_resource type="LabelSettings" id="LabelSettings_panic"]
 font_size = 10
-font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+font_color = Color(0.94509804, 1, 0.6862745, 1)
 outline_size = 4
-outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
 
 [node name="DayPanic" type="Node2D" unique_id=1567717338]
 
-[node name="Background" type="Polygon2D" parent="."]
+[node name="Background" type="Polygon2D" parent="." unique_id=647412420]
 z_index = -1
+color = Color(0.59607846, 0.50980395, 0.46666667, 1)
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
-color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
 script = ExtResource("9_sky_drift")
 
 [node name="Camera" type="Camera2D" parent="." unique_id=453660723]
@@ -39,7 +39,7 @@ offset_top = 320.0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0, 0.415686274509804, 0.23921568627451, 1)
+color = Color(0, 0.41568628, 0.23921569, 1)
 
 [node name="Body" parent="." unique_id=1999184252 instance=ExtResource("1_uxlmw")]
 position = Vector2(100, 320)
@@ -63,14 +63,17 @@ counter = NodePath("../PanicCounter")
 script = ExtResource("3_vx7en")
 
 [node name="PanicCounter" parent="." unique_id=1147921961 instance=ExtResource("6_panic_counter")]
+max_panic = 100.0
+panic_per_second = 40.0
+calm_max_per_second = 20.0
 
-[node name="Instruction" type="Label" parent="."]
+[node name="Instruction" type="Label" parent="." unique_id=1223928203]
 offset_left = 12.0
 offset_top = 8.0
 offset_right = 628.0
 offset_bottom = 32.0
-theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
-theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_colors/font_color = Color(0.94509804, 1, 0.6862745, 1)
+theme_override_colors/font_outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
 text = "Your head is panicking in its cage. Hold still and calm it to zero — moving winds it back up."
