@@ -126,7 +126,16 @@ func _first_with_script(scene: Node, script_path: String) -> Node:
 	return null
 
 
+## True if the scene runs on Sean's DayManager system: it references
+## day_manager.gd directly, or any script it references `extends DayManager`.
 func _uses_day_manager(path: String) -> bool:
 	var text: String = FileAccess.get_file_as_string(path)
-	return text.contains("day_manager.gd") or text.contains("extends DayManager") \
-			or text.contains("platforming_day.gd")
+	if text.contains("day_manager.gd"):
+		return true
+	var re: RegEx = RegEx.new()
+	re.compile("\\[ext_resource type=\"Script\"[^\\]]*path=\"(res://[^\"]+\\.gd)\"")
+	for m in re.search_all(text):
+		var src: String = FileAccess.get_file_as_string(m.get_string(1))
+		if src.contains("extends DayManager"):
+			return true
+	return false
