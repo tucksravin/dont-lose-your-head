@@ -1,54 +1,60 @@
 extends Node2D
-## Intro scene — scripted head chase.
+## Intro scene — the head runs off, you chase it. Nothing moves the body for
+## you: the scene ends when YOU have run off the right edge after it (decided
+## Sat evening, Tucker: "no scripting to make you follow, the scene shouldn't
+## change till the player goes offscreen"). The head blob (HeadBlob,
+## CharacterBody2D) is the one scripted thing — it runs right at head_speed
+## and leaves; the body is the instanced body.tscn, player-driven by body.gd.
 ##
-## The head blob (HeadBlob, CharacterBody2D) moves right on a scripted path.
-## The player controls the body via the instanced body.tscn scene, which runs
-## its own _physics_process. When the head exits the viewport, both are
-## auto-scrolled off screen (body.gd is disabled) and the next scene loads.
+## Sun: the same timer every day has (scenes/sun/sun.tscn, found by its
+## `sunset` signal the way DayManager finds it). Sunset before you've left =
+## the intro restarts (Game.restart_day() reloads the current scene; in the
+## intro current_day is -1, so that is all it does). Sfx's sunset warning
+## wires itself to the Sun, like everywhere else.
 ##
-## NOTE: Camera2D is static (fixed at viewport centre) rather than parented to
-## HeadBlob. This lets the head visibly run off the right edge — the whole
-## visual point of the intro shot. Game-day scenes follow the head instead.
+## Camera2D is static (fixed at viewport centre) rather than parented to
+## HeadBlob, so the head visibly runs off the right edge — the whole visual
+## point of the shot. Day scenes are the same.
 ##
-## TODO(cutscene): Before Phase.CHASE, add a short Tween separation animation:
-##   skeleton stands still → intrusive thoughts appear →
-##   head "pops" off (scale bounce + rightward Tween) → CHASE begins.
-##   Docs: https://docs.godotengine.org/en/stable/classes/class_tween.html
-
-enum Phase { CHASE, EXIT }
+## TODO(cutscene): before the chase, a short Tween separation beat: skeleton
+## stands still → intrusive thoughts appear → head "pops" off (scale bounce +
+## rightward Tween) → chase. Docs: https://docs.godotengine.org/en/stable/classes/class_tween.html
 
 ## How fast the head blob moves right (px/s).
 @export var head_speed: float = 150.0
 ## Downward gravity for the head blob (px/s²). Body gravity is in body.gd.
 @export var gravity: float = 980.0
-## Pixels past the right viewport edge before EXIT triggers.
-@export var exit_margin: float = 120.0
-## Seconds to wait after EXIT starts before changing scene.
-@export var exit_delay: float = 1.2
-## Scene to load after the intro. Shown in the Inspector on IntroScene —
-## change it there (or here) without touching Game.gd.
+## How far past the right edge the BODY must be before the intro is over (px).
+## The body sprite is 32 px wide, so 24 means it is fully off screen.
+@export var exit_margin: float = 24.0
+## Pause after the body has left before the first day loads.
+@export var exit_delay: float = 0.4
+## NOT READ — Game.DAY_SCENES decides what comes next. Kept only so nothing that
+## set it breaks; delete when nobody references it (TASKS N4).
 @export var next_scene: String = "res://scenes/days/platforming_day.tscn"
 
 @onready var head_blob: CharacterBody2D = $HeadBlob
-## Instanced body.tscn — body.gd drives player input in CHASE phase.
 @onready var body_blob: CharacterBody2D = $Body
 
-var phase: Phase = Phase.CHASE
 var _exiting: bool = false
 
 
+func _ready() -> void:
+	# The Sun is found by its signal, not a hard path — same duck-type as
+	# DayManager / Sfx use, so the node can be moved or renamed freely.
+	for node in find_children("*", "Node2D", true, false):
+		if node.has_signal("sunset"):
+			node.connect("sunset", _on_sunset)
+			break
+
+
 func _physics_process(delta: float) -> void:
-	match phase:
-		Phase.CHASE:
-			_move_head(delta)
-			# body.gd handles player input automatically in CHASE.
-			_check_exit()
-		Phase.EXIT:
-			_scroll_blob(head_blob, delta)
-			_scroll_blob(body_blob, delta)
+	_move_head(delta)
+	_check_exit()
 
 
-## Scripted rightward movement for the head blob.
+## Scripted rightward movement for the head blob. It keeps going off screen;
+## nothing waits for it.
 func _move_head(delta: float) -> void:
 	head_blob.velocity.x = head_speed
 	if head_blob.is_on_floor():
@@ -58,32 +64,23 @@ func _move_head(delta: float) -> void:
 	head_blob.move_and_slide()
 
 
-## Check whether the head has exited the right side of the viewport.
-## get_viewport_rect() returns screen pixels (0,0)→(640,360) regardless of
-## camera. With a static camera at (320,180) this maps 1-to-1 to world coords.
+## The intro is over when the PLAYER has run off the right side.
+## get_viewport_rect() is screen pixels (640×360); with the static camera at
+## (320,180) that is world space 1-to-1.
 func _check_exit() -> void:
 	if _exiting:
 		return
 	var right_edge: float = get_viewport_rect().size.x
-	if head_blob.global_position.x > right_edge + exit_margin:
+	if body_blob.global_position.x > right_edge + exit_margin:
 		_exiting = true
-		# Hand body.gd off so we can drive the body manually in EXIT phase.
-		# NOT process_mode = DISABLED: that also drops a CharacterBody2D out
-		# of the physics space, so move_and_slide() below fails every tick
-		# with "body->get_space() is null" (confirmed via headless repro).
-		body_blob.is_scripted = true
-		phase = Phase.EXIT
 		get_tree().create_timer(exit_delay).timeout.connect(_on_exit_delay)
 
 
-## Move a CharacterBody2D rightward at head_speed with gravity; used in EXIT.
-func _scroll_blob(blob: CharacterBody2D, delta: float) -> void:
-	blob.velocity.x = head_speed
-	if blob.is_on_floor():
-		blob.velocity.y = 0.0
-	else:
-		blob.velocity.y += gravity * delta
-	blob.move_and_slide()
+## Sunset before you've left: the intro restarts, like a day that ran out of sun.
+func _on_sunset() -> void:
+	if _exiting:
+		return
+	Game.restart_day()
 
 
 ## Hand off to the day chain. Game owns the day order, so the intro doesn't name

@@ -6,9 +6,9 @@
 
 [sub_resource type="Curve2D" id="Curve2D_hill"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 140, 145, 0, 0, 0, 0, 500, 265)
+"points": PackedVector2Array(0, 0, 0, 0, 140, 142, 0, 0, 0, 0, 240, 185, 0, 0, 0, 0, 320, 185, 0, 0, 0, 0, 560, 265)
 }
-point_count = 2
+point_count = 4
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_wall"]
 size = Vector2(16, 600)
@@ -27,11 +27,11 @@ position = Vector2(320, 180)
 [node name="Hill" type="StaticBody2D" parent="."]
 
 [node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Hill"]
-polygon = PackedVector2Array(-40, 100, 740, 360, 740, 440, -40, 440)
+polygon = PackedVector2Array(-40, 80, 240, 200, 320, 200, 740, 340, 740, 440, -40, 440)
 
 [node name="Visual" type="Polygon2D" parent="Hill"]
 color = Color(0, 0.415686274509804, 0.23921568627451, 1)
-polygon = PackedVector2Array(-40, 100, 740, 360, 740, 440, -40, 440)
+polygon = PackedVector2Array(-40, 80, 240, 200, 320, 200, 740, 340, 740, 440, -40, 440)
 
 [node name="WallLeft" type="StaticBody2D" parent="."]
 
@@ -53,7 +53,7 @@ animation = &"loose"
 autoplay = "loose"
 
 [node name="Body" parent="." instance=ExtResource("2_body")]
-position = Vector2(50, 130)
+position = Vector2(50, 118)
 
 [node name="HUD" type="CanvasLayer" parent="."]
 
