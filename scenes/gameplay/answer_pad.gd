@@ -27,8 +27,6 @@ extends Area2D
 signal chosen(value: String)
 
 @export var value: String = ""
-@export var idle_color: Color = Color("645543")
-@export var active_color: Color = Color("25c04b")
 ## How far the body's centre may be from the plate's centre and still count as
 ## landing on it (px). 16 = the plate's own half-width, so the body has to come
 ## down over the plate, not merely clip its edge.
@@ -38,7 +36,10 @@ signal chosen(value: String)
 @export var land_height: float = 24.0
 
 @onready var label: Label = $Label
-@onready var visual: ColorRect = $Visual
+## The plate itself — button.png (Tucker's), same art as the panic day's floor
+## button: `off` with its studs up, `press` when the body is on it, holding on
+## `on`. The pressed plate IS the feedback, so there is no colour swap.
+@onready var visual: AnimatedSprite2D = $Visual
 
 var _bodies: int = 0
 var _enabled: bool = true
@@ -135,7 +136,12 @@ func _on_body_exited(body: Node2D) -> void:
 		_set_occupied(false)
 
 
-## Just the highlight — the choice is made in _on_body_landed().
+## Just the look — the choice is made in _on_body_landed(). `press` is a
+## one-shot that ends on the held-down frame, so standing on the plate keeps it
+## down and stepping off pops it back up.
 func _set_occupied(occupied: bool) -> void:
-	if visual != null:
-		visual.color = active_color if occupied else idle_color
+	if visual == null or visual.sprite_frames == null:
+		return
+	var anim: StringName = &"press" if occupied else &"off"
+	if visual.sprite_frames.has_animation(anim) and visual.animation != anim:
+		visual.play(anim)

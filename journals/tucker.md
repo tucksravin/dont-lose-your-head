@@ -617,3 +617,11 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Did:** nearest-neighbour 2× of `assets/sprites/button.png` (48×16 → **96×32**, each drawn pixel now a 2×2 block), `button_frames.tres` regions 16×16 → **32×32**, and `day_panic.tscn`'s `ReleaseButton/Visual` offset (−8,−16) → **(−16,−32)** so the plate still sits on the floor. Node scale stays **2**, so it is still an ordinary 2× sprite in the scene — the plate now renders **32×12**, the same width as the body, under the 56 px trigger. Did it to the exported PNG rather than the node scale so the scene doesn't mix scale factors; `src/button.aseprite` is untouched at 16×16, so a re-export needs the doubling redone (noted in the sprites README).
 **Verified:** `--import` clean; windowed render eyeballed — plate reads at body width. (Smoke suite skipped per Tucker.)
 **Open:** none.
+
+## 2026-08-22 16:57 — Button art on the lockdown answer plates too
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "button should also be used in the other scenes with a button interact (thinking of lockdown)"
+**Did:** `scenes/gameplay/answer_pad.tscn`'s `Visual` ColorRect → an `AnimatedSprite2D` on `button_frames.tres` (2×, `centered = false`, `offset (-16,-32)`). The doubled plate renders **32×12**, exactly the size of the rectangle it replaced, so no repositioning was needed. `answer_pad.gd`: `visual` retyped to `AnimatedSprite2D` and `_set_occupied()` now plays `press` / `off` instead of swapping colours — **the `idle_color` and `active_color` exports are gone** (dead once the art carries the state). All three lockdown plates use it.
+- Checked the other candidates and left them: the lockdown **pedestal** (32×48 raised block, not a floor button) and **spatial_goal.tscn** (32×32 green "stand here" marker used by day_template — a goal area, not a button). Say the word if either should get the art.
+**Verified:** `--import` clean; windowed render of the lockdown puzzle — the plate under the body is pressed flat, the other two have their studs up, digits still legible above. (Smoke skipped per Tucker.)
+**Open:** none.
