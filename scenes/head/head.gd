@@ -125,7 +125,13 @@ func detach() -> void:
 
 func set_solid(solid: bool) -> void:
 	if _hitbox != null:
-		_hitbox.disabled = not solid
+		# Deferred: release() reaches here from inside a physics callback (a
+		# SpatialGoal's body_entered → win → Game → release → detach), and
+		# flipping a shape's `disabled` while the physics server is flushing
+		# queries is an engine ERROR ("Can't change this state while flushing
+		# queries") — it turned the smoke suite red on main. set_deferred applies
+		# it at the end of the frame, which is one frame later and harmless here.
+		_hitbox.set_deferred("disabled", not solid)
 
 
 ## How fast the caged head's loop runs. 1.0 is the rate authored in
