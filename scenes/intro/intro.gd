@@ -67,9 +67,11 @@ func _check_exit() -> void:
 	var right_edge: float = get_viewport_rect().size.x
 	if head_blob.global_position.x > right_edge + exit_margin:
 		_exiting = true
-		# Disable body.gd so we can drive the body manually in EXIT phase.
-		# PROCESS_MODE_DISABLED stops _physics_process without removing the node.
-		body_blob.process_mode = Node.PROCESS_MODE_DISABLED
+		# Hand body.gd off so we can drive the body manually in EXIT phase.
+		# NOT process_mode = DISABLED: that also drops a CharacterBody2D out
+		# of the physics space, so move_and_slide() below fails every tick
+		# with "body->get_space() is null" (confirmed via headless repro).
+		body_blob.is_scripted = true
 		phase = Phase.EXIT
 		get_tree().create_timer(exit_delay).timeout.connect(_on_exit_delay)
 
