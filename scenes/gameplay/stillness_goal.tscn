@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/gameplay/stillness_goal.gd" id="1_stillness"]
+[ext_resource type="Script" path="res://scenes/gameplay/win_condition.gd" id="2_win_condition"]
+
+[node name="StillnessGoal" type="Node"]
+script = ExtResource("1_stillness")
+
+[node name="WinCondition" type="Node" parent="."]
+script = ExtResource("2_win_condition")

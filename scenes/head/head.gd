@@ -37,11 +37,20 @@ signal left_scene
 @export var spin_speed: float = 360.0
 ## Pixels past the viewport edge before left_scene fires, so it is fully hidden.
 @export var exit_margin: float = 64.0
+## Start this head caged — plays the "imprisoned" loop from head_frames.tres
+## instead of the plain head. Set it per instance in the day scene; day_panic
+## uses it. The cage is art only: nothing about release() changes.
+@export var caged: bool = false
 
 var _leaving: bool = false
 
+@onready var _sprite: AnimatedSprite2D = $Visual
+
 
 func _ready() -> void:
+	if caged:
+		_sprite.play(&"imprisoned")
+
 	# Groups are Godot's way to find "the one X in the current scene" without a
 	# hard node path. The Game autoload can't know where a day author put the
 	# head, so it looks it up by group instead.
@@ -59,6 +68,13 @@ func _physics_process(delta: float) -> void:
 	if _is_off_screen():
 		set_physics_process(false)
 		left_scene.emit()
+
+
+## How fast the caged head's loop runs. 1.0 is the rate authored in
+## head_frames.tres; a day raises it to show the head getting agitated (day_panic
+## does this as panic climbs). Harmless on an uncaged head.
+func set_agitation(scale: float) -> void:
+	_sprite.speed_scale = maxf(scale, 0.0)
 
 
 ## Let the head go. Game calls this once every WinCondition is satisfied.
