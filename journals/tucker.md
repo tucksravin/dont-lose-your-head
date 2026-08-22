@@ -535,3 +535,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - `transition_cage.gd`: header comment explains the off-screen roll. `tools/smoke/day_chain.gd`: one stale comment (the 5.5 s reload now lands mid-roll or in the open-ended wait). CODEBASE §6.2 fork line + DESIGN Transitions row updated.
 **Verified:** `--import` clean. Probe (bot running right): cage 0.59 s (body 98 px off) → knock 1.02 s (body 30 px off) → head fully off screen at ~2.4 s (x>656), stops off screen at x=720 at 2.93 s after exactly 6 turns → body arrives (off screen) 4.17 s → hand-off 5.18 s. Dawdle: cage 3.9 s, rolls off by ~5.4 s, nothing ends until the body goes (hand-off 11.2 s). `tools/smoke_test.sh` → **ALL GREEN** (68/89/34/21/21/28; play_through transition_cage 5.4 s, intro 4.5 s).
 **Open:** feel in the editor — `roll_time` on the cage root (1.6; smaller = it's gone sooner), whether the fade should start when the *head* leaves rather than when the body does (say so — it's a different end condition, one more export). Still not pushed.
+
+## 2026-08-22 14:36 — Merge check: polish branch vs main
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "can this merge in cleanly?"
+**Did:** fetched; `git merge-tree` dry run said one conflict — `docs/CODEBASE.md`, adjacent hunks (my §6.2 transition rewrite + intro line vs #33's new **Reunion** bullet in §6.3). Merged `origin/main` (b884370, "reunin flipped" #33) into `tucker/polish-intro-transitions` in Tucker's checkout and kept both (§6.2/intro = branch, Reunion bullet = main's, byte-identical); merge commit 38a1413. DESIGN.md auto-merged.
+**Verified:** `git merge-tree --write-tree origin/main tucker/polish-intro-transitions` → exit 0 (clean). `tools/smoke_test.sh` on the merged branch → **ALL GREEN** (68/89/34/21/21/28; play_through: intro 4.5 s, transition_cage 5.4 s, reunion 6.2 s → main.tscn).
+**Open:** still not pushed — Tucker's call.
