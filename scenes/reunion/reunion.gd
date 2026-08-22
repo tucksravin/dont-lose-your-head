@@ -3,8 +3,8 @@ extends Node2D
 ##
 ## Player walks the body (body.tscn, CharacterBody2D) toward the stationary
 ## head (head.tscn, RigidBody2D). body.gd drives player input automatically.
-## head.tscn settles on the floor via its own RigidBody2D physics — no manual
-## gravity needed here.
+## head.gd holds the head frozen in place, so it is placed directly on the floor
+## in the scene rather than dropped onto it — no gravity, no settling.
 ##
 ## When within interact_distance and the player presses "interact", a chained
 ## Tween snaps the body to the head, fades to black, then loads next_scene.
@@ -28,7 +28,7 @@ enum Phase { WALKING, MERGING, DONE }
 ## Scene to load after the reunion. Swap for credits / ending when ready.
 @export var next_scene: String = "res://scenes/main.tscn"
 
-## head.tscn root is a RigidBody2D — physics settles it on the floor for free.
+## head.tscn root is a RigidBody2D, held frozen by head.gd — it never moves here.
 @onready var head_blob: RigidBody2D = $Head
 ## body.tscn root is a CharacterBody2D — body.gd drives player input.
 @onready var body_blob: CharacterBody2D = $Body
@@ -44,7 +44,7 @@ func _physics_process(_delta: float) -> void:
 
 
 ## Show/hide the prompt and handle the interact press.
-## body.gd and head.tscn's RigidBody2D handle movement on their own.
+## body.gd drives the body; the head is frozen and never moves in this scene.
 func _check_interact() -> void:
 	var dist: float = body_blob.global_position.distance_to(head_blob.global_position)
 	interact_prompt.visible = dist < interact_distance
@@ -57,9 +57,7 @@ func _begin_merge() -> void:
 	phase = Phase.MERGING
 	interact_prompt.visible = false
 
-	# Freeze the head so physics doesn't shift it mid-animation.
-	# RigidBody2D.freeze = true halts all physics simulation on that body.
-	head_blob.freeze = true
+	# The head needs no freezing here — head.gd already holds it frozen for life.
 
 	# Disable body.gd so it stops reading input and calling move_and_slide().
 	# With process_mode DISABLED, the CharacterBody2D holds position, letting
