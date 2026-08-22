@@ -1,0 +1,13 @@
+GIMP Palette
+Name: Gooseberry Ghost + bone shadow
+Columns: 9
+#
+152 130 119	mauve (sky) (#988277)
+100  85  67	brown (#645543)
+ 69  56  28	dark brown (#45381c)
+ 32  28   2	outline / near-black (#201c02)
+241 255 175	bone (#f1ffaf)
+205 205 153	bone shadow (far limbs) (#cdcd99)
+178 241 103	light green (#b2f167)
+ 37 192  75	green (#25c04b)
+  0 106  61	dark green (ground) (#006a3d)
