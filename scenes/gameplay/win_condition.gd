@@ -5,11 +5,11 @@ class_name WinCondition
 ## This node holds no logic of its own — it is a flag with a name. Something in
 ## the world decides when it's met and calls satisfy(): a SpatialGoal when the
 ## body arrives, a food item when it's eaten, whatever the day is about. Keeping
-## the flag separate from the thing that trips it means the day's HUD and its
-## `WinConditions` manager don't care *how* a need was met.
+## the flag separate from the thing that trips it means the day's HUD and
+## WinConditionManager don't care *how* a need was met.
 ##
 ## `class_name WinCondition` registers this as a global type, which is what lets
-## WinConditions find every one of them with find_children(..., "WinCondition").
+## WinConditionManager find every one of them with find_children(..., "WinCondition").
 ## Docs: https://docs.godotengine.org/en/stable/tutorials/scripting/gdscript/gdscript_basics.html#class-name
 
 ## Emitted the first time this condition is met. Carries `key` so listeners

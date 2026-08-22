@@ -4,8 +4,10 @@
 [ext_resource type="PackedScene" uid="uid://bl5agwe6qbg1n" path="res://scenes/gameplay/spatial_goal.tscn" id="2_wb443"]
 [ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="3_sun"]
-[ext_resource type="Script" uid="uid://cprrihu5t4kig" path="res://scenes/gameplay/win_conditions.gd" id="4_win_conditions"]
+[ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="4_win_conditions"]
 [ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
+[ext_resource type="Script" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="11_game_over"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -40,8 +42,14 @@ position = Vector2(100, 320)
 [node name="Head" parent="." unique_id=439176854 instance=ExtResource("3_head")]
 position = Vector2(560, 306)
 
-[node name="WinConditions" type="Node" parent="." unique_id=734146883]
+[node name="WinConditionManager" type="Node" parent="." unique_id=734146883]
 script = ExtResource("4_win_conditions")
+
+[node name="DayManager" type="Node" parent="."]
+script = ExtResource("10_day_manager")
+conditions_path = NodePath("../WinConditionManager")
+head_path = NodePath("../Head")
+game_over_path = NodePath("../GameOver")
 
 [node name="SpatialGoal" parent="." unique_id=1109840832 instance=ExtResource("2_wb443")]
 position = Vector2(500, 320)
@@ -62,3 +70,5 @@ theme_override_colors/font_outline_color = Color(0.125490196078431, 0.1098039215
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
 text = "Template day: touch both boxes."
+
+[node name="GameOver" parent="." instance=ExtResource("11_game_over")]

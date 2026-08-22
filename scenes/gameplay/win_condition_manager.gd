@@ -53,6 +53,8 @@ func _on_satisfied(key: String, condition: WinCondition) -> void:
 		return
 	_satisfied.append(condition)
 	condition_satisfied.emit(key)
+	# Bus copy for HUD / Sfx (TASKS.md T7). DayManager still owns when the day ends.
+	Events.condition_satisfied.emit(key)
 	_check_all()
 
 

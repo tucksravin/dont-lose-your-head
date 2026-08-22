@@ -4,7 +4,7 @@ What has to exist before what. The task list is [TASKS.md](TASKS.md) (same IDs �
 
 **Reassessed Sat 22 Aug 08:00 against branch `night/all`** (**merged to `main` Sat 16:48 (PR #16 squash 16:42, PR #17 merge 16:48; `main` == `night/all`)**) (what the code actually is: [CODEBASE.md](CODEBASE.md)). ✔ = evidence in the repo · ◐ = partial · no mark = not started. Rows `D13–D16` and `N1–N8` are new since Friday — candidates for the stand-up, not decisions.
 
-**Critical path now:** *merge the night's branches to `main` (N3) → decide D8 cut order + D13 flow system (E3) → days 2–3 (C3) on the web (P1r) → end card (N1, or a text card) → playtest (P2) → submit (P4).* Template, day flow, a playable day 1, the smoke suite, the audio scaffold and the transition are **done**; art and sound files run beside the path and gate the *look/sound*, not the *code*. Open decisions: **D5** fail presentation (two exist), **D8** cut order, **D11** R/Esc/after-end-card, **D12** jump arc vs step 1, **D13** one flow system or two, **D14** does `day_template` ship as day 1, **D15** panic day body need, **D16** head blocks the path in platforming_day.
+**Critical path now:** *merge the night's branches to `main` (N3) → decide D8 cut order + D13 flow system (E3) → days 2–3 (C3) on the web (P1r) → end card (N1, or a text card) → playtest (P2) → submit (P4).* Template, day flow, a playable day 1, the smoke suite, the audio scaffold and the transition are **done**; art and sound files run beside the path and gate the *look/sound*, not the *code*. Open decisions: **D8** cut order, **D11** R/Esc/after-end-card, **D12** jump arc vs step 1, **D14** does `day_template` ship as day 1, **D15** panic day body need, **D16** head blocks the path in platforming_day. **D5** (fail card) and **D13** (DayManager + Game playlist) locked Sat 10:32.
 
 ```mermaid
 flowchart TD
@@ -15,7 +15,7 @@ flowchart TD
     D4["✔ D4 PRs: anyone merges"]
     D6["✔ D6 Pixel art 640×360"]
     D7["✔ D7 Win nodes body/mind"]
-    D5["D5 Fail presentation — OPEN<br/>instant reload vs game-over card (both exist)"]
+    D5["D5 Fail = game-over card — LOCKED"]
     D8["D8 Cut order — OPEN<br/>proposal rewritten in TASKS.md"]
     D11["D11 R / Esc / after end card — OPEN"]
     D12["D12 Jump arc vs step 1 — OPEN"]
@@ -41,7 +41,7 @@ flowchart TD
 
   subgraph C["Content"]
     C1["◐ C1 Day cards — 1 of ~5"]
-    C2["✔ C2 Day 1 (Bridge card) = platforming_day<br/>runs LAST in DAY_SCENES today (D13/D14)"]
+    C2["✔ C2 Day 1 (Bridge card) = platforming_day"]
     C3["◐ C3 Days 2–3 (day_panic ✔ mind-only) then 4–5"]
     TR["✔ TR Transition base + cage fork<br/>◐ one fork per remaining day"]
     C4["◐ C4 Intro: chase ✔ · pop-off beat ✗"]
