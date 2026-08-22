@@ -16,12 +16,19 @@ extends Node
 ## Autoloads are always in the tree, so this script must not assume a day is
 ## running. Everything below no-ops or falls through if there's no head.
 
-## The days, in order. Duplicated entries are fine — this is also how we test the
-## chain before real days exist (TASKS.md T5). Replace with day_01, day_02, … as
-## they land (TASKS.md C2, C3a–d).
+## The days, in order (TASKS.md T5). Replace/extend as real days land.
+##
+## ORDERING CONSTRAINT while two flow systems coexist: days built on the older
+## `WinConditions` node (day_template) advance through this list, because they
+## emit `Events.day_completed` and _on_day_completed() below calls next_day().
+## Days built on Sean's `DayManager` (platforming_day) do NOT — DayManager calls
+## `Game.change_scene(its own next_scene)`, which defaults to the reunion. So a
+## DayManager day has to sit LAST here, or it will skip everything after it.
+## Unifying the two systems is an open team decision — see journals/tucker.md.
 const DAY_SCENES: Array[String] = [
 	"res://scenes/days/day_template.tscn",
-	"res://scenes/days/day_template.tscn",
+	"res://scenes/days/day_panic.tscn",
+	"res://scenes/days/platforming_day.tscn",
 ]
 
 ## Where we go after the last day.

@@ -1,6 +1,11 @@
-[gd_scene format=3 uid="uid://dw8hb3tpyauj6"]
+[gd_scene load_steps=3 format=3 uid="uid://dw8hb3tpyauj6"]
 
 [ext_resource type="Script" uid="uid://cm2u20ef2crkr" path="res://scenes/gameplay/panic_counter.gd" id="1_panic_counter_script"]
+[ext_resource type="Script" path="res://scenes/gameplay/win_condition.gd" id="2_win_condition"]
 
 [node name="PanicCounter" type="Node" unique_id=142159389]
 script = ExtResource("1_panic_counter_script")
+
+[node name="WinCondition" type="Node" parent="."]
+script = ExtResource("2_win_condition")
+key = "mind"

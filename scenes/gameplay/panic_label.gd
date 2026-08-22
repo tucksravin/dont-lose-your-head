@@ -11,11 +11,10 @@ extends Label
 func _ready() -> void:
 	if counter:
 		counter.panic_changed.connect(_on_panic_changed)
-		_on_panic_changed(counter.value)
+		_on_panic_changed(int(counter.value))
 	else:
-		print("NO COUNTER")
+		push_warning("PanicLabel has no PanicCounter assigned — it will never update.")
 
 
 func _on_panic_changed(value: int) -> void:
-	print("on_panic")
 	text = "Panic: %d" % value

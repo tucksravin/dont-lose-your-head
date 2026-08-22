@@ -7,6 +7,7 @@
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_sun"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="6_game_over"]
 [ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="7_wc_manager"]
+[ext_resource type="Texture2D" uid="uid://dvglcr4kgfj7k" path="res://assets/sprites/bridge.png" id="8_bridge_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor_left"]
 size = Vector2(240, 40)
@@ -15,7 +16,7 @@ size = Vector2(240, 40)
 size = Vector2(240, 40)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_platform"]
-size = Vector2(70, 16)
+size = Vector2(76, 16)
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_bridge"]
 size = Vector2(160, 40)
@@ -24,6 +25,11 @@ size = Vector2(160, 40)
 size = Vector2(200, 80)
 
 [node name="PlatformingDay" type="Node2D"]
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
 
 [node name="WinConditionManager" type="Node" parent="."]
 script = ExtResource("7_wc_manager")
@@ -51,7 +57,7 @@ offset_right = 240.0
 offset_top = 320.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.32, 0.22, 0.16, 1)
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 
 [node name="FloorRight" type="StaticBody2D" parent="."]
 
@@ -65,7 +71,7 @@ offset_top = 320.0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.32, 0.22, 0.16, 1)
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 
 [node name="Platform1" type="StaticBody2D" parent="."]
 
@@ -74,13 +80,14 @@ position = Vector2(83, 292)
 shape = SubResource("RectangleShape2D_platform")
 one_way_collision = true
 
-[node name="Visual" type="ColorRect" parent="Platform1"]
-offset_left = 48.0
-offset_top = 284.0
-offset_right = 118.0
-offset_bottom = 300.0
-mouse_filter = 2
-color = Color(0.42, 0.3, 0.2, 1)
+[node name="Visual" type="Sprite2D" parent="Platform1"]
+texture_repeat = 2
+z_index = 1
+position = Vector2(83, 280)
+scale = Vector2(2, 2)
+texture = ExtResource("8_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 38, 8)
 
 [node name="Platform2" type="StaticBody2D" parent="."]
 
@@ -89,13 +96,14 @@ position = Vector2(143, 256)
 shape = SubResource("RectangleShape2D_platform")
 one_way_collision = true
 
-[node name="Visual" type="ColorRect" parent="Platform2"]
-offset_left = 108.0
-offset_top = 248.0
-offset_right = 178.0
-offset_bottom = 264.0
-mouse_filter = 2
-color = Color(0.42, 0.3, 0.2, 1)
+[node name="Visual" type="Sprite2D" parent="Platform2"]
+texture_repeat = 2
+z_index = 1
+position = Vector2(143, 244)
+scale = Vector2(2, 2)
+texture = ExtResource("8_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 38, 8)
 
 [node name="Platform3" type="StaticBody2D" parent="."]
 
@@ -104,13 +112,14 @@ position = Vector2(203, 220)
 shape = SubResource("RectangleShape2D_platform")
 one_way_collision = true
 
-[node name="Visual" type="ColorRect" parent="Platform3"]
-offset_left = 168.0
-offset_top = 212.0
-offset_right = 238.0
-offset_bottom = 228.0
-mouse_filter = 2
-color = Color(0.42, 0.3, 0.2, 1)
+[node name="Visual" type="Sprite2D" parent="Platform3"]
+texture_repeat = 2
+z_index = 1
+position = Vector2(203, 208)
+scale = Vector2(2, 2)
+texture = ExtResource("8_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 38, 8)
 
 [node name="Bridge" type="StaticBody2D" parent="."]
 position = Vector2(0, -80)
@@ -121,13 +130,14 @@ collision_mask = 0
 position = Vector2(320, 340)
 shape = SubResource("RectangleShape2D_bridge")
 
-[node name="Visual" type="ColorRect" parent="Bridge"]
-offset_left = 240.0
-offset_top = 320.0
-offset_right = 400.0
-offset_bottom = 360.0
-mouse_filter = 2
-color = Color(0.55, 0.4, 0.22, 1)
+[node name="Visual" type="Sprite2D" parent="Bridge"]
+texture_repeat = 2
+z_index = 1
+position = Vector2(320, 316)
+scale = Vector2(2, 2)
+texture = ExtResource("8_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 80, 8)
 
 [node name="Pit" type="Area2D" parent="."]
 
@@ -158,7 +168,10 @@ offset_left = 12.0
 offset_top = 8.0
 offset_right = 628.0
 offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
-text = "Climb to the high gold box — it drops a bridge."
+text = "Climb to the high green box — it drops a bridge."
 
 [node name="GameOver" parent="." instance=ExtResource("6_game_over")]
