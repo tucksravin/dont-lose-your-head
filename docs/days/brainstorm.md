@@ -31,6 +31,8 @@ head get's stuck staring at itself in the mirror, flips left and right until you
 
 walk in with the screen flipped upside down, do the animation that we have, then bounce to standing and the screen rights itself, then we walk off into the sunset
 
+**Built (smahr, Sat 14:08) on `reunion.tscn`.** Camera starts at `zoom.y = -1` (floor reads as the ceiling; left/right stay put). Existing dive on E, then a bounce that rights the camera + body + head together, `Head.attach`, scripted walk off the right toward a parked `sun.png` (not the day-timer `sun.tscn`), fade to `main.tscn`. End card is still N1.
+
 ### Watching TV / Doomscrolling
 
 The head is watching television / doomscrolling the body needs to break the tv to free it before we go on

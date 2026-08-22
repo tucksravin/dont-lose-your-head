@@ -1,8 +1,9 @@
-[gd_scene load_steps=6 format=3]
+[gd_scene load_steps=7 format=3]
 
 [ext_resource type="Script" path="res://scenes/reunion/reunion.gd" id="1_reunion"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
 [ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
+[ext_resource type="Texture2D" uid="uid://cde00sdoc782w" path="res://assets/sprites/sun.png" id="4_sun"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -34,6 +35,12 @@ offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
 color = Color(0, 0.415686274509804, 0.23921568627451, 1)
+
+[node name="HorizonSun" type="Sprite2D" parent="."]
+z_index = -1
+position = Vector2(580, 88)
+scale = Vector2(3, 3)
+texture = ExtResource("4_sun")
 
 [node name="Head" parent="." instance=ExtResource("3_head")]
 position = Vector2(480, 304)

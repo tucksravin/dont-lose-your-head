@@ -32,7 +32,7 @@ flowchart LR
   Dlock -- "win" --> Dwork["day_workout.tscn<br/>(mash kikis off the head)"]
   Dwork -- "win" --> Dmir["day_mirror.tscn<br/>(look flips left/right)"]
   Dmir -- "win" --> D2["platforming_day.tscn<br/>(three steps, bridge, gap)"]
-  D2 -- "DayManager → Game.next_day" --> R["reunion.tscn<br/>(dive onto the head)"]
+  D2 -- "DayManager → Game.next_day" --> R["reunion.tscn<br/>(upside-down walk-in, dive, right, sunset)"]
   R -- "next_scene" --> M["main.tscn<br/>(placeholder end)"]
 ```
 
@@ -138,7 +138,7 @@ Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` o
 ### 6.3 Intro, reunion, UI, placeholder
 
 - **Intro** — [scenes/intro/intro.tscn](../scenes/intro/intro.tscn) / [.gd](../scenes/intro/intro.gd): `HeadBlob` (CharacterBody2D, `head_side.png`) runs right on its own; the player may chase; once the head is 120 px (`exit_margin`) past the right edge both blobs auto-scroll (body via `is_scripted`) and 1.2 s later (`exit_delay`) `Game.start_days()` fires. **It needs no input** — the bot has no plan for it. Its `@export next_scene` is **never read**. The "head pops off" beat is a TODO in the file.
-- **Reunion** — [scenes/reunion/reunion.tscn](../scenes/reunion/reunion.tscn) / [.gd](../scenes/reunion/reunion.gd): walk to the upside-down head, `interact` within 64 px → dive Tween (`dive_rise/fall/apex`, `landing_offset (0,-56)`) → fade → `next_scene` = **[scenes/main.tscn](../scenes/main.tscn)** — the old input-test placeholder. **There is no end card yet.** [scenes/reunion/preview/sprites_preview.tscn](../scenes/reunion/preview/sprites_preview.tscn) is a standalone sprite check (ships in the export; harmless).
+- **Reunion** — [scenes/reunion/reunion.tscn](../scenes/reunion/reunion.tscn) / [.gd](../scenes/reunion/reunion.gd): camera starts at `zoom.y = -1` (screen upside down; left/right unchanged). Walk to the head, `interact` → dive Tween → bounce that rights the camera + body + head → `Head.attach` → scripted walk off the right toward a parked `sun.png` → fade → `next_scene` = **[scenes/main.tscn](../scenes/main.tscn)**. **There is no end card yet (N1).** [scenes/reunion/preview/sprites_preview.tscn](../scenes/reunion/preview/sprites_preview.tscn) is a standalone sprite check (ships in the export; harmless).
 - **Game over** — [scenes/ui/game_over.tscn](../scenes/ui/game_over.tscn) / [.gd](../scenes/ui/game_over.gd): CanvasLayer, `show_over()` pauses, Retry reloads. Every day instances it.
 
 ---
