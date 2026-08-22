@@ -15,13 +15,11 @@ The body needs a workout, and so does the brain. Cardio and a crossword
 
 ### Lockdown
 
-WarioWare split attention (§3.13): two things at once. Scene opens already in the room (skip the carry-the-head / locking-door setup — that's a third beat in ~30 s).
+WarioWare split attention (§3.13): two things at once. **Setup (smahr, Sat 10:56):** head alone in the middle → interact to pick it up → bar blocks the right exit and a pedestal opens → interact to seat the head, then the puzzle starts. (Earlier note to skip this beat is superseded.)
 
-**Preferred (smahr, Sat 10:12): option B — dodge and answer.** Body need: sidestep things falling from the sky (kiki/bouba intrusive thoughts). Mind need: a **short chain of 3–5 puzzles** (smahr, Sat 10:17). Answers are **floor pads** with the possible values shown above them (smahr, Sat 10:18) — walk onto the right pad while dodging. Survive the whole chain + all correct → door unlocks / head releases. **Hit = instant kill → restart** (smahr, Sat 10:16; not a meter). Wrong pad → restart.
+**Preferred (smahr, Sat 10:12): option B — dodge and answer.** Body need: sidestep things falling from the sky (kiki/bouba intrusive thoughts) — rain is fast, two at a time (smahr, Sat 11:02). Mind need: a **short chain of 3–5 puzzles** (smahr, Sat 10:17) — **built as 4**. Answers are **3 floor pads** with the possible values shown above them — stand on the pad and press **interact** (E) to submit (smahr, Sat 10:49). Last correct answer **tips the pedestal toward the exit** so the head rolls off. **Hit or wrong pad = DayManager.fail() → game-over card**. File: `scenes/days/day_lockdown.tscn`.
 
 Earlier version (dropped): hold a button on the left while the head "solves" a tablet on the right. Button is idle; dodge is a verb. Keys (1/2/3) dropped in favour of pads.
-
-Open, for whoever picks this up: name's a placeholder. How many pads (2 vs 3)? Does a wrong pad fail immediately on touch, or after a beat standing on it?
 
 ### Mirror world
 
@@ -40,6 +38,8 @@ The head is watching television / doomscrolling the body needs to break the tv t
 ### Working out (button masher)
 
 need to mash and working out literally pushes the kikis away from the head. (barbell)
+
+**Built (smahr, Sat 12:01) as `day_workout.tscn` (C3c).** Walk in, interact with a placeholder barbell (two weights + a bar; pumps on mash), mash Space (`jump`) to shove kikis (`kiki_frames.tres`) off the **loose** head. The swarm's circle **blocks the body from walking to the head**. **Kikis creep back.** Fail: sunset or kikis touching the head. Both needs fire when the swarm is gone. In `Game.DAY_SCENES` after lockdown, before platforming.
 
 
 

@@ -273,6 +273,18 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Verified:** `--headless --import` registers WinConditionManager (the only ERRORs are the known `day_01.gd` missing tab — N2, not this change). Smoke suites **all PASS**: load_all, day_lint (every day has WinConditionManager + DayManager + GameOver), day_chain (template → cage → panic → platforming → reunion), day_sunset (all three fail via game-over card; won day advances), play_through, audio (one need_met, day_won, sunset → day_failed — no double-play).
 **Open:** Lockdown day not built yet. Human should F6 a fail on template/panic and click Retry. `intro.gd` leftover `next_scene` export still unread (N4).
 
+## 2026-08-22 10:46 — Build Lockdown day (C3b)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "NOw build lockdown"
+**Did:** New day on DayManager (D13). `scenes/days/day_lockdown.tscn` in `Game.DAY_SCENES` after panic, before platforming.
+- `answer_pad.tscn` — Area2D floor pad, group `answer_pad`, `chosen` + `occupied_changed`.
+- `falling_thought.tscn` — Area2D, CharacterBody2D hit → `DayManager.fail("hit")`.
+- `thought_rain.gd` — spawns across the top; stops on win/fail.
+- `puzzle_chain.tscn` — 4 glance-math puzzles, 3 pads; last correct satisfies body+mind; wrong pad → `fail("wrong")`. Ignores linger after a correct answer until every pad is empty.
+- Head at (580,306) so it isn't sitting on a pad. Rectangles only.
+**Verified:** Smoke **ALL GREEN**. day_lint: lockdown has both keys, manager, GameOver. day_chain includes lockdown. day_sunset: lockdown fail = card. play_through force-satisfies lockdown (warn — no dodge bot plan). Import ERROR is still only known `day_01.gd` (N2).
+**Open:** play_through has no bot dodge plan (force-satisfy + warn) — rain is RNG. Human F6: dodge + four pads. Name still "Lockdown".
+
 ## 2026-08-22 10:53 — Plan doc: Velma day
 **Driver:** Sean · **Agent:** Claude Sonnet 5
 **Asked:** "Look at docs/days/brainstorm.md and build a plan doc for implementing the velma day idea. Put it in docs/days."
@@ -283,6 +295,27 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - Flagged the whole thing as ~2–2.5 h — at the CLAUDE.md §7 "say so before starting" line — rather than starting to build.
 **Verified:** doc only, no code changed; not run through smoke_test.sh (nothing to run yet). Checked `Events.condition_satisfied` is actually emitted (`win_condition_manager.gd:57`), not dead like `Events.sunset`, before designing `VisionBlur` around it.
 **Open:** the four calls in `velma-plan.md` §4 need a human pick before or during the build; the card in §1 should move into `DESIGN.md` §2.1 once locked.
+
+## 2026-08-22 10:53 — Pads confirm with interact
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Touch pads need an interact option — press to submit the chosen answer, not just touch it.
+**Did:**
+- `scenes/gameplay/answer_pad.gd` / `.tscn` — standing only lights the pad and shows an "E" prompt; submit is `Input.is_action_just_pressed("interact")` (E / ↓ / gamepad X, same action as reunion). Dropped `occupied_changed`. Scene owned by this C3b work; added a `Prompt` Label, no other node reorder.
+- `scenes/gameplay/puzzle_chain.gd` — no linger-until-empty guard (touch no longer auto-submits). Next puzzle still needs a fresh press because `just_pressed` is one-shot.
+- Instruction on `day_lockdown.tscn`: "Dodge the thoughts. Stand on an answer and press E." DESIGN / brainstorm / CODEBASE / TASKS C3b updated.
+**Verified:** `--headless --import` registers AnswerPad (only known ERROR is missing `day_01.gd`). Smoke **PASS**: load_all (50), day_lint (53), day_chain (22). Submit-on-E itself needs a human F6 — headless can't press while standing on a pad.
+**Open:** Human F6 lockdown: stand without submitting, then E on the right pad, then leave and press E (should do nothing). Prompt "E" is keyboard-centric; gamepad players get X.
+
+## 2026-08-22 11:00 — Lockdown setup beat (carry + bar + pedestal)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Scene start: head alone in the middle; walk up and interact; that blocks the right exit (vertical bar) and a pedestal opens; interact with the pedestal to set the head on it; then the puzzle starts and pads become available.
+**Did:**
+- `scenes/days/day_lockdown.gd` on the day root (not a DayManager subclass — this is before the needs). Phases FIND_HEAD → PLACE_HEAD → PUZZLE. Interact with head (distance, same `interact` action) picks it up: collision off, head follows the body (`global_position`, not a joint). Bar (`ExitBar` StaticBody2D) blocks x≈632; pedestal at (560,320) grows open via Tween on the ColorRect; stand on it and E seats the head on `Mount`. Then pads + PuzzleChain.start() + ThoughtRain.begin(). Bar collision drops on `head.released` so the exit roll can leave.
+- Head start (320, 306). Pads/`Question`/rain gated until seated. `answer_pad.set_enabled` + `_enabled` flag so a hidden pad can't steal E during setup.
+- DESIGN §2 Lockdown, brainstorm (supersedes the "skip setup" note), CODEBASE, TASKS C3b.
+**Assumption:** "set the head on the pedestal" = carry, not a teleport. Pedestal is on the right so it doesn't sit on a pad.
+**Verified:** `--headless --import` (only known `day_01.gd` ERROR). Smoke **PASS**: load_all (51, includes the new script), day_lint (53), day_chain (22). Setup/carry needs a human F6.
+**Open:** Sun still runs during the walk-up (setup eats into the 30 s). play_through still force-satisfies lockdown (rain is RNG). Human F6 the three beats + confirm the bar doesn't trap the head on win.
 
 ## 2026-08-22 11:04 — Built the Velma day
 **Driver:** Sean · **Agent:** Claude Sonnet 5
@@ -295,6 +328,39 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - Docs: added a `(Velma)` row to `DESIGN.md` §2.1 next to Bridge (C2), marked "built, not yet human-playtested," linking back to the plan doc.
 **Verified:** `--headless --path . --import` clean (no ERROR/Parse Error; generated `vision_blur.gd.uid`). `tools/smoke_test.sh` (all 6 suites) — **ALL GREEN**: `load_all` 45, `day_lint` 53 (day_velma has exactly 1 head/body, a Sun, camera, WinConditionManager, DayManager, game-over overlay, 2 WinConditions), `day_chain` 22 (day_velma → day_template → transition_cage → day_panic → platforming_day → reunion, force-satisfy path), `day_sunset` 12 (sunset fails day_velma correctly, doesn't refire on a won day), `play_through` 17 (bot actually walks 300→satisfied body→500→satisfied mind→hands off in 3.5 s — real completion, not force-satisfied), `audio` 28. Also ran `--headless --quit-after 60 res://scenes/days/day_velma.tscn` directly — no errors beyond the pre-existing "16/16 cues have no file yet" warning.
 **Open:** **Not eyeballed by a human yet** (CLAUDE.md §4) — the vignette's actual look (does it read as "blurry" vs just "dark," is `GlassesGoal` visible enough near the edge of the clear radius at the start, does the Instruction label stay legible under the fog) needs a look in the editor. The three other open calls from the plan (§4.1 intro glasses-fall staging, §4.2 carry-mechanic stretch, §4.4 `day_template`'s fate / final day order) are unresolved team decisions, not bugs — raise at the next standup alongside D8.
+
+## 2026-08-22 11:04 — Harder rain + pedestal tip outro
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Make the rain much faster and harder to dodge. When the final puzzle is solved, the pedestal should fall over toward the exit so the head rolls off screen.
+**Did:**
+- Lockdown ThoughtRain instance: `fall_speed 320` (was 140), `interval 0.32` (was 1.1), `start_delay 0.15`, `burst 2`. Script gained `burst` and clears leftover thoughts on stop so they don't hang over the outro.
+- `day_lockdown.gd` `_before_head_release()`: reparent head onto the mount, Tween pedestal `rotation` to −90° (CCW → top falls toward +X / the exit, `EASE_IN` / `TRANS_QUAD`), reparent head back, sit it on the floor, then DayManager `release()` rolls it off. Duck-typed from `day_manager.gd` so other days are unchanged. F3 during setup skips the tip (`_phase != PUZZLE`).
+- DESIGN / brainstorm / CODEBASE.
+**Verified:** `--headless --import` (only known `day_01.gd` ERROR). Smoke **PASS**: load_all (51), day_lint (53), day_chain (22). day_chain force-satisfies lockdown in FIND_HEAD so it does not play the tip — needs a human F6 of a real win.
+**Open:** Human F6: rain density, and the last pad → pedestal fall → head roll. Tunables are `@export` on ThoughtRain / `tip_time` if it's too brutal or the fall is slow.
+
+## 2026-08-22 11:07 — Pedestal tips toward the exit
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** The pedestal tips the wrong way.
+**Did:** Flipped the outro Tween from `-PI/2` to `+PI/2`. Godot 2D is Y-down, so positive rotation is clockwise — the top now falls toward +X (the exit). I had the handedness backwards last pass. CODEBASE sign updated.
+**Verified:** not verified — sign flip only; human F6 the win.
+**Open:** Confirm the head still rides the fall and rolls off to the right.
+
+## 2026-08-22 11:17 — Where should carry live?
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Should the carrying follow at day_lockdown.gd:61–62 live on the game file or the head script? Opinion: game sets initial position; the head should manage follow.
+**Did:** Answered in chat, no files changed. Recommended **not** `Game` (playlist only). Follow loop belongs on `Head` (`attach`/`detach`, same "call down, head moves itself" as `release()`). Day still decides *when*. Scene placement already is the initial position. Reparent-to-body rejected (RigidBody2D under CharacterBody2D). Status quo is fine if carry stays lockdown-only.
+**Verified:** n/a — design question.
+**Open:** smahr hasn't picked yet. If B, `carry_offset` / facing-flip might stay a day export passed into `attach()`.
+
+## 2026-08-22 11:19 — Move carry onto Head.attach
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** yes move it to head
+**Did:**
+- `head.gd`: `attach(carrier, offset)` / `detach()` / `set_solid()`. Follow lives in Head `_physics_process` (offset.x flips with carrier `Visual.flip_h`). Collision off while attached. `release()` detaches first so follow can't fight the roll.
+- `day_lockdown.gd`: pickup → `head.attach(body, carry_offset)`; place → `detach()` then snap to mount. No more per-frame `global_position` on the day. CODEBASE Head + Lockdown lines updated.
+**Verified:** `--headless --import` (known `day_01.gd` only). `load_all` PASS (51). Carry feel needs a human F6.
+**Open:** none.
 
 ## 2026-08-22 11:23 — Velma: real carry mechanic + body-centred vignette
 **Driver:** Sean · **Agent:** Claude Sonnet 5
@@ -322,6 +388,35 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - **Did not get a real visual check.** Tried to force genuine (non-dummy) rendering headlessly (`--headless --rendering-driver opengl3 -s <capture script>`) to save a PNG and actually look at the blur — it hung and had to be killed by the tool's timeout; while checking for the stray process, found the user already had the Godot **editor open with `day_velma.tscn` running** (since ~11:28, before this round of edits) — left it alone rather than risk disturbing it, and abandoned the headless-capture approach as unreliable for shader work anyway (headless mode's default renderer may not even compile shaders for real). Deleted the throwaway capture script.
 **Open:** **Genuinely unverified visually** — everything above proves it imports and runs without erroring, not that the blur looks right (radius/softness/blur_strength tuning, whether the aspect/canvas-transform math is actually correct on screen, whether it reads as "blurry" rather than broken). Because files changed on disk while an editor session already had the project open, that editor's view of `day_velma.tscn` may be stale — **reload the scene (Scene → Reload Saved Scene) or restart Godot before judging it**, per CLAUDE.md §4.3.
 
+## 2026-08-22 11:53 — Plan for Working Out day
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Plan the working-out / button-masher day: walk in, head trapped by kikis (`kiki_frames.tres`), pick up a placeholder barbell, mash Space to push thoughts away, then head releases.
+**Did:** Chat plan only — no files. Reuse DayManager + `caged` head + `interact` pickup (not `Head.attach` — that's for the skull). New swarm node + barbell prop. Mash on existing `jump` action while lifting (lock walk/jump). Flagged: creep-back vs one-way push; fail = sunset only vs swarm wins; playlist slot; both WinCondition keys on "swarm gone" (lockdown pattern).
+**Verified:** n/a — plan.
+**Open:** smahr hasn't picked the fail/creep or the slot in `DAY_SCENES`.
+
+## 2026-08-22 11:59 — Build Working Out day (C3c)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Implement the Working Out plan (creep-back; fail = sunset or kikis touching the head).
+**Did:**
+- `scenes/gameplay/barbell.tscn` — placeholder weights+bar, `interact` pickup, follows the body (not `Head.attach`).
+- `scenes/gameplay/kiki_swarm.tscn` — `kiki_frames.tres` ring; pressure 0 satisfies body+mind, 1 → `fail("kiki")`; creep after `begin()`.
+- `scenes/days/day_workout.tscn` + `.gd` — FIND_BAR → LIFT (`body.is_scripted`, mash `jump`) → DONE. Head `caged` at (560,306). In `DAY_SCENES` after lockdown.
+- DESIGN §2 / brainstorm / CODEBASE / TASKS C3c.
+**Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (58), day_lint (65), day_chain (26). Mash/creep/contact need a human F6.
+**Open:** play_through still force-satisfies (no mash bot). Human F6: walk-up does not fail, lift, mash vs creep, contact fail, sunset, win → roll.
+
+## 2026-08-22 12:03 — Workout: no cage, kikis block, bar pumps
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Remove the cage from the head. Body should be blocked from the head by the kikis. Bar moves up and down on Space.
+**Did:**
+- `day_workout.tscn` Head is loose (default `caged = false`); no imprisoned loop.
+- `kiki_swarm.gd` — `StaticBody2D` + `CircleShape2D` matches the ring radius so sprite gaps don't leak. Disabled at pressure ~0 / after win. (`StaticBody2D` because we need a solid wall for `CharacterBody2D.move_and_slide`, not overlap.)
+- `barbell.gd` `pump()` — Tween pops `_pump_y` up then down; `day_workout.gd` calls it on each `jump` mash.
+- DESIGN §2 / brainstorm / CODEBASE / TASKS: "caged head" → loose + circle-block + pump.
+**Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (58), day_lint (65), day_chain (26).
+**Open:** Human F6 — walk into the swarm (should stop), mash Space (bar should bob). Collision feel of a filled circle vs a ring is a guess.
+
 ## 2026-08-22 12:03 — Vignette fix (real bug) + glasses moved onto a 4-platform climb
 **Driver:** Sean · **Agent:** Claude Sonnet 5
 **Asked:** "Better, there should be a small unblurred area around the player. Also, lets put the glasses on some platforms above the player. Say 4 platforms the body must jump to to reach it. scenes/days/platforming_day has some examples of platforms"
@@ -339,3 +434,17 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Retuned `scenes/gameplay/vision_blur.gd`'s `@export` defaults, no logic changes: `clear_radius` 90→55 px (a small circle, not most of the screen), `edge_softness` 50→20 px (a defined edge, not a long gradual fade), `blur_strength` (the `SCREEN_TEXTURE` mip LOD) 3.0→6.0 (deep enough into the mip chain that shapes outside the circle stop being readable, not just softened), `speed_penalty_radius` 30→15 (trims the now-smaller circle further at speed rather than nearly erasing it). All still `@export`s on the `VisionBlur` node, so these are starting points for in-editor tuning, not final numbers.
 **Verified:** `--headless --import` clean. `tools/smoke_test.sh` — all 6 suites **ALL GREEN**, `grep -iE error` over the raw log — zero hits. This is a pure tuning change (no code paths touched), so no new bot-plan risk expected and none seen.
 **Open:** Same as every entry today — not eyeballed in-editor yet. This one especially needs a look: mip-level blur strength and "how small is small" are feel calls I can't judge blind, and `blur_strength = 6.0` is a guess at "deep enough to be unreadable," not a measured one.
+
+## 2026-08-22 12:33 — Merge main (Lockdown + Working Out) into smahre/velma
+**Driver:** Sean · **Agent:** Claude Sonnet 5
+**Asked:** "handle merge conflicts with main."
+**Did:**
+- Merging `main` (PR #28, tip `7aeb97c`) into this branch left two real conflicts, both from smahr/Velma and smahr/Cursor-Grok-4.6's Lockdown+Workout work landing in the same spot at the same time:
+  - `docs/DESIGN.md` §2.1: both sides added a new day-card table row in the same place. Kept all three — Lockdown (C3b), Working Out (C3c) from `main`, then the Velma row from this branch — no content conflict, just adjacent inserts.
+  - `journals/smahr.md`: both sides appended entries in the same time window (10:46–12:11) under two different agents (Claude Sonnet 5 for Velma here, Cursor Grok 4.6 for Lockdown/Workout on `main`). Interleaved every entry from both sides into one true chronological sequence by its own timestamp, per CLAUDE.md §1 ("newest at the bottom," never rewrite) — nothing dropped, nothing reworded, just reordered.
+  - Everything else (new scenes/scripts/audio/sprites for Lockdown, Workout, Velma; `game.gd`'s `DAY_SCENES`; etc.) auto-merged clean — git kept all three days in the playlist without help.
+- Ran the full smoke suite after resolving (`GODOT=<local win64 4.7.2 exe> tools/smoke_test.sh`, no macOS Godot on this machine) and it came back **RED** on real engine `ERROR`s, not a conflict-resolution mistake: `play_through` threw `Can't change this state while flushing queries` twice, backtrace pointing at `head.gd:128` `set_solid()`.
+- Root cause: main's new Lockdown carry feature (journal 11:19, "Move carry onto Head.attach") added `detach()` → `set_solid(true)` inside `Head.release()`, so **every** day's head-release now synchronously flips the hitbox's `CollisionShape2D.disabled` from inside the `WinCondition.satisfied` signal chain — which fires during the physics engine's query flush. Not lockdown-specific: it broke `day_template` and `platforming_day` too, both pre-existing days that had nothing to do with this merge.
+- Fixed the one line: `scenes/head/head.gd` `set_solid()` now does `_hitbox.set_deferred("disabled", not solid)` instead of a direct assignment — same fix already documented in this codebase for the identical class of bug in `glasses.gd` and `answer_pad.gd` (Area2D `monitoring`, not a hitbox, but the same "don't touch this synchronously from inside a physics signal" rule). Also deferred `day_lockdown.gd`'s two non-`_ready` `pedestal_area.monitoring` writes to match the same pattern (harmless, didn't turn out to be the actual cause, but same latent risk).
+**Verified:** `tools/smoke_test.sh` (all 6 suites, GODOT env pointed at `C:\Users\smahr\Documents\Godot_v4.7.2-stable_win64.exe`) — **ALL GREEN**, zero `FAIL`/`ERROR` lines in the raw log (confirmed by grepping the full output, not just the wrapper's summary — learned that lesson from the 11:23 entry above). Re-ran once before the `head.gd` fix (RED, 2 ERROR lines) and once after (ALL GREEN) to confirm the fix was the actual cause, not a coincidence.
+**Open:** Merge is resolved and staged but **not yet committed** — leaving that for the human to review first. `scenes/head/head.gd` and `scenes/days/day_lockdown.gd` are real bugfixes riding along in this merge, not part of the Velma work; flagging clearly in case the team wants them as a separate commit instead of folded into the merge commit. Still not human-playtested in editor: Lockdown, Working Out, and Velma all remain "smoke-clean, not eyeballed" per their own journal entries above.

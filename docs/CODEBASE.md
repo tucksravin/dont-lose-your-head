@@ -1,6 +1,6 @@
 # Codebase overview — Sat 22 Aug, 08:00
 
-*What is in the repo and how it fits together, with links. This describes the integrated branch `night/all` (= `main` + PR #16 + the five `night/*` branches). Where a part lives on a `night/*` branch that isn't merged yet, it says so. Keep this true when you change a contract; the full per-task story is in `journals/*.md`.*
+*What is in the repo and how it fits together, with links. Written Sat 08:00 against the integration branch `night/all`; **everything here is on `main` since Sat 16:48** (PR #16 + PR #17). Keep this true when you change a contract; the full per-task story is in `journals/*.md`.*
 
 Godot **4.7.1**, GDScript with static typing, **640×360** pixel art, exported to the web. One run = **intro → the scenes in `Game.DAY_SCENES` → reunion**. Parts find each other by **signals and groups**, never by long node paths, and five autoloads hold the glue.
 
@@ -28,18 +28,20 @@ flowchart LR
   I["intro.tscn<br/>(run/main_scene)"] -- "Game.start_days()" --> D0["day_template.tscn"]
   D0 -- "win → head rolls off" --> T1["transition_cage.tscn<br/>(head rolls downhill, gets caged)"]
   T1 -- "Game.next_day()" --> D1["day_panic.tscn<br/>(calm the caged head)"]
-  D1 -- "win" --> D2["platforming_day.tscn<br/>(three steps, bridge, gap)"]
+  D1 -- "win" --> Dlock["day_lockdown.tscn<br/>(dodge + pad puzzles)"]
+  Dlock -- "win" --> Dwork["day_workout.tscn<br/>(mash kikis off the head)"]
+  Dwork -- "win" --> D2["platforming_day.tscn<br/>(three steps, bridge, gap)"]
   D2 -- "DayManager → Game.next_day" --> R["reunion.tscn<br/>(dive onto the head)"]
   R -- "next_scene" --> M["main.tscn<br/>(placeholder end)"]
 ```
 
 **Boot.** `project.godot` → `run/main_scene = scenes/intro/intro.tscn`. The intro is a playable chase ([scenes/intro/intro.gd](../scenes/intro/intro.gd)); when the head leaves the screen it calls `Game.start_days()`.
 
-**The list.** `Game.DAY_SCENES` ([scripts/autoload/game.gd](../scripts/autoload/game.gd)) is the run: `[day_template, transition/transition_cage, day_panic, platforming_day]`, then `Game.REUNION_SCENE`. `go_to(i)` loads entry *i* (or the reunion past the end); `next_day()` advances — and if the current scene was opened straight from the editor (F6), it first looks up where that scene sits, so testing one day still goes on to the right next one.
+**The list.** `Game.DAY_SCENES` ([scripts/autoload/game.gd](../scripts/autoload/game.gd)) is the run: `[day_template, transition/transition_cage, day_panic, day_lockdown, day_workout, platforming_day]`, then `Game.REUNION_SCENE`. `go_to(i)` loads entry *i* (or the reunion past the end); `next_day()` advances — and if the current scene was opened straight from the editor (F6), it first looks up where that scene sits, so testing one day still goes on to the right next one.
 
 **How a day is won.** `WinCondition.satisfy()` → `WinConditionManager` (local `condition_satisfied` / `all_satisfied`, plus `Events.condition_satisfied` for HUD/Sfx) → **`DayManager`** releases the head, waits for `head.left_scene`, then `Game.next_day()`. The head rolling off screen *is* the day's outro (DESIGN §2.1). Game is the playlist only — it does not listen for wins.
 
-**How a day fails.** `DayManager.fail(reason)` → [scenes/ui/game_over.tscn](../scenes/ui/game_over.tscn) (pauses, Retry reloads). Sunset is wired in DayManager. Pit (platforming_day) and PanicCounter call `fail()` the same way (PanicCounter finds the manager by group `"day_manager"`).
+**How a day fails.** `DayManager.fail(reason)` → [scenes/ui/game_over.tscn](../scenes/ui/game_over.tscn) (pauses, Retry reloads). Sunset is wired in DayManager. Pit (platforming_day), PanicCounter, ThoughtRain hits, and KikiSwarm contact call `fail()` the same way (sensors find the manager by group `"day_manager"`).
 
 **Transitions** are ordinary entries in the list that play a short beat (the head rolls off down a slope; the player runs the body to it) and end with `Game.next_day()` themselves — put one right before the day it leads into.
 
@@ -47,9 +49,9 @@ flowchart LR
 
 ## 2. Folder map
 
-*`origin/main` still holds only Friday's state. "Lives on" names the branch(es) carrying a file's **current** state: `main` = Friday's main, `#16` = PR #16 (`tucker/palette-pass`), the rest are `night/*`.*
+*All of this is on `main` (merged Sat 16:48). The "from" column says which Friday/overnight branch each part came from — useful only for reading the journals and PRs; it is not where the code lives now.*
 
-| path | what | lives on |
+| path | what | from |
 |---|---|---|
 | [project.godot](../project.godot) | 640×360, GL Compatibility, nearest filter + pixel snap, input map (`move_left/right`, `jump`, `interact`, `restart`, `pause`), autoloads | main (+ autoload lines on daykit/sfx) |
 | [export_presets.cfg](../export_presets.cfg) | the one "Web" preset (threads off); excludes `tools/*` | main (+ base) |
@@ -85,9 +87,9 @@ Autoloads are nodes Godot adds under the root before any scene, by name, in this
 
 Every day instances all three. None of them knows about anything else by path: they add themselves to **groups** (`body`, `head`) or are found by **what they have** (the Sun by its `sunset` signal — DayManager checks just that; `sky_drift` also wants `progress()`; `Sfx`/`Dev` also want `day_length`).
 
-**Body** — [scenes/body/body.tscn](../scenes/body/body.tscn) / [body.gd](../scenes/body/body.gd). `CharacterBody2D`, 24×32 collision, origin at the **feet**; `Visual` is an `AnimatedSprite2D` on [assets/sprites/body_frames.tres](../assets/sprites/body_frames.tres) (`idle`, `walk`, `throw`; `throw` unused) at 2×, `centered = false`, `offset (-16,-32)`. Exports `speed 150`, `jump_velocity -300`, `gravity 980` → **max rise 45.9 px, hang 0.61 s, 92 px reach**. Signals `jumped`, `landed`. `is_scripted = true` hands control to a cutscene (intro, transition) which must then drive velocity + `move_and_slide()` itself. Group `body`. Child `Juice` ([body_juice.gd](../scenes/body/body_juice.gd), *night/anim*): breathing, stretch/squash on `jumped`/`landed`, lean — scale/rotation only, `reset()` for cutscenes; delete the node and the body is as before.
+**Body** — [scenes/body/body.tscn](../scenes/body/body.tscn) / [body.gd](../scenes/body/body.gd). `CharacterBody2D`, 24×32 collision, origin at the **feet**; `Visual` is an `AnimatedSprite2D` on [assets/sprites/body_frames.tres](../assets/sprites/body_frames.tres) (`idle`, `walk`, `throw`; `throw` unused) at 2×, `centered = false`, `offset (-16,-32)`. Exports `speed 150`, `jump_velocity -300`, `gravity 980` → **max rise 45.9 px, hang 0.61 s, 92 px reach**. Signals `jumped`, `landed`. `is_scripted = true` hands control to a cutscene (intro, transition) which must then drive velocity + `move_and_slide()` itself. Group `body`. Child `Juice` ([body_juice.gd](../scenes/body/body_juice.gd)): breathing, stretch/squash on `jumped`/`landed`, lean — scale/rotation only, `reset()` for cutscenes; delete the node and the body is as before.
 
-**Head** — [scenes/head/head.tscn](../scenes/head/head.tscn) / [head.gd](../scenes/head/head.gd) (`class_name Head`). A **frozen** `RigidBody2D` (kinematic freeze — scripted, not simulated, DESIGN §2.1), 28×28 collision centred — **solid to the body**. `Visual` on [head_frames.tres](../assets/sprites/head_frames.tres): `loose`, `imprisoned` (4-frame cage loop), `wink`. Exports `exit_speed 180`, `exit_direction RIGHT`, `spin_speed 360`, `exit_margin 64`, `caged` (plays the cage loop), `jitter_px`/`jitter_full_agitation` (*anim*: sprite-only shake). `release()` (idempotent) → translates + spins off screen → `left_scene`. Signals `released`, `left_scene`. `set_agitation(x)` scales the cage loop speed (and the shake). Group `head`. Placement: y = 306 sits on a y = 320 floor.
+**Head** — [scenes/head/head.tscn](../scenes/head/head.tscn) / [head.gd](../scenes/head/head.gd) (`class_name Head`). A **frozen** `RigidBody2D` (kinematic freeze — scripted, not simulated, DESIGN §2.1), 28×28 collision centred — **solid to the body**. `Visual` on [head_frames.tres](../assets/sprites/head_frames.tres): `loose`, `imprisoned` (4-frame cage loop), `wink`. Exports `exit_speed 180`, `exit_direction RIGHT`, `spin_speed 360`, `exit_margin 64`, `caged` (plays the cage loop), `jitter_px`/`jitter_full_agitation` (*anim*: sprite-only shake). `release()` (idempotent) → translates + spins off screen → `left_scene`. `attach(carrier, offset)` / `detach()` — follow a node without reparenting (lockdown carry); collision off while attached; `offset.x` flips with the carrier's `Visual.flip_h`. `set_solid(bool)`. Signals `released`, `left_scene`. `set_agitation(x)` scales the cage loop speed (and the shake). Group `head`. Placement: y = 306 sits on a y = 320 floor.
 
 **Sun** — [scenes/sun/sun.tscn](../scenes/sun/sun.tscn) / [sun.gd](../scenes/sun/sun.gd). The day timer: arcs `start_position → end_position` over `day_length` (**30 s**), `arc_height 40`, emits local `sunset` once; `progress() -> float` (0→1); gentle scale pulse (`pulse_amount`, *anim*). Who uses it: `DayManager` connects to `sunset` (fail the day); `Sfx` reads `day_length` and arms a timer for `sunset_warning` 5 s before the end; [sky_drift.gd](../scenes/gameplay/sky_drift.gd) polls `progress()` each frame (*anim*; a `Background` Polygon2D lerps its own colour to `dusk`).
 
@@ -100,10 +102,12 @@ The atom is **`WinCondition`** ([win_condition.gd](../scenes/gameplay/win_condit
 **A need node** owns a `WinCondition` child and calls `satisfy()` when its thing happens — it never loads scenes or decides the day is *won*. Fail goes through `DayManager.fail()`. Two exist:
 - **SpatialGoal** — [spatial_goal.tscn](../scenes/gameplay/spatial_goal.tscn) / [.gd](../scenes/gameplay/spatial_goal.gd): an `Area2D` (32×32) that satisfies on a `CharacterBody2D` entering; set `key` on the instance (forwarded to the child). Placeholder rect, green for `body` / light-green for `mind` (`body_color` / `mind_color` exports); pops when met (*anim*).
 - **PanicCounter** — [panic_counter.tscn](../scenes/gameplay/panic_counter.tscn) / [.gd](../scenes/gameplay/panic_counter.gd) (`class_name`): panic starts at 15, rises 6/s while the body moves, holds 0.5 s, falls 3/s when still; **0 satisfies `mind`**, 30 fails the day (`DayManager.fail("panic")` via group `"day_manager"`); drives `head.set_agitation()`; signals `panic_changed(int)`, `calmed`; group `panic_counter`. [panic_label.gd](../scenes/gameplay/panic_label.gd) is its placeholder readout.
+- **PuzzleChain + AnswerPad + ThoughtRain** — Lockdown's needs: [puzzle_chain.tscn](../scenes/gameplay/puzzle_chain.tscn) (two `WinCondition` children; last correct pad satisfies body + mind; `start()` after the setup beat), [answer_pad.tscn](../scenes/gameplay/answer_pad.tscn) (`class_name AnswerPad`, group `answer_pad`; stand then press `interact` / E to submit; hidden until seated), [falling_thought.tscn](../scenes/gameplay/falling_thought.tscn) + [thought_rain.gd](../scenes/gameplay/thought_rain.gd) (hit → `fail("hit")`; `autostart` off until seated; lockdown instance `fall_speed 320`, `interval 0.32`, `burst 2`). Setup lives on [day_lockdown.gd](../scenes/days/day_lockdown.gd) (pick up → `head.attach(body)` → bar + pedestal → `detach()` + seat). Win: `_before_head_release()` tips the pedestal +90° (clockwise, toward the exit), then `head.release()`.
+- **Barbell + KikiSwarm** — Workout's needs: [barbell.tscn](../scenes/gameplay/barbell.tscn) (`interact` pickup, follows the body, `pump()` on mash), [kiki_swarm.tscn](../scenes/gameplay/kiki_swarm.tscn) (two `WinCondition` children; `kiki_frames.tres`; pressure 0 satisfies body+mind, 1 → `fail("kiki")`; creep after `begin()`; `StaticBody2D` circle blocks the walk to the head). Director: [day_workout.gd](../scenes/days/day_workout.gd).
 
 **To write a new need:** a node with a `WinCondition` child (set/forward `key`), call `condition.satisfy()` once. `WinConditionManager` discovers it by class at `_ready` — no wiring for the win. A need that can *fail* the day calls `DayManager.fail()` (find group `"day_manager"`).
 
-**The manager** — [win_condition_manager.gd](../scenes/gameplay/win_condition_manager.gd) + [day_manager.gd](../scenes/gameplay/day_manager.gd). Used by every day. Reports via local signals → DayManager (`_on_condition_satisfied(key)` for per-need actions, e.g. drop the bridge). Fail → game-over card. Sunset wired on DayManager. Next scene → `Game.next_day()`. A day can sit anywhere in `DAY_SCENES`. The old `WinConditions` + `Game._on_day_completed` path is deleted.
+**The manager** — [win_condition_manager.gd](../scenes/gameplay/win_condition_manager.gd) + [day_manager.gd](../scenes/gameplay/day_manager.gd). Used by every day. Reports via local signals → DayManager (`_on_condition_satisfied(key)` for per-need actions, e.g. drop the bridge). If the day root has `_before_head_release()`, DayManager awaits it before `head.release()` (lockdown's pedestal tip). Fail → game-over card. Sunset wired on DayManager. Next scene → `Game.next_day()`. A day can sit anywhere in `DAY_SCENES`. The old `WinConditions` + `Game._on_day_completed` path is deleted.
 
 ---
 
@@ -115,12 +119,14 @@ The atom is **`WinCondition`** ([win_condition.gd](../scenes/gameplay/win_condit
 |---|---|---|---|---|---|
 | [day_template.tscn](../scenes/days/day_template.tscn) | [0] | DayManager | body (500,320) + mind (200,320) SpatialGoals | loose at (560,306) | "Template day: touch both boxes." |
 | [day_panic.tscn](../scenes/days/day_panic.tscn) | [2] | DayManager | **mind only** (PanicCounter) — DESIGN wants both | `caged = true` at (560,306) | "Your head is panicking in its cage…" |
-| [platforming_day.tscn](../scenes/days/platforming_day.tscn) + [.gd](../scenes/days/platforming_day.gd) | [3] | DayManager subclass | body = HighGoal on step 3 (drops the bridge) · mind = FarGoal across the gap | loose at (450,306) — **a solid block on the path**, the player jumps it | "Climb to the high green box — it drops a bridge." |
+| [day_lockdown.tscn](../scenes/days/day_lockdown.tscn) | [3] | DayManager | setup (carry head to pedestal) then body+mind via PuzzleChain (4 pad puzzles, `interact`); ThoughtRain fails on hit (fast, burst 2); win tips the pedestal | loose in the middle (320,306), seated at (560,258) | "Walk to the head and press E." then the puzzle line |
+| [day_workout.tscn](../scenes/days/day_workout.tscn) | [4] | DayManager | barbell pickup then mash `jump` vs KikiSwarm (creep-back, pumps bar); kiki circle blocks the head; fail sunset or `kiki` | loose at (560,306) | "Walk to the barbell and press E." then mash Space |
+| [platforming_day.tscn](../scenes/days/platforming_day.tscn) + [.gd](../scenes/days/platforming_day.gd) | [5] | DayManager subclass | body = HighGoal on step 3 (drops the bridge) · mind = FarGoal across the gap | loose at (450,306) — **a solid block on the path**, the player jumps it | "Climb to the high green box — it drops a bridge." |
 | [day_01.tscn](../scenes/days/day_01.tscn) | — | — | — | — | **broken**: references a missing `day_01.gd`; superseded by platforming_day; parked in [tools/smoke/known_broken.txt](../tools/smoke/known_broken.txt) |
 
 Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` on template/panic) · `Camera2D` at (320,180), fixed · floor top at **y = 320** · Body · Head · Sun · a manager · needs · an `Instruction` Label. The template ships as the first day today — a decision for the team.
 
-### 6.2 Transition — [scenes/transition/](../scenes/transition/) *(night/transition)*
+### 6.2 Transition — [scenes/transition/](../scenes/transition/)
 
 [transition.tscn](../scenes/transition/transition.tscn) / [transition.gd](../scenes/transition/transition.gd): **one straight slope** (y = 100 + (x+40)/3, (−40,100)→(740,360); a `StaticBody2D` + `CollisionPolygon2D`). The head (an `AnimatedSprite2D` on head_frames — *not* head.tscn; a frozen RigidBody2D under a PathFollow2D fights it) rides a `Path2D`/`PathFollow2D` 15 px above the slope from x=140 to x=500 (Tween on `progress_ratio`: `roll_time` 1.8 s accelerating to `brake_ratio` 0.85, `brake_time` 0.4 s; sprite rotates by distance ÷ radius = real rolling). **The body is the player's** (decided Sat 08:40 — body.gd untouched; the scene only sets `floor_snap_length` = `body_floor_snap` 8 so it doesn't hop downhill). Then: `_play_arrival()` plays when the body is within `arrive_distance` 40 px of the head or after `arrival_wait` 2.5 s; the beat ends only once the body has reached the head (controls off via `is_scripted`, settles; `body_arrived`), `hold_after_arrival` 0.6 s, `fade_duration` 0.4 s, `Game.next_day()`. ~4.6 s if the player runs straight there; open-ended if not (no timeout — `HUD/Instruction` says to go after it; placeholder copy).
 
@@ -137,7 +143,7 @@ Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` o
 ## 7. Assets
 
 - **Sprites** — [assets/sprites/](../assets/sprites/): `body_idle/walk/throw.png` (32×32 frames) + `body_frames.tres`; `head_front/side/keyed.png` (16×16; keyed = 8 frames: look L/C/R, wink, 4-frame cage) + `head_frames.tres`; `sun.png`; `bridge.png` (**24×8 tile, posts every 6 px** — a run that starts *and* ends on a post is 6n+2 wide; exported with `--crop`, not `--trim`). Sources in `src/*.aseprite`. Rule: **no generative art**; render at integer 2×. [README](../assets/sprites/README.md), [CREDITS](../assets/sprites/CREDITS.md).
-- **Palette** — [assets/palette/](../assets/palette/): Gooseberry Ghost + bone shadow (9): sky `#988277` · ground `#006a3d` · bone `#f1ffaf` · shadow `#cdcd99` · outline `#201c02` · greens `#25c04b` `#b2f167` · browns `#645543` `#45381c`. Write colours at **full float precision** in `.tscn` (the 6-digit form rounds to the wrong byte).
+- **Palette** — [assets/palette/](../assets/palette/): Gooseberry Ghost + bone shadow + violet ramp (12): sky `#988277` · ground `#006a3d` · bone `#f1ffaf` · shadow `#cdcd99` · outline `#201c02` · greens `#25c04b` `#b2f167` · browns `#645543` `#45381c` · violet ramp `#5e2d8c` `#8a4fb5` `#c79df2` (intrusive thoughts / kikis — `kikis.png`). Colour floats in `.tscn`: the editor writes full precision; a hand-typed 6-digit `0.596078` **renders correctly** (GPU rounds; measured Sat 17:xx, all 10 swatches exact) — it is only off by one byte through `Image.set_pixel`/`fill` (truncates → `#978277`) and fails exact `==` (use `is_equal_approx`).
 - **Audio** — [assets/audio/README.md](../assets/audio/README.md) *(night/sfx)*: `sfx/<cue>.wav|ogg` (16 cues, WAV mono 44.1k) and `music/<track>.ogg` (`intro`, `day`, `transition`, `reunion`, or a day's `music_track`). Both folders are empty by design; `Sfx` prints the missing-cue list at boot (`Sfx: 16/16 cues have no file yet — …`); Music reports nothing — a missing track is just silence.
 - **Fonts** — empty; all text is antialiased TTF — the only off-palette pixels in the palettised scenes (intro, day_template, day_panic, transition, platforming_day, reunion). Still off-palette: `game_over.tscn`'s black dim/title and `main.tscn`'s `#1b1b2a` background.
 
@@ -145,7 +151,7 @@ Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` o
 
 ## 8. Tools — [tools/](../tools/)
 
-**[tools/smoke_test.sh](../tools/smoke_test.sh)** *(night/base)* runs `--import` then six `SceneTree` scripts headless (`godot --headless --path . -s tools/smoke/<name>.gd`); red on any `FAIL`, any engine `ERROR`/`Parse Error`, or a missing `SMOKE PASS`. `tools/smoke_test.sh <suite>` runs one; `--web` also exports.
+**[tools/smoke_test.sh](../tools/smoke_test.sh)** runs `--import` then six `SceneTree` scripts headless (`godot --headless --path . -s tools/smoke/<name>.gd`); red on any `FAIL`, any engine `ERROR`/`Parse Error`, or a missing `SMOKE PASS`. `tools/smoke_test.sh <suite>` runs one; `--web` also exports.
 
 | suite | proves |
 |---|---|
