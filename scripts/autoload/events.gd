@@ -9,20 +9,19 @@ extends Node
 ## be declared on that scene's script instead (README → conventions).
 
 ## One keyed win condition in the current day was satisfied. `key` is "body" or
-## "mind" (DESIGN.md §2.2). The HUD listens to light up its indicators (TASKS.md T7).
+## "mind" (DESIGN.md §2.2). WinConditionManager emits this; Sfx / the HUD listen.
 signal condition_satisfied(key: String)
 
 ## Every win condition in the current day is now satisfied — the day is won.
-## `WinConditions` emits this; the `Game` autoload listens and moves the day on.
+## DayManager emits this as it releases the head. Game does not listen; Sfx does.
 signal day_completed
 
-## The current day was lost and should restart. `reason` is free-form for now
-## ("sunset" is the only one planned — DESIGN.md §2.1 "Timer & fail").
+## The current day was lost. DayManager emits this as it shows the game-over
+## card. `reason` is free-form ("sunset", "pit", "panic", …).
 signal day_failed(reason: String)
 
-## The sun finished its arc (TASKS.md T3). NOTE: nothing emits this yet — the
-## Sun node has its own local `sunset` signal (scenes/sun/sun.gd) and the day's
-## controller connects to that directly (WinConditions → day_failed("sunset");
-## DayManager days connect it themselves). Kept so the T0 contract still reads
+## The sun finished its arc (TASKS.md T3). NOTE: nothing emits this — the
+## Sun node has its own local `sunset` signal (scenes/sun/sun.gd) and
+## DayManager connects to that directly. Kept so the T0 contract still reads
 ## the same; emit it from the Sun if a cross-scene listener ever needs it.
 signal sunset

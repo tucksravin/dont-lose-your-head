@@ -1,0 +1,149 @@
+[gd_scene format=3]
+
+[ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_body"]
+[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="2_head"]
+[ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="3_wcm"]
+[ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="4_sun"]
+[ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="5_sky"]
+[ext_resource type="Script" path="res://scenes/gameplay/day_manager.gd" id="6_day"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="7_over"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/puzzle_chain.tscn" id="8_chain"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/answer_pad.tscn" id="9_pad"]
+[ext_resource type="Script" path="res://scenes/gameplay/thought_rain.gd" id="10_rain"]
+[ext_resource type="PackedScene" path="res://scenes/gameplay/falling_thought.tscn" id="11_thought"]
+[ext_resource type="Script" path="res://scenes/days/day_lockdown.gd" id="12_lock"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(640, 40)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_bar"]
+size = Vector2(16, 320)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_pedestal"]
+size = Vector2(56, 40)
+
+[node name="DayLockdown" type="Node2D"]
+script = ExtResource("12_lock")
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
+script = ExtResource("5_sky")
+
+[node name="Camera" type="Camera2D" parent="."]
+position = Vector2(320, 180)
+
+[node name="Floor" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+position = Vector2(320, 340)
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="Visual" type="ColorRect" parent="Floor"]
+offset_top = 320.0
+offset_right = 640.0
+offset_bottom = 360.0
+mouse_filter = 2
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
+
+[node name="Body" parent="." instance=ExtResource("1_body")]
+position = Vector2(80, 320)
+
+[node name="Head" parent="." instance=ExtResource("2_head")]
+position = Vector2(320, 306)
+
+[node name="WinConditionManager" type="Node" parent="."]
+script = ExtResource("3_wcm")
+
+[node name="DayManager" type="Node" parent="."]
+script = ExtResource("6_day")
+conditions_path = NodePath("../WinConditionManager")
+head_path = NodePath("../Head")
+game_over_path = NodePath("../GameOver")
+
+[node name="Pad0" parent="." instance=ExtResource("9_pad")]
+visible = false
+position = Vector2(160, 320)
+
+[node name="Pad1" parent="." instance=ExtResource("9_pad")]
+visible = false
+position = Vector2(320, 320)
+
+[node name="Pad2" parent="." instance=ExtResource("9_pad")]
+visible = false
+position = Vector2(480, 320)
+
+[node name="PuzzleChain" parent="." instance=ExtResource("8_chain")]
+
+[node name="ThoughtRain" type="Node2D" parent="."]
+script = ExtResource("10_rain")
+thought_scene = ExtResource("11_thought")
+autostart = false
+interval = 0.32
+start_delay = 0.15
+fall_speed = 320.0
+burst = 2
+
+[node name="Sun" parent="." instance=ExtResource("4_sun")]
+
+[node name="Instruction" type="Label" parent="."]
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 628.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "Walk to the head and press E."
+
+[node name="ExitBar" type="StaticBody2D" parent="."]
+visible = false
+position = Vector2(632, 160)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ExitBar"]
+disabled = true
+shape = SubResource("RectangleShape2D_bar")
+
+[node name="Visual" type="ColorRect" parent="ExitBar"]
+offset_left = -8.0
+offset_top = -160.0
+offset_right = 8.0
+offset_bottom = 160.0
+mouse_filter = 2
+color = Color(0.270588235294118, 0.219607843137255, 0.109803921568627, 1)
+
+[node name="Pedestal" type="Node2D" parent="."]
+visible = false
+position = Vector2(560, 320)
+
+[node name="Visual" type="ColorRect" parent="Pedestal"]
+offset_left = -16.0
+offset_top = -48.0
+offset_right = 16.0
+mouse_filter = 2
+color = Color(0.392156862745098, 0.333333333333333, 0.262745098039216, 1)
+
+[node name="Mount" type="Marker2D" parent="Pedestal"]
+position = Vector2(0, -62)
+
+[node name="Area" type="Area2D" parent="Pedestal"]
+monitoring = false
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pedestal/Area"]
+position = Vector2(0, -20)
+shape = SubResource("RectangleShape2D_pedestal")
+
+[node name="InteractPrompt" type="Label" parent="."]
+visible = false
+offset_right = 16.0
+offset_bottom = 16.0
+theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 10
+text = "E"
+horizontal_alignment = 1
+
+[node name="GameOver" parent="." instance=ExtResource("7_over")]

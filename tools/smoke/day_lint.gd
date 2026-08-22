@@ -8,8 +8,7 @@ extends SceneTree
 ## not a fail, because DESIGN §2.1 wants body + mind per day but the team has
 ## shipped a mind-only day on purpose (day_panic) — that's their call to keep.
 ##
-## Also checks Game.DAY_SCENES: every entry exists, and the ordering constraint
-## documented in game.gd (a DayManager day must be last) holds.
+## Also checks Game.DAY_SCENES: every entry exists.
 
 const Smoke := preload("res://tools/smoke/smoke_lib.gd")
 
@@ -38,8 +37,6 @@ func _run() -> void:
 			Smoke.warn("%s is on disk but not in Game.DAY_SCENES (orphan, or work in progress)" % path.get_file())
 
 	print("-- Game.DAY_SCENES")
-	var last_manager_index: int = -1
-	var anything_after_manager: bool = false
 	for i in day_list.size():
 		var p: String = str(day_list[i])
 		Smoke.check(FileAccess.file_exists(p), "DAY_SCENES[%d] exists: %s" % [i, p])
@@ -48,12 +45,6 @@ func _run() -> void:
 		Smoke.check(is_day or is_transition, "DAY_SCENES[%d] is a day or a transition" % i)
 		if is_transition:
 			await _lint_transition(p)
-		if _uses_day_manager(p):
-			last_manager_index = i
-		elif last_manager_index >= 0:
-			anything_after_manager = true
-	Smoke.check(not anything_after_manager,
-			"nothing sits after a DayManager day (DayManager jumps straight to its own next_scene — see game.gd)")
 	Smoke.check(day_list.size() > 0, "DAY_SCENES is not empty")
 
 	Smoke.finish(self, "day_lint")
@@ -78,12 +69,16 @@ func _lint_day(path: String) -> void:
 	Smoke.check(Smoke.sun_of(day) != null, "has a Sun (day timer)")
 	Smoke.check(Smoke.first_of(day, "Camera2D") != null, "has a Camera2D")
 
-	var wc_old: Node = _first_with_script(day, "res://scenes/gameplay/win_conditions.gd")
 	var wc_mgr: Node = Smoke.first_of(day, "WinConditionManager")
-	Smoke.check(wc_old != null or wc_mgr != null, "has a win-condition manager (%s)" %
-			("WinConditions/Events" if wc_old != null else ("WinConditionManager/DayManager" if wc_mgr != null else "none")))
-	if wc_mgr != null:
-		Smoke.check(Smoke.first_of(day, "DayManager") != null, "WinConditionManager is paired with a DayManager")
+	var day_mgr: Node = Smoke.first_of(day, "DayManager")
+	Smoke.check(wc_mgr != null, "has a WinConditionManager")
+	Smoke.check(day_mgr != null, "has a DayManager")
+	var overlay: Node = null
+	for n in day.find_children("*", "CanvasLayer", true, false):
+		if n.has_method("show_over"):
+			overlay = n
+			break
+	Smoke.check(overlay != null, "has a game-over overlay (show_over)")
 
 	var conds: Array[Node] = Smoke.win_conditions(day)
 	Smoke.check(conds.size() >= 1, "has at least one WinCondition: %d" % conds.size())
@@ -116,26 +111,3 @@ func _lint_transition(path: String) -> void:
 	var t: Node = ps.instantiate()
 	Smoke.check(t.has_method("_play_arrival"), "  %s is a transition (has _play_arrival)" % path.get_file())
 	t.free()
-
-
-func _first_with_script(scene: Node, script_path: String) -> Node:
-	for n in scene.find_children("*", "Node", true, false):
-		var s: Script = n.get_script() as Script
-		if s != null and s.resource_path == script_path:
-			return n
-	return null
-
-
-## True if the scene runs on Sean's DayManager system: it references
-## day_manager.gd directly, or any script it references `extends DayManager`.
-func _uses_day_manager(path: String) -> bool:
-	var text: String = FileAccess.get_file_as_string(path)
-	if text.contains("day_manager.gd"):
-		return true
-	var re: RegEx = RegEx.new()
-	re.compile("\\[ext_resource type=\"Script\"[^\\]]*path=\"(res://[^\"]+\\.gd)\"")
-	for m in re.search_all(text):
-		var src: String = FileAccess.get_file_as_string(m.get_string(1))
-		if src.contains("extends DayManager"):
-			return true
-	return false

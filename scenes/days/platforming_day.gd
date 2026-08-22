@@ -11,23 +11,19 @@ extends DayManager
 @export var bridge_path: NodePath
 ## Fall trigger under the gap.
 @export var pit_path: NodePath
-## The day's sun/timer. Connected by signal name (it has no class_name).
-@export var sun_path: NodePath
 ## Seconds for the bridge to fall into place.
 @export var bridge_drop_duration: float = 0.4
 
 @onready var bridge: StaticBody2D = get_node_or_null(bridge_path)
 @onready var pit: Area2D = get_node_or_null(pit_path)
-@onready var sun: Node2D = get_node_or_null(sun_path)
 
 
 func _ready() -> void:
-	super()  # DayManager wires the WinConditionManager signals.
+	super()  # DayManager wires the manager, the sun, and the game-over card.
 	# Bridge starts in the air with collision off, or you could stand on nothing.
 	bridge.collision_layer = 0
 	bridge.collision_mask = 0
 	pit.body_entered.connect(_on_pit)
-	sun.connect("sunset", _on_sunset)
 
 
 ## Per-need action (called down from the base via the manager). Only the body
@@ -53,7 +49,3 @@ func _enable_bridge() -> void:
 func _on_pit(body: Node2D) -> void:
 	if body is CharacterBody2D:
 		fail("pit")
-
-
-func _on_sunset() -> void:
-	fail("sunset")

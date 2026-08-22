@@ -15,9 +15,11 @@ The body needs a workout, and so does the brain. Cardio and a crossword
 
 ### Lockdown
 
-Body carries the head to pick it up; a door on the right locks behind them. A button appears on the left, a tablet on the right. Head has to solve a math puzzle on the tablet while body holds the button — both need to happen at once to unlock the door. Two things going on at the same time (§3.13 idea bank: "WarioWare with two things going on at once").
+WarioWare split attention (§3.13): two things at once. **Setup (smahr, Sat 10:56):** head alone in the middle → interact to pick it up → bar blocks the right exit and a pedestal opens → interact to seat the head, then the puzzle starts. (Earlier note to skip this beat is superseded.)
 
-Open, for whoever picks this up: does the button need to be held the whole time the head is solving, or just pressed once? What's on the puzzle if the head gets it wrong — reset, hint, nothing? Name's a placeholder.
+**Preferred (smahr, Sat 10:12): option B — dodge and answer.** Body need: sidestep things falling from the sky (kiki/bouba intrusive thoughts) — rain is fast, two at a time (smahr, Sat 11:02). Mind need: a **short chain of 3–5 puzzles** (smahr, Sat 10:17) — **built as 4**. Answers are **3 floor pads** with the possible values shown above them — stand on the pad and press **interact** (E) to submit (smahr, Sat 10:49). Last correct answer **tips the pedestal toward the exit** so the head rolls off. **Hit or wrong pad = DayManager.fail() → game-over card**. File: `scenes/days/day_lockdown.tscn`.
+
+Earlier version (dropped): hold a button on the left while the head "solves" a tablet on the right. Button is idle; dodge is a verb. Keys (1/2/3) dropped in favour of pads.
 
 ### Mirror world
 

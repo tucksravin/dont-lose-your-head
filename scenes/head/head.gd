@@ -3,11 +3,10 @@ extends RigidBody2D
 ## The head — scripted, not simulated (DESIGN.md §2.1).
 ##
 ## In a day scene the head opens **already at its stuck position** and does
-## nothing until every WinCondition in the day is satisfied. `WinConditions` then
-## reports the win on the `Events` bus, the `Game` autoload calls release(), and
-## the head rolls off screen. `left_scene` fires once it is gone, which is what
-## tells `Game` it may finally load the next day. That roll *is* the day's outro
-## beat — there is no separate outro scene.
+## nothing until every WinCondition in the day is satisfied. DayManager then
+## calls release(), and the head rolls off screen. `left_scene` fires once it
+## is gone, which is what tells DayManager to call `Game.next_day()`. That
+## roll *is* the day's outro beat — there is no separate outro scene.
 ##
 ## Why a frozen RigidBody2D instead of a plain Node2D: keeping the node type
 ## means real rolling physics is one line away — stop freezing it — if the
@@ -22,11 +21,14 @@ extends RigidBody2D
 ## it is frozen: freeze_mode KINEMATIC (rather than the default STATIC) is the
 ## mode meant for "I move this body from code" — it still reports collisions and
 ## can push other bodies, where STATIC expects the body to never move at all.
+## `attach(carrier)` / `detach()` let a day have the head follow a node
+## (lockdown: the body) without reparenting — same idea as `release()`: the day
+## decides *when*, this script owns *how it moves*.
 ## Docs: https://docs.godotengine.org/en/stable/classes/class_rigidbody2d.html
 
 ## Emitted the instant release() is called — the head has started leaving.
 signal released
-## Emitted once the head is fully off screen. Game listens for this to advance.
+## Emitted once the head is fully off screen. DayManager listens for this to advance.
 signal left_scene
 
 ## How fast the head travels once released (px/s).
@@ -56,8 +58,11 @@ signal left_scene
 
 var _leaving: bool = false
 var _agitation: float = 1.0
+var _carrier: Node2D = null
+var _carry_offset: Vector2 = Vector2(12.0, -40.0)
 
 @onready var _sprite: AnimatedSprite2D = $Visual
+@onready var _hitbox: CollisionShape2D = $CollisionShape2D
 
 
 func _ready() -> void:
@@ -70,7 +75,7 @@ func _ready() -> void:
 	# Docs: https://docs.godotengine.org/en/stable/tutorials/scripting/groups.html
 	add_to_group("head")
 	freeze_mode = RigidBody2D.FREEZE_MODE_KINEMATIC
-	# Nothing to do until release() — skip the per-frame callback entirely
+	# Nothing to do until attach() or release() — skip the per-frame callback
 	# rather than running an early-return every physics tick.
 	set_physics_process(false)
 	set_process(caged) # the shake below is caged-only
@@ -87,11 +92,40 @@ func _process(_delta: float) -> void:
 
 
 func _physics_process(delta: float) -> void:
+	if _carrier != null:
+		_follow_carrier()
+		return
 	global_position += exit_direction.normalized() * exit_speed * delta
 	rotation += deg_to_rad(spin_speed) * delta
 	if _is_off_screen():
 		set_physics_process(false)
 		left_scene.emit()
+
+
+## Follow `carrier` each physics tick (offset.x flips with the carrier's
+## `Visual.flip_h` if it has one). Collision off so we don't shove. No-op once
+## `release()` has started.
+func attach(carrier: Node2D, offset: Vector2 = Vector2(12.0, -40.0)) -> void:
+	if _leaving or carrier == null:
+		return
+	_carrier = carrier
+	_carry_offset = offset
+	set_solid(false)
+	set_physics_process(true)
+	_follow_carrier()
+
+
+## Stop following. Collision back on. Safe to call when not attached.
+func detach() -> void:
+	_carrier = null
+	set_solid(true)
+	if not _leaving:
+		set_physics_process(false)
+
+
+func set_solid(solid: bool) -> void:
+	if _hitbox != null:
+		_hitbox.disabled = not solid
 
 
 ## How fast the caged head's loop runs. 1.0 is the rate authored in
@@ -114,8 +148,20 @@ func release() -> void:
 	if _leaving:
 		return
 	_leaving = true
+	detach()
 	released.emit()
 	set_physics_process(true)
+
+
+func _follow_carrier() -> void:
+	if _carrier == null or not is_instance_valid(_carrier):
+		detach()
+		return
+	var offset: Vector2 = _carry_offset
+	var sprite: AnimatedSprite2D = _carrier.get_node_or_null("Visual") as AnimatedSprite2D
+	if sprite != null and sprite.flip_h:
+		offset.x = -offset.x
+	global_position = _carrier.global_position + offset
 
 
 ## True once the head has cleared the visible rect by exit_margin.
