@@ -32,7 +32,7 @@ tools/smoke_test.sh            # ~90 s → SMOKE: ALL GREEN
 # open in Godot, F5 (play): intro → day_template → (transition: head rolls, cage drops) → day_panic → platforming → reunion
 # F9 = overlay · F7 = skip to next scene · F1/F2 = satisfy a need · F10 = slow-mo (good for eyeballing the anim)
 ```
-Look at: the transition beat (scripted, ~4 s), the body's breathing/lean/squash (amplitudes are guesses — all `@export`s on `Body/Juice`), the sky darkening through a day, the caged head rattling as panic climbs. Then the web zip: `python3 -m http.server -d build/web 8000` → http://localhost:8000 (rebuild with `tools/export_web.sh`).
+Look at: the transition beat (was scripted, ~4 s — **playable since Sat 08:40: run right to the head**, ~4.6 s), the body's breathing/lean/squash (amplitudes are guesses — all `@export`s on `Body/Juice`), the sky darkening through a day, the caged head rattling as panic climbs. Then the web zip: `python3 -m http.server -d build/web 8000` → http://localhost:8000 (rebuild with `tools/export_web.sh`).
 
 ## 3. What the suite found (fixed vs. yours)
 
@@ -56,7 +56,7 @@ Look at: the transition beat (scripted, ~4 s), the body's breathing/lean/squash 
 6. **D11** — what R / Esc do.
 7. **Panic day has only a mind need** (DESIGN §2.1 wants both) — keep, or add a body need.
 8. **Head blocks the path** in platforming_day — intended?
-9. **Transition: scripted (as built) or playable** like the intro chase? One flag's worth of work either way.
+9. **Transition: scripted (as built) or playable** like the intro chase? One flag's worth of work either way. **→ decided Sat 08:40: playable, on one slope (DESIGN §2.1 Transitions row).**
 10. **Dev autoload** in `project.godot` — OK, or would you rather it lived as a node in `day_template`?
 11. **Sky drift is off-palette in between** (Tucker OK'd) — confirm with the others; `steps` quantises it if not.
 12. The `# Fuck you Claude` comment in `panic_label.gd` — before the repo is linked from itch.

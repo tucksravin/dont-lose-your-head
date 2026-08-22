@@ -168,7 +168,7 @@ Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` o
 | [day_lint](../tools/smoke/day_lint.gd) | every `scenes/days/*.tscn` has one head, one body, a Sun, a camera, a manager, ≥1 need; `DAY_SCENES` entries exist, are days or transitions, DayManager day last |
 | [day_chain](../tools/smoke/day_chain.gd) | force-satisfy each day → head releases → next scene → reunion |
 | [day_sunset](../tools/smoke/day_sunset.gd) | each day reacts to sunset; a *won* day ignores it |
-| [play_through](../tools/smoke/play_through.gd) | **a bot presses the real input actions and plays intro → every scene → end** (~27 s); a day with no plan is force-satisfied with a warn — add a 3-line plan when the layout is stable |
+| [play_through](../tools/smoke/play_through.gd) | **a bot presses the real input actions and plays intro → every scene → end** (~32 s); a day with no plan is force-satisfied with a warn — add a 3-line plan when the layout is stable |
 | [audio](../tools/smoke/audio.gd) | buses exist, cue names legal, cues fire at the right moments (jump/land/need/won/release/sunset), a day picks the `day` track |
 
 [smoke_lib.gd](../tools/smoke/smoke_lib.gd) holds the helpers and two hard-won rules: under `-s` the parser doesn't know autoload names (use `Smoke.autoload(tree, "Game")`), and lambdas that outlive a scene must capture **instance ids, not nodes** (`scene_id()`). A third — nothing is in the tree during `SceneTree._initialize()`, so await a frame before touching autoloads — is the comment at the top of [day_chain.gd](../tools/smoke/day_chain.gd). [known_broken.txt](../tools/smoke/known_broken.txt) lists scenes allowed to be broken — one justified line each.
@@ -189,7 +189,7 @@ These are matched by string (`has_signal` / `has_method` / `get` / `call` / grou
 
 - **Groups:** `body` (body.gd), `head` (head.gd), `panic_counter` (panic_counter.gd)
 - **Signals:** body `jumped` `landed` · head `released` `left_scene` · sun `sunset` · WinCondition `satisfied` · PanicCounter `panic_changed` `calmed` · DayManager `day_failed` · WinConditionManager `all_satisfied` `condition_satisfied`
-- **Properties / methods:** sun `day_length` `progress()` · head `release()` `set_agitation()` · WinCondition `key` `is_satisfied` `satisfy()` · DayManager `fail()` · WinConditionManager `register()` · transition `_play_arrival()` · `Game.DAY_SCENES` `REUNION_SCENE` `start_days()` `go_to()` `next_day()` `restart_day()`
+- **Properties / methods:** sun `day_length` `progress()` · head `release()` `set_agitation()` · WinCondition `key` `is_satisfied` `satisfy()` · DayManager `fail()` · WinConditionManager `register()` · transition `_play_arrival()` · `Game.DAY_SCENES` `REUNION_SCENE` `start_days()` `go_to()` `next_day()` `restart_day()` · body `speed` `gravity` (read by `get()` in transition.gd's pull-up) · body `is_scripted` (set from outside by intro.gd and transition.gd)
 - **Paths by convention:** `scenes/days/*.tscn` (lint, bot fallback, Music's `day` track) · `scenes/transition/*.tscn` (lint) · `assets/audio/sfx/<cue>.wav` (or `.ogg`), `assets/audio/music/<track>.ogg`
 
 ---
