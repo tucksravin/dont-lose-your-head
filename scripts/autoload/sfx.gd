@@ -80,6 +80,8 @@ func _ready() -> void:
 		print("Sfx: %d/%d cues have no file yet — see assets/audio/README.md: %s" %
 				[_missing.size(), CUES.size(), ", ".join(_missing)])
 
+	# DayManager / WinConditionManager emit these on the bus so Sfx doesn't
+	# double-play by also hooking their local signals.
 	Events.condition_satisfied.connect(func(_key: String) -> void: play(&"need_met"))
 	Events.day_completed.connect(func() -> void: play(&"day_won"))
 	Events.day_failed.connect(func(_reason: String) -> void: play(&"day_failed"))
@@ -127,13 +129,6 @@ func _on_node_added(node: Node) -> void:
 	elif node.has_signal("panic_changed") and node.has_signal("calmed"):
 		node.connect("panic_changed", _on_panic_changed)
 		node.connect("calmed", func() -> void: play(&"calm"))
-	elif node.has_signal("day_failed") and node.has_method("fail"):
-		# Sean's DayManager fails without touching the Events bus.
-		node.connect("day_failed", func(_reason: String) -> void: play(&"day_failed"))
-	elif node.has_signal("all_satisfied") and node.has_method("register"):
-		# ...and its WinConditionManager reports needs without the bus either.
-		node.connect("condition_satisfied", func(_key: String) -> void: play(&"need_met"))
-		node.connect("all_satisfied", func() -> void: play(&"day_won"))
 
 
 func _arm_sunset_warning(sun: Node) -> void:

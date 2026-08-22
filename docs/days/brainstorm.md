@@ -13,7 +13,11 @@ The body needs a workout, and so does the brain. Cardio and a crossword
 
 ## Lockdown
 
-Body carries the head to pick it up; a door on the right locks behind them. A button appears on the left, a tablet on the right. Head has to solve a math puzzle on the tablet while body holds the button — both need to happen at once to unlock the door. Two things going on at the same time (§3.13 idea bank: "WarioWare with two things going on at once").
+WarioWare split attention (§3.13): two things at once. Scene opens already in the room (skip the carry-the-head / locking-door setup — that's a third beat in ~30 s).
 
-Open, for whoever picks this up: does the button need to be held the whole time the head is solving, or just pressed once? What's on the puzzle if the head gets it wrong — reset, hint, nothing? Name's a placeholder.
+**Preferred (smahr, Sat 10:12): option B — dodge and answer.** Body need: sidestep things falling from the sky (kiki/bouba intrusive thoughts). Mind need: a **short chain of 3–5 puzzles** (smahr, Sat 10:17). Answers are **floor pads** with the possible values shown above them (smahr, Sat 10:18) — walk onto the right pad while dodging. Survive the whole chain + all correct → door unlocks / head releases. **Hit = instant kill → restart** (smahr, Sat 10:16; not a meter). Wrong pad → restart.
+
+Earlier version (dropped): hold a button on the left while the head "solves" a tablet on the right. Button is idle; dodge is a verb. Keys (1/2/3) dropped in favour of pads.
+
+Open, for whoever picks this up: name's a placeholder. How many pads (2 vs 3)? Does a wrong pad fail immediately on touch, or after a beat standing on it?
 

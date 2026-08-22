@@ -230,3 +230,45 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - Edge documented in code: registering a brand-new unsatisfied condition *after* `all_satisfied` has already fired won't un-complete the day (you'd register before completion).
 **Verified:** `--headless --import` clean (no SCRIPT ERROR/Parse). `--quit-after 120 res://scenes/days/platforming_day.tscn` clean — no ERROR/WARNING, manager still finds both authored conditions. Cursor's linter flags `WinCondition` type (cross-file class_name blind spot) but Godot resolves it. Runtime-spawn path itself not exercised (no day spawns one yet).
 **Open:** Same reconciliation-with-head_logic note. `register()` is untested against an actual mid-run spawn — first day that needs it should verify.
+
+## 2026-08-22 10:12 — Lockdown day: pick dodge + puzzle (option B)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** What if the body dodged things falling from the sky instead of pushing a button? Then: "i like option B"
+**Did:** Design only. Framed three variants (A dodge-until-scripted-head-finishes / B dodge-and-answer / C dodge-then-visit-tablet). smahr picked **B**. Wrote it into `docs/days/brainstorm.md` as the preferred Lockdown pitch; did **not** lock it in DESIGN.md (still a scratch card, C1). Dropped the hold-button version and the carry-head/locking-door setup as extra beats for a ~30 s day.
+**Verified:** n/a — doc edit only.
+**Open:** Instant kill vs meter; one question vs a chain; keys vs floor pads. Needs an owner before it becomes a C3 slot.
+
+## 2026-08-22 10:16 — Lockdown: instant kill on hit
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "lets go instant kill for now"
+**Did:** Scratch-doc only. `docs/days/brainstorm.md` Lockdown: hit = instant restart (not a meter). Still not in DESIGN.md.
+**Verified:** n/a — doc edit.
+**Open:** One question vs a chain; keys vs floor pads. Owner still needed.
+
+## 2026-08-22 10:17 — Lockdown: 3–5 puzzle chain
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "short chain. Say 3-5 puzzles"
+**Did:** Scratch-doc only. Lockdown mind need is now a 3–5 puzzle chain, not one. Wrong answer still restarts the day (same as a hit).
+**Verified:** n/a — doc edit.
+**Open:** Keys vs floor pads. Owner still needed.
+
+## 2026-08-22 10:18 — Lockdown: floor pads with labels
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "floor pads. Display values above them for the possible answers"
+**Did:** Scratch-doc only. Answers are floor pads with values shown above; keys dropped. Wrong pad still restarts the day.
+**Verified:** n/a — doc edit.
+**Open:** Name; pad count (2 vs 3); fail on touch vs after standing. Owner still needed.
+
+## 2026-08-22 10:37 — Migrate every day onto DayManager (D13 + D5)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "migrate everything onto B now" — DayManager owns day ending; Game is the playlist; fail = pause + Retry card; no hardcoded reunion.
+**Did:**
+- `day_manager.gd`: dropped `next_scene`; `_advance()` calls `Game.next_day()`; `fail()` is one-shot (`_ending`), shows `game_over.tscn`, emits `Events.day_failed`; auto-connects Sun `sunset`. Group `"day_manager"`.
+- `game.gd`: no longer listens to `Events.day_completed` / `day_failed`. Playlist only.
+- `win_condition_manager.gd` also emits `Events.condition_satisfied` (HUD/Sfx).
+- Migrated `day_template.tscn` and `day_panic.tscn` onto WinConditionManager + DayManager + GameOver. `platforming_day` keeps its subclass; sunset moved to the base (removed `sun_path`).
+- `PanicCounter` calls `DayManager.fail("panic")` via the group. Deleted `win_conditions.gd`.
+- `Sfx` listens only on the Events bus for need/won/fail (no double-play). `day_lint` no longer requires DayManager-last; requires GameOver.
+- DESIGN §2 D13/D5 locked; HOWTO §3 is one system; CODEBASE/TASKS/task-dependencies updated.
+**Verified:** `--headless --import` registers WinConditionManager (the only ERRORs are the known `day_01.gd` missing tab — N2, not this change). Smoke suites **all PASS**: load_all, day_lint (every day has WinConditionManager + DayManager + GameOver), day_chain (template → cage → panic → platforming → reunion), day_sunset (all three fail via game-over card; won day advances), play_through, audio (one need_met, day_won, sunset → day_failed — no double-play).
+**Open:** Lockdown day not built yet. Human should F6 a fail on template/panic and click Retry. `intro.gd` leftover `next_scene` export still unread (N4).

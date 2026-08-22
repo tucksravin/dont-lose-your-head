@@ -1,30 +1,18 @@
 extends Node
 ## Game-wide state and scene flow (autoload: `Game`).
 ##
-## This is the scene manager. It owns which day we're on and every move between
+## This is the playlist. It owns which day we're on and every move between
 ## intro / days / reunion. Nothing else should call change_scene_to_file().
 ##
-## How a day ends:
-##   WinConditions (in the day) sees the last need met → Events.day_completed
-##     → this script calls head.release()  — the head rolls off screen, which is
-##       the day's outro beat; there is no separate outro scene
-##       → head.left_scene → next_day()
-##
-## The wait for `left_scene` is the point: without it the scene would swap on the
-## same frame the last need was met and you'd never see the head leave.
+## How a day ends (DESIGN.md §2.2): DayManager owns the *when*. On win it
+## releases the head, waits for left_scene, then calls next_day() — which
+## walks this list. On fail it shows the game-over card; Retry reloads.
+## Game does not listen to Events.day_completed / day_failed.
 ##
 ## Autoloads are always in the tree, so this script must not assume a day is
 ## running. Everything below no-ops or falls through if there's no head.
 
 ## The days, in order (TASKS.md T5). Replace/extend as real days land.
-##
-## ORDERING CONSTRAINT while two flow systems coexist: days built on the older
-## `WinConditions` node (day_template) advance through this list, because they
-## emit `Events.day_completed` and _on_day_completed() below calls next_day().
-## Days built on Sean's `DayManager` (platforming_day) do NOT — DayManager calls
-## `Game.change_scene(its own next_scene)`, which defaults to the reunion. So a
-## DayManager day has to sit LAST here, or it will skip everything after it.
-## Unifying the two systems is an open team decision — see journals/tucker.md.
 ##
 ## Transitions live in this same list, right BEFORE the day they lead into: a
 ## transition scene (scenes/transition/) ends by calling next_day() itself, so
@@ -42,11 +30,6 @@ const REUNION_SCENE: String = "res://scenes/reunion/reunion.tscn"
 ## Index into DAY_SCENES. -1 means "no day running" — which is also the case when
 ## you run a day scene directly from the editor to test it.
 var current_day: int = -1
-
-
-func _ready() -> void:
-	Events.day_completed.connect(_on_day_completed)
-	Events.day_failed.connect(_on_day_failed)
 
 
 ## Load a scene by path. Thin wrapper so call sites don't reach for the tree directly.
@@ -81,24 +64,9 @@ func next_day() -> void:
 	go_to(current_day + 1)
 
 
-## Reload the current day from scratch — the fail path (DESIGN.md §2.1
-## "Timer & fail"; instant restart is the default until §3.1 is decided).
+## Reload the current day from scratch. Retry on the game-over card does this
+## itself (it also has to unpause); keep this for Dev F5 and a DayManager
+## that has no overlay assigned.
 func restart_day() -> void:
+	get_tree().paused = false
 	get_tree().reload_current_scene()
-
-
-## Every need in the day is met. Send the head off, and advance once it's gone.
-func _on_day_completed() -> void:
-	var head: Node = get_tree().get_first_node_in_group("head")
-	if head == null:
-		# No head in this scene (a test scene, say) — nothing to play out.
-		next_day()
-		return
-	# CONNECT_ONE_SHOT disconnects after the first emit, so a head that somehow
-	# re-emits can't advance the day twice.
-	head.left_scene.connect(next_day, CONNECT_ONE_SHOT)
-	head.release()
-
-
-func _on_day_failed(_reason: String) -> void:
-	restart_day()

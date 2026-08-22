@@ -84,7 +84,13 @@ func _physics_process(delta: float) -> void:
 		condition.satisfy()
 	elif value >= max_panic:
 		_failed = true
-		Events.day_failed.emit("panic")
+		# DayManager owns fail presentation (game-over card). Found by group
+		# so this node stays free of a scene path.
+		var manager: Node = get_tree().get_first_node_in_group("day_manager")
+		if manager != null and manager.has_method("fail"):
+			manager.call("fail", "panic")
+		else:
+			Events.day_failed.emit("panic")
 
 
 ## Push the meter out to the label and the head.

@@ -3,11 +3,10 @@ extends RigidBody2D
 ## The head — scripted, not simulated (DESIGN.md §2.1).
 ##
 ## In a day scene the head opens **already at its stuck position** and does
-## nothing until every WinCondition in the day is satisfied. `WinConditions` then
-## reports the win on the `Events` bus, the `Game` autoload calls release(), and
-## the head rolls off screen. `left_scene` fires once it is gone, which is what
-## tells `Game` it may finally load the next day. That roll *is* the day's outro
-## beat — there is no separate outro scene.
+## nothing until every WinCondition in the day is satisfied. DayManager then
+## calls release(), and the head rolls off screen. `left_scene` fires once it
+## is gone, which is what tells DayManager to call `Game.next_day()`. That
+## roll *is* the day's outro beat — there is no separate outro scene.
 ##
 ## Why a frozen RigidBody2D instead of a plain Node2D: keeping the node type
 ## means real rolling physics is one line away — stop freezing it — if the
@@ -26,7 +25,7 @@ extends RigidBody2D
 
 ## Emitted the instant release() is called — the head has started leaving.
 signal released
-## Emitted once the head is fully off screen. Game listens for this to advance.
+## Emitted once the head is fully off screen. DayManager listens for this to advance.
 signal left_scene
 
 ## How fast the head travels once released (px/s).

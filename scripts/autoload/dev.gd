@@ -79,7 +79,7 @@ func _unhandled_input(event: InputEvent) -> void:
 
 
 ## Satisfy every WinCondition in the current scene whose key matches
-## (empty key = all of them). Works for both flow systems because both listen
+## (empty key = all of them). DayManager / WinConditionManager both listen
 ## to WinCondition.satisfied.
 func satisfy(key: String) -> void:
 	for c in _conditions():
@@ -87,17 +87,11 @@ func satisfy(key: String) -> void:
 			c.call("satisfy")
 
 
-## Fail the current day the way its own system would: DayManager.fail() if the
-## scene has one (shows the game-over card), else Events.day_failed (restart).
+## Fail the current day. Every day has a DayManager; fail() shows the card.
 func fail() -> void:
-	var scene: Node = get_tree().current_scene
-	if scene == null:
-		return
-	var managers: Array[Node] = scene.find_children("*", "DayManager", true, false)
-	if not managers.is_empty():
-		managers[0].call("fail", "dev")
-	else:
-		Events.day_failed.emit("dev")
+	var manager: Node = get_tree().get_first_node_in_group("day_manager")
+	if manager != null and manager.has_method("fail"):
+		manager.call("fail", "dev")
 
 
 func restart() -> void:

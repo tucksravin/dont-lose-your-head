@@ -2,11 +2,13 @@
 
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_uxlmw"]
 [ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="2_wgxpk"]
-[ext_resource type="Script" uid="uid://cprrihu5t4kig" path="res://scenes/gameplay/win_conditions.gd" id="3_vx7en"]
+[ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="3_vx7en"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_jila2"]
 [ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="6_panic_counter"]
 [ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="7_panic_label"]
 [ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
+[ext_resource type="Script" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
+[ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="11_game_over"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -59,8 +61,14 @@ horizontal_alignment = 1
 script = ExtResource("7_panic_label")
 counter = NodePath("../PanicCounter")
 
-[node name="WinConditions" type="Node" parent="." unique_id=734146883]
+[node name="WinConditionManager" type="Node" parent="." unique_id=734146883]
 script = ExtResource("3_vx7en")
+
+[node name="DayManager" type="Node" parent="."]
+script = ExtResource("10_day_manager")
+conditions_path = NodePath("../WinConditionManager")
+head_path = NodePath("../Head")
+game_over_path = NodePath("../GameOver")
 
 [node name="PanicCounter" parent="." unique_id=1147921961 instance=ExtResource("6_panic_counter")]
 
@@ -76,3 +84,5 @@ theme_override_font_sizes/font_size = 14
 text = "Your head is panicking in its cage. Hold still and calm it to zero — moving winds it back up."
 
 [node name="Sun" parent="." unique_id=837465219 instance=ExtResource("5_jila2")]
+
+[node name="GameOver" parent="." instance=ExtResource("11_game_over")]

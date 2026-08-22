@@ -3,7 +3,7 @@ extends Area2D
 ##
 ## Satisfies its child WinCondition when the body touches it. It no longer loads
 ## a scene itself: the day is won when *every* condition is met, which is
-## WinConditions' call, not this node's.
+## WinConditionManager → DayManager's call, not this node's.
 ##
 ## Area2D rather than a body because we only want overlap detection — nothing
 ## should collide with a goal marker or be pushed by it.
