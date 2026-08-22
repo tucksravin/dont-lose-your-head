@@ -7,14 +7,14 @@ Game jam entry — theme **Body and Mind**. Godot **4.7.1** (standard/GDScript b
 **Read first:** [docs/DESIGN.md](docs/DESIGN.md) — what's decided (incl. Friday's meeting), what's still open, how we'll run the weekend. Task order: [docs/task-dependencies.md](docs/task-dependencies.md). Friday's raw notes: [meeting-notes-friday.md](meeting-notes-friday.md).
 
 **Where things are:** tasks → [docs/TASKS.md](docs/TASKS.md) and the shared Google Doc *(paste link here)* · chat → Discord · build → itch (Restricted, secret URL in Discord) · **deadline → Sat 23:59, submit by 22:30**.
-**If you're an LLM:** read [CLAUDE.md](CLAUDE.md) and log your work in [claudeWorkJournal.md](claudeWorkJournal.md).
+**If you're an LLM:** read [CLAUDE.md](CLAUDE.md) and log your work in `journals/<driver>.md` (one file per person; `claudeWorkJournal.md` is the frozen Friday log). **Map of the code:** [docs/CODEBASE.md](docs/CODEBASE.md).
 
 ## Quickstart
 
 1. Install **Godot 4.7.1** (standard, *not* .NET): https://godotengine.org/download — on macOS it's already at `/Applications/Godot.app`.
 2. Clone, then open Godot → **Import** → pick `project.godot` in this folder.
 3. First open takes a moment (importing). Then **Run Project** (`F5` / `⌘B` on macOS).
-4. You should see "template OK — press a key". Press `A/D/Space/E/R/Esc` or a gamepad: the label names the input action that fired. That's the whole template; the game is yours.
+4. You should land in the **intro**: a head running right, you chasing it (`A/D` move, `Space` jump). When it leaves the screen the days start. `F9` shows the debug overlay, `F7` skips to the next scene (debug builds only). The old "template OK — press a key" screen is `scenes/main.tscn`, now only the placeholder after the reunion.
 5. **Tonight, while on wifi:** Editor → **Manage Export Templates → Download and Install** (≈1 GB, one-time) so `tools/export_web.sh` works on *your* machine too. Sanity check from a terminal: `/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --quit-after 60` should print no errors.
 6. Editing scripts: Godot's built-in script editor is fine. If you'd rather use VS Code, install the **godot-tools** extension and set `godotTools.editorPath.godot4` to `/Applications/Godot.app` (that lives in `.vscode/`, which is git-ignored). `F5`/`⌘B` runs the project, `F6`/`⌘R` runs the scene you have open.
 
@@ -31,7 +31,7 @@ Everything is a **Node**; a **Scene** (`.tscn`, a text file) is a saved node tre
 | Texture filter | Nearest (pixel-perfect) | Pixel art |
 | 2D pixel snap | On (transforms + vertices) | No half-pixel shimmer |
 | Renderer | **GL Compatibility** | Required for web export — Forward+ does not run in browsers |
-| Autoloads | `Events` (signal bus), `Game` (scene flow) | Empty stubs with TODOs in `scripts/autoload/` |
+| Autoloads | `Events` (signal bus), `Game` (scene flow), `Dev` (F-keys + overlay, debug builds only), `Sfx` (sounds by cue name), `Music` (a track per scene) | `scripts/autoload/` — all implemented; see [docs/CODEBASE.md §3](docs/CODEBASE.md) |
 | Input actions | `move_left` `move_right` `jump` `interact` `restart` `pause` | Keyboard + gamepad bound (see below). Use `Input.is_action_pressed("jump")`, never raw keys. |
 | Web export preset | `export_presets.cfg` → "Web", threads **off** | Runs on itch.io without SharedArrayBuffer headers; works from a plain local http server |
 
@@ -55,24 +55,35 @@ Edit in **Project → Project Settings → Input Map**.
 
 ## Folder layout
 
+Full map with links and contracts: **[docs/CODEBASE.md](docs/CODEBASE.md)**. Short version:
+
 ```
-project.godot          engine config (edit via Project Settings, not by hand, when possible)
-export_presets.cfg     web export preset
-scenes/                one folder per thing; keep a scene's .gd next to its .tscn
-  main.tscn/.gd        boot scene (placeholder) — repoint run/main_scene when the real entry exists
-  body/  head/  days/  ui/
-scripts/autoload/      Events, Game singletons
-assets/sprites|audio|fonts
+project.godot          engine config — 640×360, input map, autoloads (Events, Game, Dev, Sfx, Music)
+export_presets.cfg     the one "Web" preset (threads off; excludes tools/*)
+default_bus_layout.tres  audio buses Master → Music, SFX
+scenes/                one folder per thing; a scene's .gd lives next to its .tscn
+  body/  head/  sun/   the three actors every day instances (+ body_juice.gd)
+  gameplay/            WinCondition + the two managers, DayManager, SpatialGoal, PanicCounter, sky_drift
+  days/                one .tscn per day (day_template is the one to copy); platforming_day.gd; day_01.tscn = broken leftover
+  transition/          head-rolls-downhill beat (base + inherited forks)
+  intro/  reunion/  ui/   first beat, last beat, game-over card; reunion/preview/ = sprite check
+  main.tscn/.gd        old boot placeholder — today only the screen after the reunion (needs an end card)
+scripts/autoload/      the five singletons
+assets/sprites|palette|audio|fonts   art + .aseprite sources, the 9-colour palette, audio drop folders (empty), fonts (empty)
+tools/smoke_test.sh    the smoke suite (tools/smoke/*.gd) — run before a PR
 tools/export_web.sh    headless web export + zip for itch
-build/                 export output (git-ignored, except build/.gdignore — keeps Godot from importing old builds)
-docs/DESIGN.md         design doc
+build/                 export output (git-ignored, except build/.gdignore)
+docs/CODEBASE.md       what's in the repo and how it fits (this is the map)
+docs/DESIGN.md         design doc — §2 is the decision record
 docs/TASKS.md          the task list (IDs, owners, sizes, done-when)
 docs/task-dependencies.md  what blocks what (Mermaid)
+docs/days/HOWTO.md     how to make a day + the numbers to design against
 docs/days/brainstorm.md    day ideas scratchpad (team)
-brainstorm.md          original brainstorm
-meeting-notes-friday.md    Friday kickoff decisions (source for DESIGN §2)
+docs/overnight-2026-08-22.md   the overnight run's report + stand-up agenda
+journals/<name>.md     one work journal per person (LLM sessions append here)
+brainstorm.md · meeting-notes-friday.md   Friday sources (DESIGN §2 defers to the notes)
 CLAUDE.md              instructions for LLM assistants
-claudeWorkJournal.md   running log of everything an LLM did in this repo
+claudeWorkJournal.md   the original Friday LLM log — frozen
 ```
 
 ## Smoke tests (run before a PR)
@@ -83,7 +94,7 @@ tools/smoke_test.sh --web    # also runs the web export and checks the output
 tools/smoke_test.sh play_through   # one suite by name
 ```
 
-Five suites in `tools/smoke/` (each is a plain `SceneTree` script run with `-s`): **load_all** — every scene/script/resource loads and every `ext_resource` path exists · **day_lint** — every `scenes/days/*.tscn` has one head, one body, a Sun, a camera, a win-condition manager and ≥1 `WinCondition`; `Game.DAY_SCENES` entries exist and are ordered legally · **day_chain** — force-satisfies each day's needs and asserts the chain reaches the reunion · **day_sunset** — each day reacts to sunset, and a *won* day ignores it · **play_through** — a bot presses the real input actions and plays intro → every day → reunion → end card; a day whose plan can't be executed goes red (update its plan in `play_through.gd` when you change a layout). `tools/smoke/known_broken.txt` lists scenes allowed to be broken, one justified line each — keep it short.
+Six suites in `tools/smoke/` (each is a plain `SceneTree` script run with `-s`): **load_all** — every scene/script/resource loads and every `ext_resource` path exists · **day_lint** — every `scenes/days/*.tscn` has one head, one body, a Sun, a camera, a win-condition manager and ≥1 `WinCondition`; `Game.DAY_SCENES` entries exist and are ordered legally · **day_chain** — force-satisfies each day's needs and asserts the chain reaches the reunion · **day_sunset** — each day reacts to sunset, and a *won* day ignores it · **play_through** — a bot presses the real input actions and plays intro → every scene → reunion → the scene after it; a day whose plan can't be executed goes red, a day with no plan is force-satisfied with a warn (add a plan in `play_through.gd` once a layout is stable) · **audio** — buses exist, cue names are legal, cues fire at the right moments. `tools/smoke/known_broken.txt` lists scenes allowed to be broken, one justified line each — keep it short.
 
 ## Exporting to itch.io
 
