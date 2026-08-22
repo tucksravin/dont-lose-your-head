@@ -431,3 +431,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Desktop: `~/Desktop/dlyh-palette/` — `dlyh-palette-card.png` (1280², every swatch with hex + rgb + use; SVG rendered via Quick Look since PIL isn't installed), `dlyh-palette-card.svg`, `dlyh-palette-strip.png` (640×64 eyedropper strip), `dlyh-palette.gpl` (Aseprite/GIMP). Not in the repo.
 **Verified:** `--headless --import` after regenerating the png: no errors. Card PNG eyeballed: 10 rows, violet last. Luma numbers computed (Rec.709 on sRGB bytes).
 **Open:** PR for `tucker/palette-violet` — pushed, not opened (Tucker checks first). The checkout is left on this branch so the repo's palette files show the violet. The violet is a rule-break by design; if anyone wants it back to 9, revert this one commit.
+
+## 2026-08-22 10:47 — Correction: 6-digit colour literals render exactly; the "wrong byte" only happens in Image.set_pixel
+**Driver:** Tucker ("how off is the rounding?") · **Agent:** Claude (Fable 5)
+**Asked:** how far off a 6-digit `.tscn` colour literal is
+**Did:** Measured instead of trusting the Fri 20:41 note (which was arithmetic, not a measurement). Rendered all 10 palette colours as ColorRects from 6-digit literals and from exact hex into a 200×300 SubViewport and read the pixels back: **all 10 identical to the hex** — the GPU rounds float→byte (`0.596078` as float32 ×255 = 151.99988 → 152). `Color.to_html()` / `r8` also round (152). Where it IS off: `Image.set_pixel`/`fill` truncate (→ `#978277`, one byte = 1/255 ≈ 0.4 % on 9 of our 10 colours), and `==` between a 6-digit Color and `Color("#988277")` is false (`is_equal_approx` true). Corrected `docs/days/HOWTO.md` palette row and `docs/CODEBASE.md` §7 accordingly (on `tucker/palette-violet`); the Fri 20:41 journal line stands as written, this entry corrects it. Probes: scratchpad `probe_rounding.gd` (windowed, SubViewport) and `probe_setpixel.gd` (headless).
+**Verified:** probe output: 10/10 "ok" for rendered; `Image.set_pixel RGB8 → six=978277 exact=988277`.
+**Open:** nothing — keep letting the editor write colours; the rule is now a footnote, not a hazard.
