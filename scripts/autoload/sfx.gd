@@ -58,18 +58,10 @@ var voices: int = 6
 ## Seconds before sunset at which "sunset_warning" fires.
 var sunset_warning_lead: float = 5.0
 
-## Footstep loop while the body is walking on the ground. Separate from the
-## CUES pool above: that pool is fire-and-forget one-shots (jump, land, …),
-## but a footstep needs an explicit start/stop, so it gets its own player and
-## its own signal (`walking_changed`) instead of going through play(). Only
-## walk_2 is wired up — the walk/ folder also has walk_1, not used yet.
-const WALK_LOOP_PATH: String = "res://assets/audio/sfx/walk/walk_2.wav"
-
 var _streams: Dictionary = { } # cue → AudioStream (only cues that have a file)
 var _players: Array[AudioStreamPlayer] = []
 var _next_player: int = 0
 var _missing: Array[StringName] = []
-var _walk_player: AudioStreamPlayer
 
 
 func _ready() -> void:
@@ -78,13 +70,6 @@ func _ready() -> void:
 		p.bus = &"SFX"
 		add_child(p)
 		_players.append(p)
-	_walk_player = AudioStreamPlayer.new()
-	_walk_player.bus = &"SFX"
-	add_child(_walk_player)
-	if ResourceLoader.exists(WALK_LOOP_PATH):
-		# Looping is already baked into walk_2.wav.import (edit/loop_mode) —
-		# trust the artist's setting rather than forcing one here.
-		_walk_player.stream = load(WALK_LOOP_PATH)
 	for cue in CUES:
 		var stream: AudioStream = _load_cue(cue)
 		if stream != null:
@@ -155,8 +140,6 @@ func _on_node_added(node: Node) -> void:
 			func() -> void:
 				play(&"land"),
 		)
-		if node.has_signal("walking_changed"):
-			node.connect("walking_changed", _on_body_walking_changed)
 	elif node.has_signal("released") and node.has_signal("left_scene"):
 		node.connect(
 			"released",
@@ -191,15 +174,6 @@ func _arm_sunset_warning(sun: Node) -> void:
 			if live is Node and (live as Node).is_inside_tree():
 				play(&"sunset_warning"),
 	)
-
-
-func _on_body_walking_changed(walking: bool) -> void:
-	if _walk_player.stream == null:
-		return
-	if walking:
-		_walk_player.play()
-	else:
-		_walk_player.stop()
 
 
 func _on_panic_changed(value: int) -> void:

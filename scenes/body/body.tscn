@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://di2q7ndtx0ofg" path="res://scenes/body/body.gd" id="1_body_script"]
 [ext_resource type="SpriteFrames" uid="uid://b2t0p72hq8rfo" path="res://assets/sprites/body_frames.tres" id="2_body_frames"]
 [ext_resource type="Script" uid="uid://bumb8etg23i02" path="res://scenes/body/body_juice.gd" id="3_body_juice"]
+[ext_resource type="AudioStream" uid="uid://1qb8mq6cwteo" path="res://assets/audio/sfx/walk/walk_2.wav" id="4_walk_sound"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(24, 32)
@@ -26,3 +27,7 @@ offset = Vector2(-16, -32)
 script = ExtResource("3_body_juice")
 body = NodePath("..")
 sprite = NodePath("../Visual")
+
+[node name="Sound" type="AudioStreamPlayer" parent="." unique_id=1248686272]
+stream = ExtResource("4_walk_sound")
+bus = &"SFX"

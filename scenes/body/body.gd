@@ -16,10 +16,6 @@ signal jumped
 ## The body touched down after being in the air. Sound and animation listen;
 ## this script doesn't know or care what they do with it.
 signal landed
-## Fires on the edge, not every frame: true when the body starts moving on
-## the ground, false when it stops or leaves the floor. Sound uses this to
-## start/stop the footstep loop.
-signal walking_changed(walking: bool)
 
 ## When true, this node ignores player input — an external script (e.g. a
 ## cutscene) is driving velocity/move_and_slide() on it directly instead.
@@ -35,6 +31,12 @@ var _was_walking: bool = false
 ## Sprite animation: "walk" while moving, "idle" otherwise; faces the direction of travel.
 ## Driven by velocity (not input) so cutscenes that set velocity directly animate too.
 @onready var _sprite: AnimatedSprite2D = $Visual
+## Footstep loop, local to the body — not the global Sfx autoload. Body is the
+## one place that actually knows "am I walking on the ground right now", and
+## the sound is nothing but that state, so it owns its own AudioStreamPlayer
+## instead of broadcasting a signal for something else to translate back into
+## play()/stop(). Docs: https://docs.godotengine.org/en/stable/tutorials/audio/audio_streams.html
+@onready var _walk_sound: AudioStreamPlayer = $Sound
 
 
 func _process(_delta: float) -> void:
@@ -102,12 +104,18 @@ func _track_landing() -> void:
 	_was_on_floor = on_floor
 
 
-## Emit `walking_changed` on the moving/still-or-floor/air edge. Same
+## Start/stop the footstep loop on the moving/still-or-floor/air edge. Same
 ## on-the-ground, moving-horizontally check the animation above uses, just
 ## edge-triggered instead of read every frame — a looping sound needs a
-## start/stop moment, not a per-frame poll.
+## start/stop moment, not a per-frame poll. Looping itself is baked into
+## walk_2.wav.import (edit/loop_mode), so play() just needs to be called once.
 func _track_walking() -> void:
 	var walking: bool = is_on_floor() and absf(velocity.x) > 1.0
 	if walking != _was_walking:
 		_was_walking = walking
-		walking_changed.emit(walking)
+		if _walk_sound.stream == null:
+			return
+		if walking:
+			_walk_sound.play()
+		else:
+			_walk_sound.stop()
