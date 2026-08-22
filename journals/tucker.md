@@ -610,3 +610,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Docs: `assets/sprites/README.md` (two paragraphs with the frame maps and the offsets), `CREDITS.md`, CODEBASE §7.
 **Verified:** both sheets are **100% on-palette** (button: `#45381c`/`#b2f167`/`#f1ffaf`; tree: `#006a3d`/`#b2f167`/`#45381c`/`#988277`). `--import` clean. Windowed renders eyeballed: tree whole with the caged head on the branch, tree after `breaking` (stub + head gone), button off, button pressed. Suite was green except the **pre-existing** `day_panic` bot stall (panic tuning, same on main).
 **Open:** the drawn button plate is only **8×3 px = 16×6 on screen**, while its trigger area is 56 px wide — if it should fill the trigger, redraw at ~28×8 rather than scaling (a non-2× scale breaks the pixel grid). The tree uses sky `#988277` for 188 px of gaps, so it only reads correctly on the sky background. Both scenes are Sean's.
+
+## 2026-08-22 16:55 — Button art doubled
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "can you just double the button I have? every pixel becomes 4?"
+**Did:** nearest-neighbour 2× of `assets/sprites/button.png` (48×16 → **96×32**, each drawn pixel now a 2×2 block), `button_frames.tres` regions 16×16 → **32×32**, and `day_panic.tscn`'s `ReleaseButton/Visual` offset (−8,−16) → **(−16,−32)** so the plate still sits on the floor. Node scale stays **2**, so it is still an ordinary 2× sprite in the scene — the plate now renders **32×12**, the same width as the body, under the 56 px trigger. Did it to the exported PNG rather than the node scale so the scene doesn't mix scale factors; `src/button.aseprite` is untouched at 16×16, so a re-export needs the doubling redone (noted in the sprites README).
+**Verified:** `--import` clean; windowed render eyeballed — plate reads at body width. (Smoke suite skipped per Tucker.)
+**Open:** none.

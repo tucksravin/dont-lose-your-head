@@ -97,7 +97,7 @@ scale = Vector2(2, 2)
 sprite_frames = ExtResource("20_button")
 animation = &"off"
 centered = false
-offset = Vector2(-8, -16)
+offset = Vector2(-16, -32)
 
 [node name="Prompt" type="Label" parent="ReleaseButton" unique_id=1256580234]
 visible = false
