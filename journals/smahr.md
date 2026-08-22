@@ -497,3 +497,59 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - DESIGN §2 Reunion row / brainstorm Built / CODEBASE 6.3 / TASKS C5 ◐. End card still N1.
 **Verified:** `--headless --import` (known `day_01.gd` only). load_all 68 / day_chain 34 PASS. play_through first FAIL (PI rotation mirrored X; bot walked to x=-1100). After `zoom.y = -1`: play_through **PASS** (20), reunion handed off in 6.2 s.
 **Open:** Human F6 — flipped walk, dive, righting, walk-off. `right_time` / `bounce_apex` are guesses. Did not build the §3.6 "faces camera" beat.
+
+## 2026-08-22 14:30 — Where are we on TASKS / dependencies?
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Where are we at in the tasks list?
+**Did:** Status in chat. TASKS header + task-dependencies.md are stale vs the run (days 2–5 + Velma + reunion upside-down exist; D13 locked).
+**Verified:** n/a — read-only.
+**Open:** none.
+
+## 2026-08-22 14:42 — Glasses on the head: intro → cage drop → Velma return
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Intro has glasses; cage loses them; Velma finds them and puts them on; rest of the game keeps them. Use head_keyed_glasses.png / glasses.png.
+**Did:**
+- `Game.wearing_glasses` persists across scenes. `Head.refresh_face()` / `look()` / `release()` pick `glasses` / `glasses_look_*` / `imprisoned_glasses` from `head_frames.tres`.
+- Intro `HeadBlob` plays `glasses_look_right`; `_ready` sets the flag true.
+- `transition_cage` rolls in on `glasses`; `_play_arrival` drops `glasses.png` onto the slope and sets the flag false. (`transition_cage.tscn` — Tucker last owned the fork; smallest add: Head override + LostGlasses.)
+- Velma pickup is now `glasses.png` (was a ColorRect). Delivery calls `Head.set_wearing_glasses(true)`.
+- **Moved `day_velma` after panic** so lose-then-find is true. Playlist: cage → panic → velma → platforming → lockdown → workout → mirror.
+- Mirror reflection uses the glasses look frames after Velma.
+- DESIGN / brainstorm / CODEBASE / HOWTO / sprites README / velma-plan.
+**Verified:** `--headless --import` clean (no ERROR). Smoke skipped on request.
+**Open:** Human F6 — intro glasses face, cage drop, Velma pickup sit, post-Velma days. Say if Velma should stay first instead (that would break "lose at cage then find").
+
+## 2026-08-22 14:54 — Panic rework, split transitions, Velma layout
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Rework panic per thoughts.md (air cage, panic on move, button, dodge kikis). Split cage vs glasses transitions (cage → panic → glasses → velma). Velma: head nearer entrance, glasses later, darker.
+**Did:**
+- `transition_cage` is cage-only (glasses stay on). New `transition_glasses.tscn` / `.gd` drops `glasses.png` and sets `Game.wearing_glasses = false`. Playlist: cage → panic → glasses → velma → …
+- Panic: head hangs at (520,168) `caged`; floor button + E satisfies body+mind; `PanicCounter` fail-only (`win_on_zero` off, WinCondition removed from the counter); kikis fly out of the cage (`flying_kiki.tscn`). `_before_head_release` drops the skull to the floor. `day_panic.tscn` last owned on the Ben/panic line — added script + nodes, didn't reorder existing ones.
+- Velma: head (180,306); platforms 380→560; glasses (560,176); `CanvasModulate` + dusk sky `#45381c` → `#201c02`.
+- DESIGN / brainstorm / CODEBASE / velma-plan / play_through plans.
+**Verified:** `--headless --import` clean (no ERROR). Smoke skipped on request.
+**Open:** Human F6 — hanging cage height, button sit, kiki interval/speed, panic 5/s vs max 40, Velma darkness + glasses visibility. D15 is now both-needs (the button).
+
+## 2026-08-22 14:58 — Panic button safe from kikis; spawn left of pad
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Can't be hit by kikis on the button; spawn kikis just left of the button.
+**Did:**
+- Standing on the button adds the body to group `kiki_safe`. `flying_kiki.gd` ignores that group (mirror never sets it). Groups: https://docs.godotengine.org/en/stable/tutorials/scripting/groups.html
+- Spawn is `ReleaseButton` + `(-40, -16)`, fly left — not from the hanging head.
+**Verified:** not verified — spawn/sit needs a human F6.
+**Open:** Human F6 — are they still hitting you as you step on, or only once planted?
+
+## 2026-08-22 14:59 — Glasses fly off mid-roll; head never parks
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** During the glasses transition, glasses should fly off while rolling; the head shouldn't stop.
+**Did:**
+- `transition_glasses.gd` overrides `_run()` (the base hook is post-stop, so `_play_arrival` can't do this). Head rolls the path without braking, glasses launch at `glasses_fly_at` 0.42, then `reparent` off the PathFollow2D and tween off the right. Body stays player-driven; we don't wait for a catch-up. Cage fork untouched.
+**Verified:** not verified — F6 the roll + launch.
+**Open:** Human F6 — `glasses_fly_at` / `glasses_fly` / `exit_end` are guesses.
+
+## 2026-08-22 15:01 — Glasses arc off the right
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Glasses should fly off to the right of the screen at an arc above the head.
+**Did:** Two-beat Tween (same as the reunion dive): up-right to an apex above the skull, then down-right to `(720, 120)` past the 640 edge, spinning the whole way. Tweens are straight lines — the arc is two beats, not a Curve.
+**Verified:** not verified — F6 the launch.
+**Open:** Human F6 — apex height / end y.

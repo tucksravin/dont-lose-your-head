@@ -37,6 +37,11 @@ var phase: Phase = Phase.CHASE
 var _exiting: bool = false
 
 
+func _ready() -> void:
+	# Full replay from the title: they start the run wearing glasses again.
+	Game.wearing_glasses = true
+
+
 func _physics_process(delta: float) -> void:
 	match phase:
 		Phase.CHASE:

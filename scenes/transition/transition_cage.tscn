@@ -7,8 +7,12 @@
 [node name="TransitionCage" instance=ExtResource("1_base")]
 script = ExtResource("2_cage_script")
 
+[node name="Head" parent="HeadPath/Follow" index="0"]
+animation = &"glasses"
+autoplay = "glasses"
+
 [node name="Cage" type="AnimatedSprite2D" parent="." index="6"]
 visible = false
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("3_head_frames")
-animation = &"imprisoned"
+animation = &"imprisoned_glasses"

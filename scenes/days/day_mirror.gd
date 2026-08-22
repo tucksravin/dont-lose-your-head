@@ -95,7 +95,15 @@ func _apply_look() -> void:
 func _play_reflection(anim: StringName) -> void:
 	if reflection == null or reflection.sprite_frames == null:
 		return
-	if reflection.sprite_frames.has_animation(anim):
+	var frames: SpriteFrames = reflection.sprite_frames
+	var glasses_anim: StringName = &""
+	if anim == &"look_left":
+		glasses_anim = &"glasses_look_left"
+	elif anim == &"look_right":
+		glasses_anim = &"glasses_look_right"
+	if Game.wearing_glasses and glasses_anim != &"" and frames.has_animation(glasses_anim):
+		reflection.play(glasses_anim)
+	elif frames.has_animation(anim):
 		reflection.play(anim)
 
 

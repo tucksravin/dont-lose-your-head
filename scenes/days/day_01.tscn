@@ -1,6 +1,5 @@
 [gd_scene format=3 uid="uid://cqjnovg70kswj"]
 
-[ext_resource type="Script" path="res://scenes/days/day_01.gd" id="1_day"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
 [ext_resource type="PackedScene" uid="uid://bl5agwe6qbg1n" path="res://scenes/gameplay/spatial_goal.tscn" id="3_goal"]
 [ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="4_head"]
@@ -22,7 +21,6 @@ size = Vector2(160, 40)
 size = Vector2(200, 80)
 
 [node name="Day01" type="Node2D" unique_id=1059043483]
-script = ExtResource("1_day")
 
 [node name="Camera" type="Camera2D" parent="." unique_id=754861994]
 position = Vector2(320, 180)

@@ -66,9 +66,6 @@ var _carry_offset: Vector2 = Vector2(12.0, -40.0)
 
 
 func _ready() -> void:
-	if caged:
-		_sprite.play(&"imprisoned")
-
 	# Groups are Godot's way to find "the one X in the current scene" without a
 	# hard node path. The Game autoload can't know where a day author put the
 	# head, so it looks it up by group instead.
@@ -79,6 +76,7 @@ func _ready() -> void:
 	# rather than running an early-return every physics tick.
 	set_physics_process(false)
 	set_process(caged) # the shake below is caged-only
+	refresh_face()
 
 
 func _process(_delta: float) -> void:
@@ -154,27 +152,51 @@ func release() -> void:
 		return
 	_leaving = true
 	detach()
-	if not caged and _sprite != null and _sprite.sprite_frames.has_animation(&"loose"):
-		_sprite.play(&"loose")
+	if not caged:
+		_play_face(&"loose", &"glasses")
 	released.emit()
 	set_physics_process(true)
 
 
 ## Face left (−1), right (+1), or the plain front (0). Plays look_left /
-## look_right from head_frames.tres (head_keyed.png f1 / f3). No-op if caged
-## or already rolling — panic keeps the imprisoned loop.
+## look_right (or the glasses variants when Game.wearing_glasses). No-op if
+## caged or already rolling — panic keeps the imprisoned loop.
 func look(dir: int) -> void:
 	if _leaving or caged or _sprite == null:
+		return
+	if dir < 0:
+		_play_face(&"look_left", &"glasses_look_left")
+	elif dir > 0:
+		_play_face(&"look_right", &"glasses_look_right")
+	else:
+		_play_face(&"loose", &"glasses")
+
+
+## Re-read Game.wearing_glasses and play the matching idle / cage loop.
+## Velma calls this after forcing the flag off, and again when they're handed over.
+func refresh_face() -> void:
+	if caged:
+		_play_face(&"imprisoned", &"imprisoned_glasses")
+	else:
+		_play_face(&"loose", &"glasses")
+
+
+func set_wearing_glasses(on: bool) -> void:
+	Game.wearing_glasses = on
+	refresh_face()
+
+
+## Pick the glasses animation when Game.wearing_glasses, else the plain one.
+func _play_face(plain: StringName, glasses: StringName) -> void:
+	if _sprite == null:
 		return
 	var frames: SpriteFrames = _sprite.sprite_frames
 	if frames == null:
 		return
-	if dir < 0 and frames.has_animation(&"look_left"):
-		_sprite.play(&"look_left")
-	elif dir > 0 and frames.has_animation(&"look_right"):
-		_sprite.play(&"look_right")
-	elif frames.has_animation(&"loose"):
-		_sprite.play(&"loose")
+	if Game.wearing_glasses and frames.has_animation(glasses):
+		_sprite.play(glasses)
+	elif frames.has_animation(plain):
+		_sprite.play(plain)
 
 
 func _follow_carrier() -> void:
