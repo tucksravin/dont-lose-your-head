@@ -66,7 +66,7 @@ func _ready() -> void:
 	# Nothing to do until release() — skip the per-frame callback entirely
 	# rather than running an early-return every physics tick.
 	set_physics_process(false)
-	set_process(caged)  # the shake below is caged-only
+	set_process(caged) # the shake below is caged-only
 
 
 func _process(_delta: float) -> void:
@@ -113,7 +113,7 @@ func release() -> void:
 ## revisiting if a scene ever scrolled.
 func _is_off_screen() -> bool:
 	var view: Vector2 = get_viewport_rect().size
-	return (global_position.x > view.x + exit_margin
-			or global_position.x < -exit_margin
-			or global_position.y > view.y + exit_margin
-			or global_position.y < -exit_margin)
+	return (
+		global_position.x > view.x + exit_margin or global_position.x < -exit_margin
+		or global_position.y > view.y + exit_margin or global_position.y < -exit_margin
+	)

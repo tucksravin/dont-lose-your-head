@@ -95,9 +95,9 @@ func _apply() -> void:
 		panic_changed.emit(shown)
 	if _head != null and _head.has_method("set_agitation"):
 		_head.call("set_agitation",
-				lerpf(calm_agitation, frantic_agitation, clampf(value / start_panic, 0.0, 1.0)))
+				lerpf(calm_agitation, frantic_agitation, ratio()))
 
 
 ## 0.0–1.0 against the starting value, for a HUD that wants a bar.
 func ratio() -> float:
-	return clampf(value / start_panic, 0.0, 1.0)
+	return clampf(value / max_panic, 0.0, 1.0)
