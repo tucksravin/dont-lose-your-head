@@ -72,7 +72,10 @@ func _run() -> void:
 		c.call("satisfy")
 	await Smoke.sleep(self, 0.1)
 	Smoke.check(_fired.has(&"day_won"), "all needs → 'day_won'")
-	Smoke.check(_fired.has(&"head_roll"), "release → 'head_roll'")
+	# head_roll rides Head.released, which DayManager fires only after the day's
+	# `_before_head_release()` beat (day_panic_still takes 1.42 s), so wait for it.
+	await Smoke.wait_until(self, func() -> bool: return _fired.has(&"head_roll"), 3.0)
+	Smoke.check(_fired.has(&"head_roll"), "release → 'head_roll' (within 3 s)")
 
 	# Sunset on a fresh day → day_failed.
 	var next: Node = await Smoke.wait_for_scene(self, scene.get_instance_id(), 6.0)
