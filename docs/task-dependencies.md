@@ -2,7 +2,7 @@
 
 What has to exist before what. The task list is [TASKS.md](TASKS.md) (same IDs — except D1–D7, Q1, K1, S0 and TR, the Friday decisions / smoke suite / dev keys / audio scaffold / transition base, which have no TASKS.md row and are tracked only here); this is the *order* view. `E*` rows (setup, hard stop, stand-up, scope check, freeze) are clock events and live only in TASKS.md; `P1r`/`P2·0` are repeats of P1/P2. Built from [DESIGN.md](DESIGN.md) §2. GitHub renders the chart; in VS Code you need a Mermaid preview extension, or read the text version below.
 
-**Reassessed Sat 22 Aug 08:00 against branch `night/all`** (what the code actually is: [CODEBASE.md](CODEBASE.md)). ✔ = evidence in the repo · ◐ = partial · no mark = not started. Rows `D13–D16` and `N1–N8` are new since Friday — candidates for the stand-up, not decisions.
+**Reassessed Sat 22 Aug 08:00 against branch `night/all`** (**merged to `main` Sat 16:48 (PR #16 squash 16:42, PR #17 merge 16:48; `main` == `night/all`)**) (what the code actually is: [CODEBASE.md](CODEBASE.md)). ✔ = evidence in the repo · ◐ = partial · no mark = not started. Rows `D13–D16` and `N1–N8` are new since Friday — candidates for the stand-up, not decisions.
 
 **Critical path now:** *merge the night's branches to `main` (N3) → decide D8 cut order + D13 flow system (E3) → days 2–3 (C3) on the web (P1r) → end card (N1, or a text card) → playtest (P2) → submit (P4).* Template, day flow, a playable day 1, the smoke suite, the audio scaffold and the transition are **done**; art and sound files run beside the path and gate the *look/sound*, not the *code*. Open decisions: **D5** fail presentation (two exist), **D8** cut order, **D11** R/Esc/after-end-card, **D12** jump arc vs step 1, **D13** one flow system or two, **D14** does `day_template` ship as day 1, **D15** panic day body need, **D16** head blocks the path in platforming_day.
 
@@ -57,13 +57,13 @@ flowchart TD
   end
 
   subgraph S["Sound — Tucker, Ben"]
-    S0["✔ S0 Sfx + Music scaffold (night/sfx)<br/>16 cues, tracks by scene"]
+    S0["✔ S0 Sfx + Music scaffold<br/>16 cues, tracks by scene"]
     S1["◐ S1 SFX files (0/16) + 3 one-line hooks"]
     S2["◐ S2 Music files (0/5)"]
   end
 
   subgraph P["Ship"]
-    N3["N3 Merge PR #16 + night/* to main, re-export"]
+    N3["✔ N3 Merged to main Sat 16:48<br/>◐ re-export + upload (P1r)"]
     J1["J1 Jam admin: rules · TZ · Doc link"]
     P1["P1 itch page + web.zip — export ✔ · upload ?"]
     P2["P2 Playtests (17:00 mini, 19:00 full)"]
@@ -144,7 +144,7 @@ flowchart TD
 
 ## Unblocked right now (Sat 08:00)
 
-- **N3 — merge.** `origin/main` is 30 commits behind `night/all`; PR #16 is open. Nothing else lands on the itch build until this does. Then `tools/smoke_test.sh --web` and upload (P1r).
+- **N3 — merge.** ✔ Done Sat 16:48 (#16 squash, then #17 = `night/all`); `main` == `night/all`. Left: `tools/smoke_test.sh --web` from `main` (**ALL GREEN** from a fresh clone of `main` @02c3b66 (Sat ~17:05: 42/37/18/9/14/28 checks) **+ web export ok** (`build/web.zip`, 11 MB)) and the upload (P1r).
 - **E3 / decisions.** D8, D13, D14, D15, D16 need five minutes each; the agenda with options is [overnight-2026-08-22.md §4](overnight-2026-08-22.md). D5/D11/D12 have defaults or proposals.
 - **C1 — day cards.** Only the Bridge card exists; day_panic and the transition were built without one. Write panic's + ~3 more in the §3.7 format.
 - **C3 — days 2–3.** One owner each; copy `day_template.tscn` per [days/HOWTO.md](days/HOWTO.md); one line in `Game.DAY_SCENES`; F7 to jump to it; a 3-line bot plan when stable.
@@ -157,7 +157,7 @@ flowchart TD
 
 | Task | Needs first | State |
 |---|---|---|
-| T0–T6, T8 template, Q1 smoke suite, K1 dev keys, S0 audio scaffold, TR transition base, C2 day 1, A1 sprites | — | **done** (on `night/all`; merge = N3) |
+| T0–T6, T8 template, Q1 smoke suite, K1 dev keys, S0 audio scaffold, TR transition base, C2 day 1, A1 sprites | — | **done** (on `main` since Sat 16:48) |
 | T7 HUD lights | T4 ✔ | instruction text ✔ per day; lights not started |
 | C1 day cards | — | 1 of ~5 |
 | C3 days 2–3, then 4–5 | T8 ✔, C1, D8, D13 (or keep "pick one system per day"); 4–5 only after 2–3 run on the web | day_panic ✔ (mind-only → D15) |
@@ -170,7 +170,7 @@ flowchart TD
 | S1 SFX files | S0 ✔ (+ 3 one-line hooks: cage, thud, bridge_drop) | 0/16 |
 | S2 music files | S0 ✔, E4 | 0/5 |
 | J1 jam admin | — | not started |
-| N3 merge + re-export | Tucker's review (done Sat 07:xx) | PR #16 + night/* open |
+| N3 merge + re-export | ✔ merged Sat 16:48 | re-export + upload (P1r) |
 | P1 itch page | N3; then after every merged day | export ✔, upload unconfirmed |
 | P2 playtests | P1, Q1 green, C2/C3 | seed list: end card, R/Esc, Firefox/Safari |
 | P5 text per day | P2 (17:00) | — |

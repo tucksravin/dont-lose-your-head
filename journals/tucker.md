@@ -421,3 +421,13 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Did:** #16 was squash-merged to main (8a13668), which made #17 CONFLICTING on six files (assets/sprites/README.md, docs/TASKS.md, journals/tucker.md, scenes/days/day_panic.tscn, scenes/head/head.gd, scripts/autoload/game.gd). main's tree == the palette-pass tip (4c6e87a, `git diff --stat` empty), which is an ancestor of night/all, so night/all already contained everything on main: merged origin/main into night/all with ours on all six (98b6c3d). Tucker's two uncommitted local files were not touched.
 **Verified:** `git diff a109880 HEAD` → empty: the merge changed nothing in the tree, so the last ALL GREEN (42/37/18/9/14/28) still holds. `gh pr view 17` after the push — see below.
 **Open:** nothing.
+
+## 2026-08-22 09:52 — Post-merge check: main is the night's work, green from a fresh clone; docs synced
+**Driver:** Tucker ("ok merged in, are we all set up now?") · **Agent:** Claude (Fable 5)
+**Asked:** confirm the repo is in the state we think after PR #16 (squash, 16:42) and PR #17 (merge, 16:48)
+**Did:**
+- Checked: `origin/main` = 02c3b66, tree identical to `night/all`; all seven branches (palette-pass, night/base/transition/daykit/sfx/anim/all) are ancestors of main. Local `main` was 3 PRs behind → moved to origin/main (`git branch -f`), checkout switched night/all → main (same tree, Tucker's two uncommitted local files untouched).
+- Fresh clone of origin/main into the scratchpad → `--import` → `tools/smoke_test.sh --web`: **ALL GREEN** (42/37/18/9/14/28) + web export ok (`build/web.zip`, 11 MB). So main is playable, bot-proven and exportable as-is.
+- Docs that still described the pre-merge branch world, on branch `tucker/post-merge-docs` (off main): TASKS.md header + N3 ✔ + P1/E2/C3a/S1 wording; task-dependencies.md (N3 node ✔, S0 label, done-table, blockers table, N3 bullet); CODEBASE.md header, "lives on" → "from" column note, the six `*(night/x)*` stamps removed, §12 "30 commits behind" line. Branch pushed, **no PR opened** (Tucker's rule) — diff: https://github.com/tucksravin/dont-lose-your-head/compare/main...tucker/post-merge-docs
+**Verified:** fresh-clone smoke log in the scratchpad (`fresh-main-smoke.log`); `git diff --stat origin/main night/all` empty; `git merge-base --is-ancestor` for each branch.
+**Open:** P1r — upload the 11 MB `web.zip` from main to itch (not visible from the repo). Old branches (night/*, tucker/palette-pass and the Friday ones) are all merged — delete or keep, Tucker's call. Stale-doc branch needs its PR.

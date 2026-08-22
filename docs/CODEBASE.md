@@ -1,6 +1,6 @@
 # Codebase overview — Sat 22 Aug, 08:00
 
-*What is in the repo and how it fits together, with links. This describes the integrated branch `night/all` (= `main` + PR #16 + the five `night/*` branches). Where a part lives on a `night/*` branch that isn't merged yet, it says so. Keep this true when you change a contract; the full per-task story is in `journals/*.md`.*
+*What is in the repo and how it fits together, with links. Written Sat 08:00 against the integration branch `night/all`; **everything here is on `main` since Sat 16:48** (PR #16 + PR #17). Keep this true when you change a contract; the full per-task story is in `journals/*.md`.*
 
 Godot **4.7.1**, GDScript with static typing, **640×360** pixel art, exported to the web. One run = **intro → the scenes in `Game.DAY_SCENES` → reunion**. Parts find each other by **signals and groups**, never by long node paths, and five autoloads hold the glue.
 
@@ -51,9 +51,9 @@ flowchart LR
 
 ## 2. Folder map
 
-*`origin/main` still holds only Friday's state. "Lives on" names the branch(es) carrying a file's **current** state: `main` = Friday's main, `#16` = PR #16 (`tucker/palette-pass`), the rest are `night/*`.*
+*All of this is on `main` (merged Sat 16:48). The "from" column says which Friday/overnight branch each part came from — useful only for reading the journals and PRs; it is not where the code lives now.*
 
-| path | what | lives on |
+| path | what | from |
 |---|---|---|
 | [project.godot](../project.godot) | 640×360, GL Compatibility, nearest filter + pixel snap, input map (`move_left/right`, `jump`, `interact`, `restart`, `pause`), autoloads | main (+ autoload lines on daykit/sfx) |
 | [export_presets.cfg](../export_presets.cfg) | the one "Web" preset (threads off); excludes `tools/*` | main (+ base) |
@@ -79,9 +79,9 @@ Autoloads are nodes Godot adds under the root before any scene, by name, in this
 |---|---|---|---|
 | **Events** | [events.gd](../scripts/autoload/events.gd) | the cross-scene signal bus — declares, never emits | `condition_satisfied(key)`, `day_completed`, `day_failed(reason)`, `sunset` (declared, **never emitted** — the Sun's local `sunset` is what's used) |
 | **Game** | [game.gd](../scripts/autoload/game.gd) | the scene manager — owns the run order and the scene changes (one bypass: GameOver's Retry calls `get_tree().reload_current_scene()` itself — [scenes/ui/game_over.gd](../scenes/ui/game_over.gd)) | `DAY_SCENES`, `REUNION_SCENE`, `current_day`; `start_days()`, `go_to(i)`, `next_day()`, `restart_day()`, `change_scene(path)`; listens to `Events.day_completed` / `day_failed` |
-| **Dev** | [dev.gd](../scripts/autoload/dev.gd) *(night/daykit)* | dev keys + overlay, **debug builds only** (inert in the web export) | F1/F2/F3 satisfy body/mind/all · F4 fail · F5 restart · F6/F7 prev/next in the run · F8 reunion · F9 overlay (needs ✓/✗, sun %, panic, body) · F10 slow-mo. Registers `debug_*` actions at runtime so the input map stays gameplay-only |
-| **Sfx** | [sfx.gd](../scripts/autoload/sfx.gd) *(night/sfx)* | sound effects by name; silent until a file exists | `CUES` (16, the single source of truth), `play(cue, pitch_scale = 1.0) -> bool`, `missing()`, `has_file()`, signal `played(cue)`. Wires itself by **signal shape** as nodes enter the tree: body `jumped`/`landed`, head `released`, Sun (has `sunset` + `day_length` → a one-shot `sunset_warning` timer 5 s before day end), PanicCounter `panic_changed`/`calmed`, DayManager `day_failed`, WinConditionManager `condition_satisfied`/`all_satisfied`; plus the Events bus. **Web:** audio can't start before the first click/keypress — and the intro plays hands-free, so the intro is silent on the web until day 1 (X4, a press-any-key screen, would fix that) |
-| **Music** | [music.gd](../scripts/autoload/music.gd) *(night/sfx)* | one looping track per scene, 0.8 s crossfade; silent until a file exists | a scene root's `music_track` export → `TRACKS` map by path → `day` for anything in `scenes/days/` → silence |
+| **Dev** | [dev.gd](../scripts/autoload/dev.gd) | dev keys + overlay, **debug builds only** (inert in the web export) | F1/F2/F3 satisfy body/mind/all · F4 fail · F5 restart · F6/F7 prev/next in the run · F8 reunion · F9 overlay (needs ✓/✗, sun %, panic, body) · F10 slow-mo. Registers `debug_*` actions at runtime so the input map stays gameplay-only |
+| **Sfx** | [sfx.gd](../scripts/autoload/sfx.gd) | sound effects by name; silent until a file exists | `CUES` (16, the single source of truth), `play(cue, pitch_scale = 1.0) -> bool`, `missing()`, `has_file()`, signal `played(cue)`. Wires itself by **signal shape** as nodes enter the tree: body `jumped`/`landed`, head `released`, Sun (has `sunset` + `day_length` → a one-shot `sunset_warning` timer 5 s before day end), PanicCounter `panic_changed`/`calmed`, DayManager `day_failed`, WinConditionManager `condition_satisfied`/`all_satisfied`; plus the Events bus. **Web:** audio can't start before the first click/keypress — and the intro plays hands-free, so the intro is silent on the web until day 1 (X4, a press-any-key screen, would fix that) |
+| **Music** | [music.gd](../scripts/autoload/music.gd) | one looping track per scene, 0.8 s crossfade; silent until a file exists | a scene root's `music_track` export → `TRACKS` map by path → `day` for anything in `scenes/days/` → silence |
 
 ---
 
@@ -89,7 +89,7 @@ Autoloads are nodes Godot adds under the root before any scene, by name, in this
 
 Every day instances all three. None of them knows about anything else by path: they add themselves to **groups** (`body`, `head`) or are found by **what they have** (the Sun by its `sunset` signal — `WinConditions` checks just that; `sky_drift` also wants `progress()`; `Sfx`/`Dev` also want `day_length`).
 
-**Body** — [scenes/body/body.tscn](../scenes/body/body.tscn) / [body.gd](../scenes/body/body.gd). `CharacterBody2D`, 24×32 collision, origin at the **feet**; `Visual` is an `AnimatedSprite2D` on [assets/sprites/body_frames.tres](../assets/sprites/body_frames.tres) (`idle`, `walk`, `throw`; `throw` unused) at 2×, `centered = false`, `offset (-16,-32)`. Exports `speed 150`, `jump_velocity -300`, `gravity 980` → **max rise 45.9 px, hang 0.61 s, 92 px reach**. Signals `jumped`, `landed`. `is_scripted = true` hands control to a cutscene (intro, transition) which must then drive velocity + `move_and_slide()` itself. Group `body`. Child `Juice` ([body_juice.gd](../scenes/body/body_juice.gd), *night/anim*): breathing, stretch/squash on `jumped`/`landed`, lean — scale/rotation only, `reset()` for cutscenes; delete the node and the body is as before.
+**Body** — [scenes/body/body.tscn](../scenes/body/body.tscn) / [body.gd](../scenes/body/body.gd). `CharacterBody2D`, 24×32 collision, origin at the **feet**; `Visual` is an `AnimatedSprite2D` on [assets/sprites/body_frames.tres](../assets/sprites/body_frames.tres) (`idle`, `walk`, `throw`; `throw` unused) at 2×, `centered = false`, `offset (-16,-32)`. Exports `speed 150`, `jump_velocity -300`, `gravity 980` → **max rise 45.9 px, hang 0.61 s, 92 px reach**. Signals `jumped`, `landed`. `is_scripted = true` hands control to a cutscene (intro, transition) which must then drive velocity + `move_and_slide()` itself. Group `body`. Child `Juice` ([body_juice.gd](../scenes/body/body_juice.gd)): breathing, stretch/squash on `jumped`/`landed`, lean — scale/rotation only, `reset()` for cutscenes; delete the node and the body is as before.
 
 **Head** — [scenes/head/head.tscn](../scenes/head/head.tscn) / [head.gd](../scenes/head/head.gd) (`class_name Head`). A **frozen** `RigidBody2D` (kinematic freeze — scripted, not simulated, DESIGN §2.1), 28×28 collision centred — **solid to the body**. `Visual` on [head_frames.tres](../assets/sprites/head_frames.tres): `loose`, `imprisoned` (4-frame cage loop), `wink`. Exports `exit_speed 180`, `exit_direction RIGHT`, `spin_speed 360`, `exit_margin 64`, `caged` (plays the cage loop), `jitter_px`/`jitter_full_agitation` (*anim*: sprite-only shake). `release()` (idempotent) → translates + spins off screen → `left_scene`. Signals `released`, `left_scene`. `set_agitation(x)` scales the cage loop speed (and the shake). Group `head`. Placement: y = 306 sits on a y = 320 floor.
 
@@ -135,7 +135,7 @@ Pick one per day, don't mix; unification is the stand-up's biggest architecture 
 
 Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` on template/panic) · `Camera2D` at (320,180), fixed · floor top at **y = 320** · Body · Head · Sun · a manager · needs · an `Instruction` Label. The template ships as the first day today — a decision for the team.
 
-### 6.2 Transition — [scenes/transition/](../scenes/transition/) *(night/transition)*
+### 6.2 Transition — [scenes/transition/](../scenes/transition/)
 
 [transition.tscn](../scenes/transition/transition.tscn) / [transition.gd](../scenes/transition/transition.gd): **one straight slope** (y = 100 + (x+40)/3, (−40,100)→(740,360); a `StaticBody2D` + `CollisionPolygon2D`). The head (an `AnimatedSprite2D` on head_frames — *not* head.tscn; a frozen RigidBody2D under a PathFollow2D fights it) rides a `Path2D`/`PathFollow2D` 15 px above the slope from x=140 to x=500 (Tween on `progress_ratio`: `roll_time` 1.8 s accelerating to `brake_ratio` 0.85, `brake_time` 0.4 s; sprite rotates by distance ÷ radius = real rolling). **The body is the player's** (decided Sat 08:40 — body.gd untouched; the scene only sets `floor_snap_length` = `body_floor_snap` 8 so it doesn't hop downhill). Then: `_play_arrival()` plays when the body is within `arrive_distance` 40 px of the head or after `arrival_wait` 2.5 s; the beat ends only once the body has reached the head (controls off via `is_scripted`, settles; `body_arrived`), `hold_after_arrival` 0.6 s, `fade_duration` 0.4 s, `Game.next_day()`. ~4.6 s if the player runs straight there; open-ended if not (no timeout — `HUD/Instruction` says to go after it; placeholder copy).
 
@@ -153,14 +153,14 @@ Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` o
 
 - **Sprites** — [assets/sprites/](../assets/sprites/): `body_idle/walk/throw.png` (32×32 frames) + `body_frames.tres`; `head_front/side/keyed.png` (16×16; keyed = 8 frames: look L/C/R, wink, 4-frame cage) + `head_frames.tres`; `sun.png`; `bridge.png` (**24×8 tile, posts every 6 px** — a run that starts *and* ends on a post is 6n+2 wide; exported with `--crop`, not `--trim`). Sources in `src/*.aseprite`. Rule: **no generative art**; render at integer 2×. [README](../assets/sprites/README.md), [CREDITS](../assets/sprites/CREDITS.md).
 - **Palette** — [assets/palette/](../assets/palette/): Gooseberry Ghost + bone shadow (9): sky `#988277` · ground `#006a3d` · bone `#f1ffaf` · shadow `#cdcd99` · outline `#201c02` · greens `#25c04b` `#b2f167` · browns `#645543` `#45381c`. Write colours at **full float precision** in `.tscn` (the 6-digit form rounds to the wrong byte).
-- **Audio** — [assets/audio/README.md](../assets/audio/README.md) *(night/sfx)*: `sfx/<cue>.wav|ogg` (16 cues, WAV mono 44.1k) and `music/<track>.ogg` (`intro`, `day`, `transition`, `reunion`, or a day's `music_track`). Both folders are empty by design; `Sfx` prints the missing-cue list at boot (`Sfx: 16/16 cues have no file yet — …`); Music reports nothing — a missing track is just silence.
+- **Audio** — [assets/audio/README.md](../assets/audio/README.md): `sfx/<cue>.wav|ogg` (16 cues, WAV mono 44.1k) and `music/<track>.ogg` (`intro`, `day`, `transition`, `reunion`, or a day's `music_track`). Both folders are empty by design; `Sfx` prints the missing-cue list at boot (`Sfx: 16/16 cues have no file yet — …`); Music reports nothing — a missing track is just silence.
 - **Fonts** — empty; all text is antialiased TTF — the only off-palette pixels in the palettised scenes (intro, day_template, day_panic, transition, platforming_day, reunion). Still off-palette: `game_over.tscn`'s black dim/title and `main.tscn`'s `#1b1b2a` background.
 
 ---
 
 ## 8. Tools — [tools/](../tools/)
 
-**[tools/smoke_test.sh](../tools/smoke_test.sh)** *(night/base)* runs `--import` then six `SceneTree` scripts headless (`godot --headless --path . -s tools/smoke/<name>.gd`); red on any `FAIL`, any engine `ERROR`/`Parse Error`, or a missing `SMOKE PASS`. `tools/smoke_test.sh <suite>` runs one; `--web` also exports.
+**[tools/smoke_test.sh](../tools/smoke_test.sh)** runs `--import` then six `SceneTree` scripts headless (`godot --headless --path . -s tools/smoke/<name>.gd`); red on any `FAIL`, any engine `ERROR`/`Parse Error`, or a missing `SMOKE PASS`. `tools/smoke_test.sh <suite>` runs one; `--web` also exports.
 
 | suite | proves |
 |---|---|
@@ -202,4 +202,4 @@ These are matched by string (`has_signal` / `has_method` / `get` / `call` / grou
 
 ## 12. Rough edges worth knowing (most are in TASKS / the stand-up agenda; the dead `Events.sunset` / intro `next_scene` and the `origin/main` lag are only noted here)
 
-- Two flow systems (§5) · the run **ends on the placeholder `main.tscn`** · `day_template` plays as day 1 · `day_01.tscn` is broken · the head blocks the path in platforming_day · `Events.sunset` and `intro.gd`'s `next_scene` are dead · `restart`/`pause` are bound but nothing in gameplay reads them (only the placeholder `main.gd` echoes them to its label) · D12 (step 1 clips the body's head; the jump can't be raised without retuning) · the comment in `panic_label.gd` · four declared cues (`step`, `cage`, `thud`, `bridge_drop`) have no caller yet · `origin/main` is 30 commits behind `night/all`.
+- Two flow systems (§5) · the run **ends on the placeholder `main.tscn`** · `day_template` plays as day 1 · `day_01.tscn` is broken · the head blocks the path in platforming_day · `Events.sunset` and `intro.gd`'s `next_scene` are dead · `restart`/`pause` are bound but nothing in gameplay reads them (only the placeholder `main.gd` echoes them to its label) · D12 (step 1 clips the body's head; the jump can't be raised without retuning) · the comment in `panic_label.gd` · four declared cues (`step`, `cage`, `thud`, `bridge_drop`) have no caller yet.
