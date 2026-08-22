@@ -272,3 +272,53 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - DESIGN §2 D13/D5 locked; HOWTO §3 is one system; CODEBASE/TASKS/task-dependencies updated.
 **Verified:** `--headless --import` registers WinConditionManager (the only ERRORs are the known `day_01.gd` missing tab — N2, not this change). Smoke suites **all PASS**: load_all, day_lint (every day has WinConditionManager + DayManager + GameOver), day_chain (template → cage → panic → platforming → reunion), day_sunset (all three fail via game-over card; won day advances), play_through, audio (one need_met, day_won, sunset → day_failed — no double-play).
 **Open:** Lockdown day not built yet. Human should F6 a fail on template/panic and click Retry. `intro.gd` leftover `next_scene` export still unread (N4).
+
+## 2026-08-22 10:46 — Build Lockdown day (C3b)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "NOw build lockdown"
+**Did:** New day on DayManager (D13). `scenes/days/day_lockdown.tscn` in `Game.DAY_SCENES` after panic, before platforming.
+- `answer_pad.tscn` — Area2D floor pad, group `answer_pad`, `chosen` + `occupied_changed`.
+- `falling_thought.tscn` — Area2D, CharacterBody2D hit → `DayManager.fail("hit")`.
+- `thought_rain.gd` — spawns across the top; stops on win/fail.
+- `puzzle_chain.tscn` — 4 glance-math puzzles, 3 pads; last correct satisfies body+mind; wrong pad → `fail("wrong")`. Ignores linger after a correct answer until every pad is empty.
+- Head at (580,306) so it isn't sitting on a pad. Rectangles only.
+**Verified:** Smoke **ALL GREEN**. day_lint: lockdown has both keys, manager, GameOver. day_chain includes lockdown. day_sunset: lockdown fail = card. play_through force-satisfies lockdown (warn — no dodge bot plan). Import ERROR is still only known `day_01.gd` (N2).
+**Open:** play_through has no bot dodge plan (force-satisfy + warn) — rain is RNG. Human F6: dodge + four pads. Name still "Lockdown".
+
+## 2026-08-22 10:53 — Pads confirm with interact
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Touch pads need an interact option — press to submit the chosen answer, not just touch it.
+**Did:**
+- `scenes/gameplay/answer_pad.gd` / `.tscn` — standing only lights the pad and shows an "E" prompt; submit is `Input.is_action_just_pressed("interact")` (E / ↓ / gamepad X, same action as reunion). Dropped `occupied_changed`. Scene owned by this C3b work; added a `Prompt` Label, no other node reorder.
+- `scenes/gameplay/puzzle_chain.gd` — no linger-until-empty guard (touch no longer auto-submits). Next puzzle still needs a fresh press because `just_pressed` is one-shot.
+- Instruction on `day_lockdown.tscn`: "Dodge the thoughts. Stand on an answer and press E." DESIGN / brainstorm / CODEBASE / TASKS C3b updated.
+**Verified:** `--headless --import` registers AnswerPad (only known ERROR is missing `day_01.gd`). Smoke **PASS**: load_all (50), day_lint (53), day_chain (22). Submit-on-E itself needs a human F6 — headless can't press while standing on a pad.
+**Open:** Human F6 lockdown: stand without submitting, then E on the right pad, then leave and press E (should do nothing). Prompt "E" is keyboard-centric; gamepad players get X.
+
+## 2026-08-22 11:00 — Lockdown setup beat (carry + bar + pedestal)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Scene start: head alone in the middle; walk up and interact; that blocks the right exit (vertical bar) and a pedestal opens; interact with the pedestal to set the head on it; then the puzzle starts and pads become available.
+**Did:**
+- `scenes/days/day_lockdown.gd` on the day root (not a DayManager subclass — this is before the needs). Phases FIND_HEAD → PLACE_HEAD → PUZZLE. Interact with head (distance, same `interact` action) picks it up: collision off, head follows the body (`global_position`, not a joint). Bar (`ExitBar` StaticBody2D) blocks x≈632; pedestal at (560,320) grows open via Tween on the ColorRect; stand on it and E seats the head on `Mount`. Then pads + PuzzleChain.start() + ThoughtRain.begin(). Bar collision drops on `head.released` so the exit roll can leave.
+- Head start (320, 306). Pads/`Question`/rain gated until seated. `answer_pad.set_enabled` + `_enabled` flag so a hidden pad can't steal E during setup.
+- DESIGN §2 Lockdown, brainstorm (supersedes the "skip setup" note), CODEBASE, TASKS C3b.
+**Assumption:** "set the head on the pedestal" = carry, not a teleport. Pedestal is on the right so it doesn't sit on a pad.
+**Verified:** `--headless --import` (only known `day_01.gd` ERROR). Smoke **PASS**: load_all (51, includes the new script), day_lint (53), day_chain (22). Setup/carry needs a human F6.
+**Open:** Sun still runs during the walk-up (setup eats into the 30 s). play_through still force-satisfies lockdown (rain is RNG). Human F6 the three beats + confirm the bar doesn't trap the head on win.
+
+## 2026-08-22 11:04 — Harder rain + pedestal tip outro
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Make the rain much faster and harder to dodge. When the final puzzle is solved, the pedestal should fall over toward the exit so the head rolls off screen.
+**Did:**
+- Lockdown ThoughtRain instance: `fall_speed 320` (was 140), `interval 0.32` (was 1.1), `start_delay 0.15`, `burst 2`. Script gained `burst` and clears leftover thoughts on stop so they don't hang over the outro.
+- `day_lockdown.gd` `_before_head_release()`: reparent head onto the mount, Tween pedestal `rotation` to −90° (CCW → top falls toward +X / the exit, `EASE_IN` / `TRANS_QUAD`), reparent head back, sit it on the floor, then DayManager `release()` rolls it off. Duck-typed from `day_manager.gd` so other days are unchanged. F3 during setup skips the tip (`_phase != PUZZLE`).
+- DESIGN / brainstorm / CODEBASE.
+**Verified:** `--headless --import` (only known `day_01.gd` ERROR). Smoke **PASS**: load_all (51), day_lint (53), day_chain (22). day_chain force-satisfies lockdown in FIND_HEAD so it does not play the tip — needs a human F6 of a real win.
+**Open:** Human F6: rain density, and the last pad → pedestal fall → head roll. Tunables are `@export` on ThoughtRain / `tip_time` if it's too brutal or the fall is slow.
+
+## 2026-08-22 11:07 — Pedestal tips toward the exit
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** The pedestal tips the wrong way.
+**Did:** Flipped the outro Tween from `-PI/2` to `+PI/2`. Godot 2D is Y-down, so positive rotation is clockwise — the top now falls toward +X (the exit). I had the handedness backwards last pass. CODEBASE sign updated.
+**Verified:** not verified — sign flip only; human F6 the win.
+**Open:** Confirm the head still rides the fall and rolls off to the right.

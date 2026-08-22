@@ -75,6 +75,9 @@ func _on_condition_satisfied(_key: String) -> void:
 
 ## All needs met. Default: send the head off and advance when it has left. Days
 ## rarely need to override this — override _on_condition_satisfied() instead.
+## If the day root has `_before_head_release()`, it runs first (lockdown tips
+## the pedestal). `await` on a function that doesn't yield returns immediately,
+## so other days are unchanged.
 func _on_all_satisfied() -> void:
 	if _ending:
 		return
@@ -83,7 +86,11 @@ func _on_all_satisfied() -> void:
 	Events.day_completed.emit()
 	if head != null:
 		head.left_scene.connect(_advance, CONNECT_ONE_SHOT)
-		head.release()
+		var host: Node = owner if owner != null else get_parent()
+		if host != null and host.has_method("_before_head_release"):
+			await host._before_head_release()
+		if is_instance_valid(head):
+			head.release()
 	else:
 		_advance()
 

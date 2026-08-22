@@ -28,14 +28,15 @@ flowchart LR
   I["intro.tscn<br/>(run/main_scene)"] -- "Game.start_days()" --> D0["day_template.tscn"]
   D0 -- "win → head rolls off" --> T1["transition_cage.tscn<br/>(head rolls downhill, gets caged)"]
   T1 -- "Game.next_day()" --> D1["day_panic.tscn<br/>(calm the caged head)"]
-  D1 -- "win" --> D2["platforming_day.tscn<br/>(three steps, bridge, gap)"]
+  D1 -- "win" --> Dlock["day_lockdown.tscn<br/>(dodge + pad puzzles)"]
+  Dlock -- "win" --> D2["platforming_day.tscn<br/>(three steps, bridge, gap)"]
   D2 -- "DayManager → Game.next_day" --> R["reunion.tscn<br/>(dive onto the head)"]
   R -- "next_scene" --> M["main.tscn<br/>(placeholder end)"]
 ```
 
 **Boot.** `project.godot` → `run/main_scene = scenes/intro/intro.tscn`. The intro is a playable chase ([scenes/intro/intro.gd](../scenes/intro/intro.gd)); when the head leaves the screen it calls `Game.start_days()`.
 
-**The list.** `Game.DAY_SCENES` ([scripts/autoload/game.gd](../scripts/autoload/game.gd)) is the run: `[day_template, transition/transition_cage, day_panic, platforming_day]`, then `Game.REUNION_SCENE`. `go_to(i)` loads entry *i* (or the reunion past the end); `next_day()` advances — and if the current scene was opened straight from the editor (F6), it first looks up where that scene sits, so testing one day still goes on to the right next one.
+**The list.** `Game.DAY_SCENES` ([scripts/autoload/game.gd](../scripts/autoload/game.gd)) is the run: `[day_template, transition/transition_cage, day_panic, day_lockdown, platforming_day]`, then `Game.REUNION_SCENE`. `go_to(i)` loads entry *i* (or the reunion past the end); `next_day()` advances — and if the current scene was opened straight from the editor (F6), it first looks up where that scene sits, so testing one day still goes on to the right next one.
 
 **How a day is won.** `WinCondition.satisfy()` → `WinConditionManager` (local `condition_satisfied` / `all_satisfied`, plus `Events.condition_satisfied` for HUD/Sfx) → **`DayManager`** releases the head, waits for `head.left_scene`, then `Game.next_day()`. The head rolling off screen *is* the day's outro (DESIGN §2.1). Game is the playlist only — it does not listen for wins.
 
@@ -100,10 +101,11 @@ The atom is **`WinCondition`** ([win_condition.gd](../scenes/gameplay/win_condit
 **A need node** owns a `WinCondition` child and calls `satisfy()` when its thing happens — it never loads scenes or decides the day is *won*. Fail goes through `DayManager.fail()`. Two exist:
 - **SpatialGoal** — [spatial_goal.tscn](../scenes/gameplay/spatial_goal.tscn) / [.gd](../scenes/gameplay/spatial_goal.gd): an `Area2D` (32×32) that satisfies on a `CharacterBody2D` entering; set `key` on the instance (forwarded to the child). Placeholder rect, green for `body` / light-green for `mind` (`body_color` / `mind_color` exports); pops when met (*anim*).
 - **PanicCounter** — [panic_counter.tscn](../scenes/gameplay/panic_counter.tscn) / [.gd](../scenes/gameplay/panic_counter.gd) (`class_name`): panic starts at 15, rises 6/s while the body moves, holds 0.5 s, falls 3/s when still; **0 satisfies `mind`**, 30 fails the day (`DayManager.fail("panic")` via group `"day_manager"`); drives `head.set_agitation()`; signals `panic_changed(int)`, `calmed`; group `panic_counter`. [panic_label.gd](../scenes/gameplay/panic_label.gd) is its placeholder readout.
+- **PuzzleChain + AnswerPad + ThoughtRain** — Lockdown's needs: [puzzle_chain.tscn](../scenes/gameplay/puzzle_chain.tscn) (two `WinCondition` children; last correct pad satisfies body + mind; `start()` after the setup beat), [answer_pad.tscn](../scenes/gameplay/answer_pad.tscn) (`class_name AnswerPad`, group `answer_pad`; stand then press `interact` / E to submit; hidden until seated), [falling_thought.tscn](../scenes/gameplay/falling_thought.tscn) + [thought_rain.gd](../scenes/gameplay/thought_rain.gd) (hit → `fail("hit")`; `autostart` off until seated; lockdown instance `fall_speed 320`, `interval 0.32`, `burst 2`). Setup lives on [day_lockdown.gd](../scenes/days/day_lockdown.gd) (pick up head → bar + pedestal → seat). Win: `_before_head_release()` tips the pedestal +90° (clockwise, toward the exit), then `head.release()`.
 
 **To write a new need:** a node with a `WinCondition` child (set/forward `key`), call `condition.satisfy()` once. `WinConditionManager` discovers it by class at `_ready` — no wiring for the win. A need that can *fail* the day calls `DayManager.fail()` (find group `"day_manager"`).
 
-**The manager** — [win_condition_manager.gd](../scenes/gameplay/win_condition_manager.gd) + [day_manager.gd](../scenes/gameplay/day_manager.gd). Used by every day. Reports via local signals → DayManager (`_on_condition_satisfied(key)` for per-need actions, e.g. drop the bridge). Fail → game-over card. Sunset wired on DayManager. Next scene → `Game.next_day()`. A day can sit anywhere in `DAY_SCENES`. The old `WinConditions` + `Game._on_day_completed` path is deleted.
+**The manager** — [win_condition_manager.gd](../scenes/gameplay/win_condition_manager.gd) + [day_manager.gd](../scenes/gameplay/day_manager.gd). Used by every day. Reports via local signals → DayManager (`_on_condition_satisfied(key)` for per-need actions, e.g. drop the bridge). If the day root has `_before_head_release()`, DayManager awaits it before `head.release()` (lockdown's pedestal tip). Fail → game-over card. Sunset wired on DayManager. Next scene → `Game.next_day()`. A day can sit anywhere in `DAY_SCENES`. The old `WinConditions` + `Game._on_day_completed` path is deleted.
 
 ---
 
@@ -115,7 +117,8 @@ The atom is **`WinCondition`** ([win_condition.gd](../scenes/gameplay/win_condit
 |---|---|---|---|---|---|
 | [day_template.tscn](../scenes/days/day_template.tscn) | [0] | DayManager | body (500,320) + mind (200,320) SpatialGoals | loose at (560,306) | "Template day: touch both boxes." |
 | [day_panic.tscn](../scenes/days/day_panic.tscn) | [2] | DayManager | **mind only** (PanicCounter) — DESIGN wants both | `caged = true` at (560,306) | "Your head is panicking in its cage…" |
-| [platforming_day.tscn](../scenes/days/platforming_day.tscn) + [.gd](../scenes/days/platforming_day.gd) | [3] | DayManager subclass | body = HighGoal on step 3 (drops the bridge) · mind = FarGoal across the gap | loose at (450,306) — **a solid block on the path**, the player jumps it | "Climb to the high green box — it drops a bridge." |
+| [day_lockdown.tscn](../scenes/days/day_lockdown.tscn) | [3] | DayManager | setup (carry head to pedestal) then body+mind via PuzzleChain (4 pad puzzles, `interact`); ThoughtRain fails on hit (fast, burst 2); win tips the pedestal | loose in the middle (320,306), seated at (560,258) | "Walk to the head and press E." then the puzzle line |
+| [platforming_day.tscn](../scenes/days/platforming_day.tscn) + [.gd](../scenes/days/platforming_day.gd) | [4] | DayManager subclass | body = HighGoal on step 3 (drops the bridge) · mind = FarGoal across the gap | loose at (450,306) — **a solid block on the path**, the player jumps it | "Climb to the high green box — it drops a bridge." |
 | [day_01.tscn](../scenes/days/day_01.tscn) | — | — | — | — | **broken**: references a missing `day_01.gd`; superseded by platforming_day; parked in [tools/smoke/known_broken.txt](../tools/smoke/known_broken.txt) |
 
 Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` on template/panic) · `Camera2D` at (320,180), fixed · floor top at **y = 320** · Body · Head · Sun · a manager · needs · an `Instruction` Label. The template ships as the first day today — a decision for the team.

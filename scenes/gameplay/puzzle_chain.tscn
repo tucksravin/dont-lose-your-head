@@ -1,0 +1,27 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scenes/gameplay/puzzle_chain.gd" id="1_chain"]
+[ext_resource type="Script" path="res://scenes/gameplay/win_condition.gd" id="2_win"]
+
+[node name="PuzzleChain" type="Node2D"]
+script = ExtResource("1_chain")
+
+[node name="BodyNeed" type="Node" parent="."]
+script = ExtResource("2_win")
+key = "body"
+
+[node name="MindNeed" type="Node" parent="."]
+script = ExtResource("2_win")
+key = "mind"
+
+[node name="Question" type="Label" parent="."]
+offset_left = 12.0
+offset_top = 36.0
+offset_right = 628.0
+offset_bottom = 64.0
+theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 22
+text = "?"
+horizontal_alignment = 1

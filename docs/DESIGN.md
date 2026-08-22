@@ -41,6 +41,7 @@ Use it as the test for every idea this weekend: *does this make the player feel 
 | **Sound** | Tucker & Ben. Different music per day is the intent — "burn that bridge once we have some scenes". |
 | **Stretch (from Friday)** | each day = a *mental* task + a *physical* task · the end scene is a **battle against the intrusive thoughts** |
 | **(C2)** | **Bridge** (`platforming_day`). Head is already on the far ledge (the snag: a gap in the floor). Body need: three jumps up a stair of platforms to the high goal. Mind need: collect the goal on the far side. Twist: the high goal **drops a bridge** across the gap. Goals vanish when collected. ~30 s. File: `scenes/days/platforming_day.tscn` (Sean). |
+| **Lockdown** *(C3b, smahr Sat 11:02)* | WarioWare split attention. Setup beat: head waits alone in the middle; interact picks it up, a vertical bar blocks the right exit, a pedestal opens on the right; interact seats the head. Then the puzzle: dodge a dense, fast rain of thoughts (hit → game-over card) while answering 4 glance-math puzzles on **3 labeled floor pads** with **interact** (E). Wrong pad or a hit → card. Last correct answer **tips the pedestal toward the exit** and the head rolls off. File: `scenes/days/day_lockdown.tscn`. |
 
 ### 2.2 How it's built
 

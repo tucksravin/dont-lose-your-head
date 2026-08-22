@@ -21,6 +21,7 @@ const DAY_SCENES: Array[String] = [
 	"res://scenes/days/day_template.tscn",
 	"res://scenes/transition/transition_cage.tscn",
 	"res://scenes/days/day_panic.tscn",
+	"res://scenes/days/day_lockdown.tscn",
 	"res://scenes/days/platforming_day.tscn",
 ]
 
