@@ -88,7 +88,8 @@ func _run() -> void:
 		if t == null:
 			continue
 		# Twice: at 2.6 s it is in the timed wait for the body (arrival_wait),
-		# at 5.5 s after the reload it is in the open-ended one (situation done).
+		# at 5.5 s after the reload the situation has played (mid-roll, or the
+		# open-ended wait for the body).
 		for at in [2.6, 5.5]:
 			await Smoke.sleep(self, float(at))
 			reload_current_scene()
