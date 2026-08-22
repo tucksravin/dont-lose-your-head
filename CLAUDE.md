@@ -59,7 +59,7 @@ It's a jam. Prefer the smallest change that works. If a request implies a new sy
 
 ## 8. Communication
 
-Ask one question at a time, with options when possible. If something is ambiguous and reversible, pick the obvious reading, do it, and note the assumption in the journal. If it's ambiguous and hard to undo (deleting scenes, rewriting shared files, changing project settings), ask first. Never commit or push unless asked.
+Ask one question at a time, with options when possible. If something is ambiguous and reversible, pick the obvious reading, do it, and note the assumption in the journal. If it's ambiguous and hard to undo (deleting scenes, rewriting shared files, changing project settings), ask first. Never commit or push unless asked; the team works in **branches + PRs into `main`**, so if asked to commit, do it on the current branch (never directly on `main` unless told) and say which branch.
 
 ## 9. Keep docs true
 

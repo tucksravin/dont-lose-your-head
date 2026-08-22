@@ -1,0 +1,32 @@
+[gd_scene format=3 uid="uid://crfpw2h4k5y8b"]
+
+[ext_resource type="PackedScene" path="res://scenes/body/body.tscn" id="1_body"]
+[ext_resource type="PackedScene" uid="uid://bl5agwe6qbg1n" path="res://scenes/gameplay/spatial_goal.tscn" id="2_wb443"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(640, 40)
+
+[node name="DayTemplate" type="Node2D" unique_id=531226403]
+
+[node name="Camera" type="Camera2D" parent="." unique_id=453660723]
+position = Vector2(320, 180)
+
+[node name="Floor" type="StaticBody2D" parent="." unique_id=382757406]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=1383798905]
+position = Vector2(320, 340)
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="Visual" type="ColorRect" parent="Floor" unique_id=648511397]
+offset_top = 320.0
+offset_right = 640.0
+offset_bottom = 360.0
+mouse_filter = 2
+color = Color(0.32, 0.22, 0.16, 1)
+
+[node name="Body" parent="." unique_id=1999184252 instance=ExtResource("1_body")]
+position = Vector2(100, 320)
+
+[node name="SpatialGoal" parent="." unique_id=1109840832 instance=ExtResource("2_wb443")]
+position = Vector2(500, 320)
+next_scene = "res://scenes/reunion/reunion.tscn"
