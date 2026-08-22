@@ -7,12 +7,9 @@ extends Node2D
 ##
 ## Lives on the day root rather than a DayManager subclass because none of this
 ## is a win-condition hook — it happens *before* the needs. DayManager still
-## owns fail / release / next_day.
-##
-## Carry is scripted (`global_position` follow), not a physics joint: the head
-## stays a frozen RigidBody2D (DESIGN §2.1) and we turn its collision off so it
-## doesn't shove the body. Same `interact` action as the reunion and the pads.
-## Docs: https://docs.godotengine.org/en/stable/tutorials/physics/physics_introduction.html
+## owns fail / release / next_day. Carry is `head.attach(body)` / `detach()` —
+## the day decides when, Head owns the follow (same pattern as `release()`).
+## Same `interact` action as the reunion and the pads.
 
 enum Phase { FIND_HEAD, PLACE_HEAD, PUZZLE }
 
@@ -38,7 +35,6 @@ enum Phase { FIND_HEAD, PLACE_HEAD, PUZZLE }
 @onready var thought_rain: Node2D = $ThoughtRain
 
 var _phase: Phase = Phase.FIND_HEAD
-var _carrying: bool = false
 var _on_pedestal: bool = false
 var _pedestal_open: bool = false
 
@@ -46,7 +42,7 @@ var _pedestal_open: bool = false
 func _ready() -> void:
 	instruction.text = find_text
 	interact_prompt.visible = false
-	_set_head_solid(true)
+	head.set_solid(true)
 	_set_exit_blocked(false)
 	_set_pads_enabled(false)
 	pedestal.visible = false
@@ -58,8 +54,6 @@ func _ready() -> void:
 
 
 func _physics_process(_delta: float) -> void:
-	if _carrying:
-		head.global_position = body.global_position + _carry_offset()
 	match _phase:
 		Phase.FIND_HEAD:
 			_poll_head_interact()
@@ -67,12 +61,6 @@ func _physics_process(_delta: float) -> void:
 			_poll_pedestal_interact()
 		Phase.PUZZLE:
 			interact_prompt.visible = false
-
-
-func _carry_offset() -> Vector2:
-	var sprite: AnimatedSprite2D = body.get_node_or_null("Visual") as AnimatedSprite2D
-	var facing: float = -1.0 if sprite != null and sprite.flip_h else 1.0
-	return Vector2(carry_offset.x * facing, carry_offset.y)
 
 
 func _poll_head_interact() -> void:
@@ -93,8 +81,7 @@ func _poll_pedestal_interact() -> void:
 
 
 func _pick_up_head() -> void:
-	_carrying = true
-	_set_head_solid(false)
+	head.attach(body, carry_offset)
 	_set_exit_blocked(true)
 	_open_pedestal()
 	_phase = Phase.PLACE_HEAD
@@ -117,12 +104,11 @@ func _open_pedestal() -> void:
 
 
 func _place_head() -> void:
-	if not _carrying:
+	if _phase != Phase.PLACE_HEAD:
 		return
-	_carrying = false
+	head.detach()
 	_phase = Phase.PUZZLE
 	head.global_position = mount.global_position
-	_set_head_solid(true)
 	interact_prompt.visible = false
 	instruction.text = puzzle_text
 	_set_pads_enabled(true)
@@ -140,8 +126,8 @@ func _place_head() -> void:
 func _before_head_release() -> void:
 	if _phase != Phase.PUZZLE:
 		return
-	_carrying = false
-	_set_head_solid(false)
+	head.detach()
+	head.set_solid(false)
 	pedestal_area.monitoring = false
 	_reparent_keep_global(head, mount)
 	head.position = Vector2.ZERO
@@ -187,7 +173,6 @@ func _sync_pedestal_occupation() -> void:
 
 
 func _on_head_released() -> void:
-	_carrying = false
 	_set_exit_blocked(false)
 
 
@@ -198,12 +183,6 @@ func _on_day_completed() -> void:
 func _set_exit_blocked(blocked: bool) -> void:
 	exit_bar.visible = blocked
 	exit_bar_shape.disabled = not blocked
-
-
-func _set_head_solid(solid: bool) -> void:
-	var shape: CollisionShape2D = head.get_node_or_null("CollisionShape2D") as CollisionShape2D
-	if shape != null:
-		shape.disabled = not solid
 
 
 func _set_pads_enabled(on: bool) -> void:

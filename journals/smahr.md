@@ -322,3 +322,19 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Flipped the outro Tween from `-PI/2` to `+PI/2`. Godot 2D is Y-down, so positive rotation is clockwise — the top now falls toward +X (the exit). I had the handedness backwards last pass. CODEBASE sign updated.
 **Verified:** not verified — sign flip only; human F6 the win.
 **Open:** Confirm the head still rides the fall and rolls off to the right.
+
+## 2026-08-22 11:17 — Where should carry live?
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Should the carrying follow at day_lockdown.gd:61–62 live on the game file or the head script? Opinion: game sets initial position; the head should manage follow.
+**Did:** Answered in chat, no files changed. Recommended **not** `Game` (playlist only). Follow loop belongs on `Head` (`attach`/`detach`, same "call down, head moves itself" as `release()`). Day still decides *when*. Scene placement already is the initial position. Reparent-to-body rejected (RigidBody2D under CharacterBody2D). Status quo is fine if carry stays lockdown-only.
+**Verified:** n/a — design question.
+**Open:** smahr hasn't picked yet. If B, `carry_offset` / facing-flip might stay a day export passed into `attach()`.
+
+## 2026-08-22 11:19 — Move carry onto Head.attach
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** yes move it to head
+**Did:**
+- `head.gd`: `attach(carrier, offset)` / `detach()` / `set_solid()`. Follow lives in Head `_physics_process` (offset.x flips with carrier `Visual.flip_h`). Collision off while attached. `release()` detaches first so follow can't fight the roll.
+- `day_lockdown.gd`: pickup → `head.attach(body, carry_offset)`; place → `detach()` then snap to mount. No more per-frame `global_position` on the day. CODEBASE Head + Lockdown lines updated.
+**Verified:** `--headless --import` (known `day_01.gd` only). `load_all` PASS (51). Carry feel needs a human F6.
+**Open:** none.
