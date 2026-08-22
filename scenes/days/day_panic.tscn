@@ -1,0 +1,56 @@
+[gd_scene format=3 uid="uid://bw1p0aa6rbdm6"]
+
+[ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_uxlmw"]
+[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="2_wgxpk"]
+[ext_resource type="Script" uid="uid://cprrihu5t4kig" path="res://scenes/gameplay/win_conditions.gd" id="3_vx7en"]
+[ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_jila2"]
+[ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="6_panic_counter"]
+[ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="7_panic_label"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(640, 40)
+
+[sub_resource type="LabelSettings" id="LabelSettings_panic"]
+font_size = 10
+
+[node name="DayPanic" type="Node2D" unique_id=1567717338]
+
+[node name="Camera" type="Camera2D" parent="." unique_id=453660723]
+position = Vector2(320, 180)
+
+[node name="Floor" type="StaticBody2D" parent="." unique_id=382757406]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=1383798905]
+position = Vector2(320, 340)
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="Visual" type="ColorRect" parent="Floor" unique_id=648511397]
+offset_top = 320.0
+offset_right = 640.0
+offset_bottom = 360.0
+mouse_filter = 2
+color = Color(0.32, 0.22, 0.16, 1)
+
+[node name="Body" parent="." unique_id=1999184252 instance=ExtResource("1_uxlmw")]
+position = Vector2(100, 320)
+
+[node name="Head" parent="." unique_id=439176854 instance=ExtResource("2_wgxpk")]
+position = Vector2(560, 306)
+
+[node name="PanicLabel" type="Label" parent="Head" unique_id=1408601503 node_paths=PackedStringArray("counter")]
+offset_left = -30.0
+offset_top = -36.0
+offset_right = 30.0
+offset_bottom = -20.0
+text = "Panic: 0"
+label_settings = SubResource("LabelSettings_panic")
+horizontal_alignment = 1
+script = ExtResource("7_panic_label")
+counter = NodePath("../../PanicCounter")
+
+[node name="WinConditions" type="Node" parent="." unique_id=734146883]
+script = ExtResource("3_vx7en")
+
+[node name="PanicCounter" parent="." unique_id=1147921961 instance=ExtResource("6_panic_counter")]
+
+[node name="Sun" parent="." unique_id=837465219 instance=ExtResource("5_jila2")]
