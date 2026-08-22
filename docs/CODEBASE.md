@@ -45,7 +45,7 @@ flowchart LR
 
 **How a day fails.** System A: `Events.day_failed(reason)` → `Game.restart_day()` (instant reload). Emitters: `WinConditions` on the Sun's `sunset`, `PanicCounter` at max panic, Dev's F4 (on a day without a `DayManager`; otherwise F4 calls `DayManager.fail()` instead). System B: `DayManager.fail()` → [scenes/ui/game_over.tscn](../scenes/ui/game_over.tscn) (pauses, Retry reloads). Two presentations — D5 is still open.
 
-**Transitions** are ordinary entries in the list that play a ~4 s scripted beat and end with `Game.next_day()` themselves — put one right before the day it leads into.
+**Transitions** are ordinary entries in the list that play a short beat (the head rolls off down a slope; the player runs the body to it) and end with `Game.next_day()` themselves — put one right before the day it leads into.
 
 ---
 
@@ -137,7 +137,7 @@ Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` o
 
 ### 6.2 Transition — [scenes/transition/](../scenes/transition/) *(night/transition)*
 
-[transition.tscn](../scenes/transition/transition.tscn) / [transition.gd](../scenes/transition/transition.gd): the head (an `AnimatedSprite2D` on head_frames — *not* head.tscn; a frozen RigidBody2D under a PathFollow2D fights it) rides a `Path2D`/`PathFollow2D` down a hill (Tween on `progress_ratio`, sprite rotates by distance ÷ radius = real rolling); the body runs after it (`is_scripted`, gravity/slope/walk from body.gd); the arrival waits for the body (capped by `body_catch_up_timeout` = 2.5 s); `_play_arrival()` plays; 0.6 s hold; 0.4 s fade; `Game.next_day()`. ~4.5–5 s (roll 2.2 s + the wait for the body), scripted, identical every run.
+[transition.tscn](../scenes/transition/transition.tscn) / [transition.gd](../scenes/transition/transition.gd): **one straight slope** (y = 100 + (x+40)/3, (−40,100)→(740,360); a `StaticBody2D` + `CollisionPolygon2D`). The head (an `AnimatedSprite2D` on head_frames — *not* head.tscn; a frozen RigidBody2D under a PathFollow2D fights it) rides a `Path2D`/`PathFollow2D` 15 px above the slope from x=140 to x=500 (Tween on `progress_ratio`: `roll_time` 1.8 s accelerating to `brake_ratio` 0.85, `brake_time` 0.4 s; sprite rotates by distance ÷ radius = real rolling). **The body is the player's** (decided Sat 08:40 — body.gd untouched; the scene only sets `floor_snap_length` = `body_floor_snap` 8 so it doesn't hop downhill). Then: `_play_arrival()` plays when the body is within `arrive_distance` 40 px of the head or after `arrival_wait` 2.5 s; the beat ends only once the body has reached the head (controls off via `is_scripted`, settles; `body_arrived`), `hold_after_arrival` 0.6 s, `fade_duration` 0.4 s, `Game.next_day()`. ~4.6 s if the player runs straight there; open-ended if not (no timeout — `HUD/Instruction` says to go after it; placeholder copy).
 
 **Fork recipe (decided Fri 22:50 — inherited scenes):** *Scene → New Inherited Scene* from `transition.tscn` → save as `transition_<situation>.tscn`; a script `extends "res://scenes/transition/transition.gd"` overriding only `_play_arrival()`; add props as new nodes; put it in `DAY_SCENES` right before its day. Worked example: [transition_cage.tscn](../scenes/transition/transition_cage.tscn) / [.gd](../scenes/transition/transition_cage.gd) — a second `imprisoned` sprite drops onto the head (no new art) → day_panic.
 
