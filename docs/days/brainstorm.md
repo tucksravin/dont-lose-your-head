@@ -25,6 +25,8 @@ Earlier version (dropped): hold a button on the left while the head "solves" a t
 
 head get's stuck staring at itself in the mirror, flips left and right until you can remove it.
 
+**Built (smahr, Sat 13:49) as `day_mirror.tscn` (C3d, option B).** Head sits on a right-hand platform. A placeholder ColorRect mirror runs from the floor up to it. Head alternates look-at-glass (`look_right`, left/right *and* up/down flipped — ↓ hops) and look-at-player (`look_left`, normal) every `look_hold` (2.2 s). Lil kikis fly out of the glass toward the body (jump them; hit = fail). Walk to the glass, `interact` throws it off the right; the head rolls after it. Fail: sunset or kiki. In `Game.DAY_SCENES` after workout, before platforming.
+
 ### Upside down - the final scene - reunion
 
 walk in with the screen flipped upside down, do the animation that we have, then bounce to standing and the screen rights itself, then we walk off into the sunset

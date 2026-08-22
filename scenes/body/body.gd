@@ -4,6 +4,12 @@ extends CharacterBody2D
 @export var speed: float = 150.0
 @export var jump_velocity: float = -300.0
 @export var gravity: float = 980.0
+## Multiply the walk axis. 1 = normal; −1 = left/right swapped (mirror day).
+## Other days leave this at 1. Sprite still faces travel, not the key pressed.
+@export var move_sign: float = 1.0
+## When true, jump reads `move_down` (↓) instead of `jump` (↑ / Space / W).
+## Mirror day flips this with the head's look. Other days leave it false.
+@export var invert_vertical: bool = false
 
 ## The body left the ground by jumping (not by walking off a ledge).
 signal jumped
@@ -27,12 +33,23 @@ var _was_on_floor: bool = true
 
 
 func _process(_delta: float) -> void:
+	# throw is a one-shot (body_frames, 3 frames, no loop). Don't stomp it
+	# with idle/walk — the mirror day plays it, then the sheet holds the last
+	# frame until something else calls play().
+	if _sprite.animation == &"throw":
+		return
 	if absf(velocity.x) > 1.0:
 		_sprite.flip_h = velocity.x < 0.0
 		if _sprite.animation != &"walk":
 			_sprite.play(&"walk")
 	elif _sprite.animation != &"idle":
 		_sprite.play(&"idle")
+
+
+## Play the authored throw sheet. No-op if the frames aren't there.
+func play_throw() -> void:
+	if _sprite != null and _sprite.sprite_frames.has_animation(&"throw"):
+		_sprite.play(&"throw")
 
 
 func _ready() -> void:
@@ -48,11 +65,11 @@ func _physics_process(delta: float) -> void:
 	if not is_on_floor():
 		velocity.y += gravity * delta
 
-	if Input.is_action_just_pressed("jump") and is_on_floor():
+	if _jump_requested() and is_on_floor():
 		velocity.y = jump_velocity
 		jumped.emit()
 
-	var direction: float = Input.get_axis("move_left", "move_right")
+	var direction: float = Input.get_axis("move_left", "move_right") * move_sign
 	if direction != 0.0:
 		velocity.x = direction * speed
 	else:
@@ -60,6 +77,12 @@ func _physics_process(delta: float) -> void:
 
 	move_and_slide()
 	_track_landing()
+
+
+func _jump_requested() -> bool:
+	if invert_vertical:
+		return Input.is_action_just_pressed("move_down")
+	return Input.is_action_just_pressed("jump")
 
 
 ## Emit `landed` on the air→floor edge. Called after move_and_slide() so

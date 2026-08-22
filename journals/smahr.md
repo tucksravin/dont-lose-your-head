@@ -367,3 +367,44 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - DESIGN §2 / brainstorm / CODEBASE / TASKS: "caged head" → loose + circle-block + pump.
 **Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (58), day_lint (65), day_chain (26).
 **Open:** Human F6 — walk into the swarm (should stop), mash Space (bar should bob). Collision feel of a filled circle vs a ring is a guess.
+
+## 2026-08-22 12:12 — Plan for Mirror World day
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Plan Mirror World next (`docs/days/brainstorm.md` lines 24–25).
+**Did:** Chat plan only — no files, nothing locked in DESIGN. Three mechanic options (invert + pull / timed flip + pull / match-the-stare). Flagged: fail, playlist slot, whether to touch `body.gd`, no SubViewport.
+**Verified:** n/a — plan.
+**Open:** smahr hasn't picked the mechanic, fail, or `DAY_SCENES` slot.
+
+## 2026-08-22 12:17 — Build Mirror World (C3d, option B)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Try B. Head alternates looking at the mirror and the player; controls flipped only while looking at the mirror.
+**Did:**
+- `body.gd` `@export move_sign` (default 1) multiplies the walk axis. Shared file; one line, other days unchanged.
+- `head.gd` `look(dir)` plays `look_left` / `look_right`; `release()` returns to `loose`. `head_frames.tres` wires keyed f1 / f3.
+- `scenes/days/day_mirror.tscn` + `.gd` — ColorRect mirror + reflection sprite. Toggle every `look_hold` 2.2 s. `interact` within 64 px satisfies body+mind. Fail = sunset only. After workout in `DAY_SCENES`.
+- DESIGN §2 / brainstorm / CODEBASE / TASKS C3d / HOWTO / sprites README.
+**Assumptions:** no setup beat; no transition fork; no walk-into-glass fail.
+**Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (60), day_lint (77), day_chain (30).
+**Open:** Human F6 — invert while it stares at the glass, restore when it looks left, E pulls it off. `look_hold` is a guess.
+
+## 2026-08-22 12:29 — Mirror: platform, tall glass, throw, head chases
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Put the head on a platform. Mirror stretches from the ground to the head. Interact at the mirror to pick it up and throw it off screen. Head rolls to chase it.
+**Did:**
+- `day_mirror.tscn` — platform (top y=272) on the right; head at (572,258); ColorRect glass from floor y=320 up to the skull. Interact radius is the glass, not the head.
+- `day_mirror.gd` — `interact` satisfies both needs; `_before_head_release()` lifts the glass, `Body.play_throw()`, tweens it off the right, then DayManager `release()`s the head so it chases. (`_before_head_release` is the same DayManager hook lockdown uses for the pedestal tip.)
+- `body.gd` `play_throw()` + `_process` will not overwrite the one-shot `throw` sheet.
+- DESIGN / brainstorm / CODEBASE / TASKS.
+**Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (60), day_lint (77), day_chain (30) after a `_threw` guard so F3/bot skip the throw wait (lockdown's phase-guard pattern).
+**Open:** Human F6 — glass reads as floor-to-head; E lifts and yeets right; head follows. Throw end / spin are guesses.
+
+## 2026-08-22 13:49 — Mirror: kikis from the glass + flip ↑↓
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Spawn kikis out of the mirror that fly at the skeleton horizontally; jump them. Flip up/down arrows with the head's facing. Touch = death.
+**Did:**
+- `flying_kiki.tscn` — Area2D + `lil_kiki` (same hit→`fail("kiki")` as FallingThought). Horizontal only, toward the body.
+- `day_mirror.gd` — Timer spawn from the glass (`kiki_start_delay` 0.8 so day_chain satisfy wins the race). Stop + free on win/fail.
+- `body.gd` `invert_vertical` — jump reads new `move_down` (↓). Stare at glass: ↓ hops, ↑/Space/W throw (E still throws). Look at player: normal. `project.godot` + README input row (shared file; ↓ already on `interact`).
+- DESIGN / brainstorm / CODEBASE / TASKS / HOWTO.
+**Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (62), day_lint (77), day_chain (30).
+**Open:** Human F6 — kiki height / interval / speed. Space throws while it stares (it's on `jump`). Say if Space should still hop.

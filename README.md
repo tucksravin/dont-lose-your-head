@@ -32,7 +32,7 @@ Everything is a **Node**; a **Scene** (`.tscn`, a text file) is a saved node tre
 | 2D pixel snap | On (transforms + vertices) | No half-pixel shimmer |
 | Renderer | **GL Compatibility** | Required for web export — Forward+ does not run in browsers |
 | Autoloads | `Events` (signal bus), `Game` (scene flow), `Dev` (F-keys + overlay, debug builds only), `Sfx` (sounds by cue name), `Music` (a track per scene) | `scripts/autoload/` — all implemented; see [docs/CODEBASE.md §3](docs/CODEBASE.md) |
-| Input actions | `move_left` `move_right` `jump` `interact` `restart` `pause` | Keyboard + gamepad bound (see below). Use `Input.is_action_pressed("jump")`, never raw keys. |
+| Input actions | `move_left` `move_right` `jump` `interact` `move_down` `restart` `pause` | Keyboard + gamepad bound (see below). Use `Input.is_action_pressed("jump")`, never raw keys. |
 | Web export preset | `export_presets.cfg` → "Web", threads **off** | Runs on itch.io without SharedArrayBuffer headers; works from a plain local http server |
 
 **If that ever changes** (it's decided — pixel art): Project → Project Settings (turn on *Advanced Settings*): set `display/window/size/viewport_width|height` to 1280×720 or 1920×1080, `rendering/textures/canvas_textures/default_texture_filter` to **Linear**, and turn off both `rendering/2d/snap/*` options. Keep GL Compatibility — that one is for the web, not for pixels.
@@ -44,6 +44,7 @@ Everything is a **Node**; a **Scene** (`.tscn`, a text file) is a saved node tre
 | `move_left` / `move_right` | A / D, ← / → | Left stick X, D-pad |
 | `jump` | Space, W, ↑ | A (bottom face button) |
 | `interact` | E, ↓ | X (left face button) |
+| `move_down` | ↓ | D-pad down — mirror day only: jump while the head stares at the glass |
 | `restart` | R | Back/Select |
 | `pause` | Esc | Start |
 
