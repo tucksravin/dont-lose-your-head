@@ -17,15 +17,21 @@ extends Node
 ## Transitions live in this same list, right BEFORE the day they lead into: a
 ## transition scene (scenes/transition/) ends by calling next_day() itself, so
 ## the run is simply "the scenes, in order". See transition.gd for how to make one.
+##
+## Glasses story: intro wears them; still-panic is caged-with-glasses; the
+## head falls out of the tree / off the cliff into the cage transition;
+## hanging panic keeps them; glasses transition knocks them off; Velma
+## finds them. Order: still → cage transition → hanging panic.
 const DAY_SCENES: Array[String] = [
-	"res://scenes/days/day_velma.tscn",
-	"res://scenes/days/day_template.tscn",
+	"res://scenes/days/day_panic_still.tscn",
 	"res://scenes/transition/transition_cage.tscn",
 	"res://scenes/days/day_panic.tscn",
+	"res://scenes/transition/transition_glasses.tscn",
+	"res://scenes/days/day_velma.tscn",
+	"res://scenes/days/platforming_day.tscn",
 	"res://scenes/days/day_lockdown.tscn",
 	"res://scenes/days/day_workout.tscn",
 	"res://scenes/days/day_mirror.tscn",
-	"res://scenes/days/platforming_day.tscn",
 ]
 
 ## Where we go after the last day.
@@ -34,6 +40,9 @@ const REUNION_SCENE: String = "res://scenes/reunion/reunion.tscn"
 ## Index into DAY_SCENES. -1 means "no day running" — which is also the case when
 ## you run a day scene directly from the editor to test it.
 var current_day: int = -1
+## Persists across scenes. Intro starts true; glasses transition sets false;
+## Velma sets true again on delivery. Head.refresh_face() reads this.
+var wearing_glasses: bool = true
 
 
 ## Load a scene by path. Thin wrapper so call sites don't reach for the tree directly.

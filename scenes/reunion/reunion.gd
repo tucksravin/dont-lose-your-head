@@ -14,6 +14,8 @@ extends Node2D
 
 enum Phase { WALKING, MERGING, RIGHTING, SUNSET, DONE }
 
+## How close the body must get before it dives. 64 = it lunges from about a
+## step away; ~32 would be literal contact (the head's box stops the body at 26).
 @export var interact_distance: float = 64.0
 @export var dive_rise: float = 0.32
 @export var dive_fall: float = 0.22
@@ -42,21 +44,25 @@ func _ready() -> void:
 	# zoom.y = -1 turns the 640×360 frame upside down without swapping
 	# left/right. CanvasLayer fade is screen-space, so it stays upright.
 	camera.zoom = Vector2(1.0, -1.0)
-	# World-space label would read upside-down; flip it so E is still E.
-	interact_prompt.scale = Vector2(1.0, -1.0)
+	# Nothing to press any more — the dive fires on contact. Keep the node so the
+	# scene is untouched; just never show it.
+	interact_prompt.visible = false
 
 
 func _physics_process(_delta: float) -> void:
 	if phase == Phase.WALKING:
-		_check_interact()
+		_check_reach()
 	elif phase == Phase.SUNSET:
 		_walk_off()
 
 
-func _check_interact() -> void:
+## Reaching the head IS the trigger — no key (Tucker, Sat: "remove all uses of
+## the E key, when we hit a trigger it just happens"). `_begin_merge()` flips
+## `phase` on its first line and this is only called while WALKING, so it
+## cannot fire twice.
+func _check_reach() -> void:
 	var dist: float = body_blob.global_position.distance_to(head_blob.global_position)
-	interact_prompt.visible = dist < interact_distance
-	if dist < interact_distance and Input.is_action_just_pressed("interact"):
+	if dist < interact_distance:
 		_begin_merge()
 
 

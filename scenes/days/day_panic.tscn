@@ -1,14 +1,17 @@
 [gd_scene format=3 uid="uid://bw1p0aa6rbdm6"]
 
+[ext_resource type="Script" uid="uid://d2dpusf1d1whc" path="res://scenes/days/day_panic.gd" id="1_day"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_uxlmw"]
-[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="2_wgxpk"]
-[ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="3_vx7en"]
+[ext_resource type="PackedScene" uid="uid://icgagian0sgo" path="res://scenes/head/head.tscn" id="2_wgxpk"]
+[ext_resource type="Script" uid="uid://b52e5l8in6h8c" path="res://scenes/gameplay/win_condition_manager.gd" id="3_vx7en"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_jila2"]
 [ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="6_panic_counter"]
 [ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="7_panic_label"]
-[ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
-[ext_resource type="Script" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
+[ext_resource type="Script" uid="uid://drgvctg8sgork" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
+[ext_resource type="Script" uid="uid://cdgvssoc46s8n" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="11_game_over"]
+[ext_resource type="Script" uid="uid://cc46s87eug7f5" path="res://scenes/gameplay/win_condition.gd" id="12_win"]
+[ext_resource type="PackedScene" uid="uid://tt53kd82hn5o" path="res://scenes/gameplay/kiki_cloud.tscn" id="13_cloud"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -19,7 +22,11 @@ font_color = Color(0.94509804, 1, 0.6862745, 1)
 outline_size = 4
 outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
 
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_button"]
+size = Vector2(56, 16)
+
 [node name="DayPanic" type="Node2D" unique_id=1567717338]
+script = ExtResource("1_day")
 
 [node name="Background" type="Polygon2D" parent="." unique_id=647412420]
 z_index = -1
@@ -43,18 +50,25 @@ offset_bottom = 360.0
 mouse_filter = 2
 color = Color(0, 0.41568628, 0.23921569, 1)
 
+[node name="Chain" type="ColorRect" parent="." unique_id=1643906949]
+offset_left = 516.0
+offset_right = 524.0
+offset_bottom = 154.0
+mouse_filter = 2
+color = Color(0.27058825, 0.21960784, 0.10980392, 1)
+
 [node name="Body" parent="." unique_id=1999184252 instance=ExtResource("1_uxlmw")]
 position = Vector2(100, 320)
 
 [node name="Head" parent="." unique_id=439176854 instance=ExtResource("2_wgxpk")]
-position = Vector2(560, 306)
+position = Vector2(520, 168)
 caged = true
 
 [node name="PanicLabel" type="Label" parent="." unique_id=1408601503 node_paths=PackedStringArray("counter")]
-offset_left = 530.0
-offset_top = 270.0
-offset_right = 590.0
-offset_bottom = 286.0
+offset_left = 490.0
+offset_top = 118.0
+offset_right = 550.0
+offset_bottom = 134.0
 text = "Panic: 0"
 label_settings = SubResource("LabelSettings_panic")
 horizontal_alignment = 1
@@ -64,16 +78,58 @@ counter = NodePath("../PanicCounter")
 [node name="WinConditionManager" type="Node" parent="." unique_id=734146883]
 script = ExtResource("3_vx7en")
 
-[node name="DayManager" type="Node" parent="."]
+[node name="DayManager" type="Node" parent="." unique_id=624272911]
 script = ExtResource("10_day_manager")
 conditions_path = NodePath("../WinConditionManager")
 head_path = NodePath("../Head")
 game_over_path = NodePath("../GameOver")
 
+[node name="ReleaseButton" type="Area2D" parent="." unique_id=1531975093]
+position = Vector2(520, 320)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="ReleaseButton" unique_id=901642634]
+position = Vector2(0, -8)
+shape = SubResource("RectangleShape2D_button")
+
+[node name="Visual" type="ColorRect" parent="ReleaseButton" unique_id=82009601]
+offset_left = -28.0
+offset_top = -16.0
+offset_right = 28.0
+mouse_filter = 2
+color = Color(0.39215687, 0.33333334, 0.2627451, 1)
+
+[node name="Prompt" type="Label" parent="ReleaseButton" unique_id=1256580234]
+visible = false
+offset_left = -28.0
+offset_top = -36.0
+offset_right = 28.0
+offset_bottom = -18.0
+theme_override_colors/font_color = Color(0.94509804, 1, 0.6862745, 1)
+theme_override_colors/font_outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 10
+text = "E"
+horizontal_alignment = 1
+
+[node name="BodyNeed" type="Node" parent="." unique_id=691815105]
+script = ExtResource("12_win")
+
+[node name="MindNeed" type="Node" parent="." unique_id=1880874324]
+script = ExtResource("12_win")
+key = "mind"
+
 [node name="PanicCounter" parent="." unique_id=1147921961 instance=ExtResource("6_panic_counter")]
-max_panic = 100.0
-panic_per_second = 40.0
-calm_max_per_second = 20.0
+start_panic = 30.0
+max_panic = 40.0
+panic_per_second = 12.0
+calm_delay = 0.08
+open_hold = 0.5
+ignore_vertical = true
+calm_per_second = 8.0
+calm_max_per_second = 16.0
+calm_ramp_time = 0.5
+
+[node name="KikiCloud" parent="." unique_id=1533850814 instance=ExtResource("13_cloud")]
 
 [node name="Instruction" type="Label" parent="." unique_id=1223928203]
 offset_left = 12.0
@@ -84,8 +140,8 @@ theme_override_colors/font_color = Color(0.94509804, 1, 0.6862745, 1)
 theme_override_colors/font_outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
-text = "Your head is panicking in its cage. Hold still and calm it to zero — moving winds it back up."
+text = "E at the button frees the cage. Moving winds panic. Jump the thoughts."
 
 [node name="Sun" parent="." unique_id=837465219 instance=ExtResource("5_jila2")]
 
-[node name="GameOver" parent="." instance=ExtResource("11_game_over")]
+[node name="GameOver" parent="." unique_id=1660501174 instance=ExtResource("11_game_over")]

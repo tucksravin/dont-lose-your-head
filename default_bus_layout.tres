@@ -1,4 +1,10 @@
-[gd_resource type="AudioBusLayout" format=3]
+[gd_resource type="AudioBusLayout" format=3 uid="uid://c86pi05nmynko"]
+
+[sub_resource type="AudioEffectPitchShift" id="AudioEffectPitchShift_j3pel"]
+resource_name = "PitchShift"
+
+[sub_resource type="AudioEffectPhaser" id="AudioEffectPhaser_j3pel"]
+resource_name = "Phaser"
 
 [resource]
 bus/1/name = &"Music"
@@ -13,3 +19,7 @@ bus/2/mute = false
 bus/2/bypass_fx = false
 bus/2/volume_db = 0.0
 bus/2/send = &"Master"
+bus/2/effect/0/effect = SubResource("AudioEffectPitchShift_j3pel")
+bus/2/effect/0/enabled = false
+bus/2/effect/1/effect = SubResource("AudioEffectPhaser_j3pel")
+bus/2/effect/1/enabled = false

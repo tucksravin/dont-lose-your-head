@@ -55,20 +55,37 @@ signal left_scene
 ## colour. Harmless on an uncaged head.
 @export var calm_tint: Color = Color.WHITE
 @export var panic_tint: Color = Colors.DARK_GREEN
+## Caged only: the discrete panic-level sound (index 0 = level 1 .. index 2 =
+## level 3) — PanicCounter picks the level off its own thirds-of-max_panic
+## bands (PanicCounter.level()) and calls set_panic_level() with it; this
+## script only knows how to play whichever index that is. Local to the head,
+## not a global sfx script — same reasoning as Body's jump/landing sounds.
+## Defaults preloaded here (not wired per-instance in day_panic.tscn) so a
+## caged head works out of the box, same as calm_tint/panic_tint above.
+@export var panic_sounds: Array[AudioStream] = [
+	preload("res://assets/audio/sfx/panic/panic_level_1_1.wav"),
+	preload("res://assets/audio/sfx/panic/panic_level_2_1.wav"),
+	preload("res://assets/audio/sfx/panic/panic_level_3_1.wav"),
+]
+## Caged only: the one-shot for PanicCounter's `calmed` moment (panic hit 0
+## and the day won that way — `win_on_zero` days only). Its own player
+## (`_calm_sound`, not `_panic_sound`) so it can be mixed independently —
+## volume_db on CalmSound in the scene, no code change needed to retune it.
+@export var calm_sound: AudioStream = preload("res://assets/audio/sfx/calm/calm_1.wav")
 
 var _leaving: bool = false
 var _agitation: float = 1.0
 var _carrier: Node2D = null
 var _carry_offset: Vector2 = Vector2(12.0, -40.0)
+var panic_level = -1
 
 @onready var _sprite: AnimatedSprite2D = $Visual
 @onready var _hitbox: CollisionShape2D = $CollisionShape2D
+@onready var _panic_sound: AudioStreamPlayer = $PanicSound
+@onready var _calm_sound: AudioStreamPlayer = $CalmSound
 
 
 func _ready() -> void:
-	if caged:
-		_sprite.play(&"imprisoned")
-
 	# Groups are Godot's way to find "the one X in the current scene" without a
 	# hard node path. The Game autoload can't know where a day author put the
 	# head, so it looks it up by group instead.
@@ -79,6 +96,7 @@ func _ready() -> void:
 	# rather than running an early-return every physics tick.
 	set_physics_process(false)
 	set_process(caged) # the shake below is caged-only
+	refresh_face()
 
 
 func _process(_delta: float) -> void:
@@ -153,6 +171,33 @@ func set_panic_ratio(ratio: float) -> void:
 	_sprite.modulate = calm_tint.lerp(panic_tint, clampf(ratio, 0.0, 1.0))
 
 
+## Play the level-`level` panic sound (1..3 — PanicCounter's discrete thirds
+## band, not a continuous value). Retriggers on every call, same as a
+## heartbeat thump restarting itself; PanicCounter only calls this when the
+## panic *label's* integer value changes, so it can't spam every physics
+## frame. No-op if `level` is out of range or panic_sounds isn't wired up
+## with all 3 entries. Harmless on an uncaged head.
+func set_panic_level(level: int) -> void:
+	var index: int = level - 1
+	if index < 0 or index >= panic_sounds.size():
+		return
+	if index == panic_level:
+		return
+	panic_level = index
+	_panic_sound.stream = panic_sounds[index]
+	_panic_sound.play()
+
+
+## Play the "calmed" cue once — PanicCounter calls this from its own `calmed`
+## signal. Harmless on an uncaged head; no-op if calm_sound isn't assigned.
+func play_calm() -> void:
+	_panic_sound.stop()
+	if calm_sound == null:
+		return
+	_calm_sound.stream = calm_sound
+	_calm_sound.play()
+
+
 ## Let the head go. Game calls this once every WinCondition is satisfied.
 ## Safe to call more than once — repeat calls are ignored.
 func release() -> void:
@@ -160,27 +205,51 @@ func release() -> void:
 		return
 	_leaving = true
 	detach()
-	if not caged and _sprite != null and _sprite.sprite_frames.has_animation(&"loose"):
-		_sprite.play(&"loose")
+	if not caged:
+		_play_face(&"loose", &"glasses")
 	released.emit()
 	set_physics_process(true)
 
 
 ## Face left (−1), right (+1), or the plain front (0). Plays look_left /
-## look_right from head_frames.tres (head_keyed.png f1 / f3). No-op if caged
-## or already rolling — panic keeps the imprisoned loop.
+## look_right (or the glasses variants when Game.wearing_glasses). No-op if
+## caged or already rolling — panic keeps the imprisoned loop.
 func look(dir: int) -> void:
 	if _leaving or caged or _sprite == null:
+		return
+	if dir < 0:
+		_play_face(&"look_left", &"glasses_look_left")
+	elif dir > 0:
+		_play_face(&"look_right", &"glasses_look_right")
+	else:
+		_play_face(&"loose", &"glasses")
+
+
+## Re-read Game.wearing_glasses and play the matching idle / cage loop.
+## Velma calls this after forcing the flag off, and again when they're handed over.
+func refresh_face() -> void:
+	if caged:
+		_play_face(&"imprisoned", &"imprisoned_glasses")
+	else:
+		_play_face(&"loose", &"glasses")
+
+
+func set_wearing_glasses(on: bool) -> void:
+	Game.wearing_glasses = on
+	refresh_face()
+
+
+## Pick the glasses animation when Game.wearing_glasses, else the plain one.
+func _play_face(plain: StringName, glasses: StringName) -> void:
+	if _sprite == null:
 		return
 	var frames: SpriteFrames = _sprite.sprite_frames
 	if frames == null:
 		return
-	if dir < 0 and frames.has_animation(&"look_left"):
-		_sprite.play(&"look_left")
-	elif dir > 0 and frames.has_animation(&"look_right"):
-		_sprite.play(&"look_right")
-	elif frames.has_animation(&"loose"):
-		_sprite.play(&"loose")
+	if Game.wearing_glasses and frames.has_animation(glasses):
+		_sprite.play(glasses)
+	elif frames.has_animation(plain):
+		_sprite.play(plain)
 
 
 func _follow_carrier() -> void:

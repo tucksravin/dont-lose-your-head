@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://tt53kd82hn5o"]
+
+[ext_resource type="Script" path="res://scenes/gameplay/kiki_cloud.gd" id="1_cloud"]
+
+[node name="KikiCloud" type="Node2D"]
+script = ExtResource("1_cloud")

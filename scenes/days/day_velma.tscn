@@ -22,8 +22,12 @@ size = Vector2(76, 16)
 [node name="Background" type="Polygon2D" parent="."]
 z_index = -1
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
-color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
+color = Color(0.270588235294118, 0.219607843137255, 0.109803921568627, 1)
 script = ExtResource("9_sky_drift")
+dusk = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+
+[node name="Dim" type="CanvasModulate" parent="."]
+color = Color(0.5, 0.45, 0.42, 1)
 
 [node name="Camera" type="Camera2D" parent="."]
 position = Vector2(320, 180)
@@ -44,14 +48,14 @@ color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 [node name="Platform1" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform1"]
-position = Vector2(140, 292)
+position = Vector2(380, 292)
 shape = SubResource("RectangleShape2D_platform")
 one_way_collision = true
 
 [node name="Visual" type="Sprite2D" parent="Platform1"]
 texture_repeat = 2
 z_index = 1
-position = Vector2(140, 280)
+position = Vector2(380, 280)
 scale = Vector2(2, 2)
 texture = ExtResource("13_bridge_tex")
 region_enabled = true
@@ -60,14 +64,14 @@ region_rect = Rect2(0, 0, 38, 8)
 [node name="Platform2" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform2"]
-position = Vector2(200, 256)
+position = Vector2(440, 256)
 shape = SubResource("RectangleShape2D_platform")
 one_way_collision = true
 
 [node name="Visual" type="Sprite2D" parent="Platform2"]
 texture_repeat = 2
 z_index = 1
-position = Vector2(200, 244)
+position = Vector2(440, 244)
 scale = Vector2(2, 2)
 texture = ExtResource("13_bridge_tex")
 region_enabled = true
@@ -76,14 +80,14 @@ region_rect = Rect2(0, 0, 38, 8)
 [node name="Platform3" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform3"]
-position = Vector2(260, 220)
+position = Vector2(500, 220)
 shape = SubResource("RectangleShape2D_platform")
 one_way_collision = true
 
 [node name="Visual" type="Sprite2D" parent="Platform3"]
 texture_repeat = 2
 z_index = 1
-position = Vector2(260, 208)
+position = Vector2(500, 208)
 scale = Vector2(2, 2)
 texture = ExtResource("13_bridge_tex")
 region_enabled = true
@@ -92,14 +96,14 @@ region_rect = Rect2(0, 0, 38, 8)
 [node name="Platform4" type="StaticBody2D" parent="."]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform4"]
-position = Vector2(320, 184)
+position = Vector2(560, 184)
 shape = SubResource("RectangleShape2D_platform")
 one_way_collision = true
 
 [node name="Visual" type="Sprite2D" parent="Platform4"]
 texture_repeat = 2
 z_index = 1
-position = Vector2(320, 172)
+position = Vector2(560, 172)
 scale = Vector2(2, 2)
 texture = ExtResource("13_bridge_tex")
 region_enabled = true
@@ -109,7 +113,7 @@ region_rect = Rect2(0, 0, 38, 8)
 position = Vector2(100, 320)
 
 [node name="Head" parent="." instance=ExtResource("3_head")]
-position = Vector2(560, 306)
+position = Vector2(180, 306)
 
 [node name="WinConditionManager" type="Node" parent="."]
 script = ExtResource("4_win_conditions")
@@ -121,7 +125,7 @@ head_path = NodePath("../Head")
 game_over_path = NodePath("../GameOver")
 
 [node name="Glasses" parent="." instance=ExtResource("2_glasses")]
-position = Vector2(320, 176)
+position = Vector2(560, 176)
 
 [node name="VisionBlur" parent="." instance=ExtResource("12_vision_blur")]
 

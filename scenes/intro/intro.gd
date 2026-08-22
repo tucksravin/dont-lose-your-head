@@ -40,6 +40,8 @@ var _exiting: bool = false
 
 
 func _ready() -> void:
+	# Full replay from the title: they start the run wearing glasses again.
+	Game.wearing_glasses = true
 	# The Sun is found by its signal, not a hard path — same duck-type as
 	# DayManager / Sfx use, so the node can be moved or renamed freely.
 	for node in find_children("*", "Node2D", true, false):

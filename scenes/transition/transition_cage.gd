@@ -3,7 +3,8 @@ extends "res://scenes/transition/transition.gd"
 ## caught up to it, and a cage drops on it — the knock is what sends the caged
 ## head rolling off down the slope, ALL THE WAY OFF THE SCREEN (Tucker, Sat:
 ## "when the head is caged, have it roll all the way off the screen") → leads
-## into day_panic (whose head opens `caged = true`). Decided Sat (Tucker): "the
+## into the hanging day_panic (whose head opens `caged = true`). Comes after
+## day_panic_still, whose head just tipped off a cliff. Decided Sat (Tucker): "the
 ## cage should initiate the head's roll; the head isn't running away from the
 ## body".
 ##
@@ -20,7 +21,7 @@ extends "res://scenes/transition/transition.gd"
 ## that falls from above and lands on the loose head, which then switches to
 ## the same loop (and tumbles off in it — the base spins whole turns, so it
 ## comes to rest bars-upright). Two sprites so the bars can arrive separately
-## from the skull.
+## from the skull. Glasses stay on. They come off in transition_glasses, after panic.
 
 ## How far above the head the cage starts (px) and how long it takes to fall.
 @export var cage_drop_height: float = 220.0
@@ -33,7 +34,11 @@ func _play_arrival() -> void:
 	# Park the cage above the resting head, then drop it.
 	cage.global_position = head.global_position + Vector2(0, -cage_drop_height)
 	cage.visible = true
-	cage.play(&"imprisoned")
+	var cage_anim: StringName = &"imprisoned"
+	if Game.wearing_glasses and cage.sprite_frames != null \
+			and cage.sprite_frames.has_animation(&"imprisoned_glasses"):
+		cage_anim = &"imprisoned_glasses"
+	cage.play(cage_anim)
 	var drop: Tween = create_tween()
 	drop.tween_property(cage, "global_position", head.global_position, cage_drop_time)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
@@ -42,6 +47,6 @@ func _play_arrival() -> void:
 	# the real head's loop so the roll that follows is one caged head, not two.
 	cage.visible = false
 	head.rotation = 0.0
-	head.play(&"imprisoned")
+	head.play(cage_anim)
 	# The impact squash from the base; when it returns, the head rolls.
 	await super()

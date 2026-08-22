@@ -5,9 +5,14 @@
 ### Don't panic
 Day One? Don't panic -> when you move, the panic meter goes up
 
+**Two days (smahr, Sat 15:18 / 15:23):**
+1. **Still** — stand still until panic hits 0. Head in a tree on the right-edge cliff; it sighs and falls backward out of the canopy. File: `day_panic_still.tscn`. Then `transition_cage`.
+2. **Cage** — rework: cage in the air; moving winds panic; E on a floor button opens it; jump kikis on the way. Fail = panic max or kiki or sunset. File: `day_panic.tscn`.
+Both have a kiki cloud that closes in as panic rises.
+
 ### Velma
 
-I can't see without my glasses! The head can't see and the screen's all blurry, big glasses. Head has glasses, they fall off in the intro scene, this is the first challenge, getting the glasses back to the head. 
+I can't see without my glasses! The head can't see and the screen's all blurry, big glasses. Head has glasses in the intro; they fall off in `transition_glasses` (after panic); Velma is the find-and-return beat. Head near the entrance, glasses later and darker. After that the head wears them for the rest of the run. 
 
 ### One Mental One Physical
 

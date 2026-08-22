@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3]
+[gd_scene load_steps=4 format=3]
 
 [ext_resource type="Script" path="res://scenes/gameplay/falling_thought.gd" id="1_thought"]
+[ext_resource type="PackedScene" uid="uid://bqnu2ev0l4e4e" path="res://scenes/gameplay/kiki.tscn" id="2_kiki"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_thought"]
 size = Vector2(16, 16)
@@ -11,10 +12,4 @@ script = ExtResource("1_thought")
 [node name="CollisionShape2D" type="CollisionShape2D" parent="."]
 shape = SubResource("RectangleShape2D_thought")
 
-[node name="Visual" type="ColorRect" parent="."]
-offset_left = -8.0
-offset_top = -8.0
-offset_right = 8.0
-offset_bottom = 8.0
-mouse_filter = 2
-color = Color(0.270588235294118, 0.219607843137255, 0.109803921568627, 1)
+[node name="Visual" parent="." instance=ExtResource("2_kiki")]

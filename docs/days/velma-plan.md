@@ -180,7 +180,7 @@ The brainstorm's own scratch note (bottom of `brainstorm.md`) says *"when you gi
 It's cheap (the `_process` block in `vision_blur.gd` above, ~10 lines) and ties into the DESIGN thesis (moving carelessly makes the "mind" problem worse), but it's not load-bearing — the day works with a static vignette. Cut the `@export var speed_penalty_*` fields and the `_process()` override first if short on time; nothing else in the plan depends on it.
 
 ### 4.4 Where does this day sit in `Game.DAY_SCENES`?
-The brainstorm's Day Plan puts Velma right after the intro, first of the "real" days. Today `day_template` plays as day 1, which CODEBASE.md already flags as "a decision for the team," and TASKS.md's D8 (cut order) is explicitly undecided.
+**Slot (smahr Sat 14:54):** Velma is after `transition_glasses` in `Game.DAY_SCENES` — intro wears glasses, cage keeps them, panic is caged-with-glasses, glasses transition knocks them off, this day finds them. Head is near the entrance; the climb is later and the room is darker. Today `day_template` plays as day 1, which CODEBASE.md already flags as "a decision for the team," and TASKS.md's D8 (cut order) is explicitly undecided.
 - **Recommended:** slot `day_velma` first (as shown in §2.2 step 4), and treat `day_template` as what it always was — a placeholder/reference day — either dropped from the list once Velma is proven, or kept later in the run as a easy warm-up. Don't decide `day_template`'s fate unilaterally here; raise it at the same standup as D8.
 - **Alternative:** append `day_velma` after `platforming_day` for now (safest, no reordering risk) and let the whole run order get sorted once at the D8 scope-check meeting rather than twice.
 

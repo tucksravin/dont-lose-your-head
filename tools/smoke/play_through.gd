@@ -4,7 +4,7 @@ extends SceneTree
 ## This is the test that asks "is it completable", not "does it load". A tiny
 ## bot presses the real input actions (Input.action_press / action_release —
 ## the same path a keyboard takes, so body.gd is exercised unmodified) and
-## follows a per-scene plan: walk to x, jump, wait, press interact, wait for a
+## follows a per-scene plan: walk to x, jump, wait, tap an action, wait for a
 ## need to be satisfied. Every scene must hand off to the next within its
 ## budget, and no scene may reappear (that would mean a restart/fail fired).
 ##
@@ -15,7 +15,7 @@ extends SceneTree
 ##   {"walk_to": x}             hold left/right until |body.x − x| < 4 (8 s cap)
 ##   {"jump": true}             tap jump for one physics tick
 ##   {"wait": s}                sleep s seconds of game time
-##   {"press": "interact"}      tap an action
+##   {"press": "restart"}       tap an action (no scene needs one today)
 ##   {"satisfied": "body"}      wait until the WinCondition with that key is met
 ##   {"release_all": true}      let go of every held action
 ##   {"run": "move_right"}      hold an action until the scene changes (10 s cap)
@@ -36,30 +36,30 @@ var plans: Dictionary = {
 	# its own) — so run right until the scene changes.
 	"res://scenes/intro/intro.tscn": [{"run": "move_right"}],
 	"res://scenes/days/day_velma.tscn": [
-		# Four one-way steps, 36 px apart (max jump 45.9 px) — same spacing
-		# platforming_day proved out. Stand under each, jump, land. Glasses
-		# sit on Platform4 (320,176); touching them -> satisfied "body",
-		# now carried. Then walk off the stack back toward the head at
-		# (560,306) — glasses.gd's delivery_radius is 50 px from the carried
-		# position (body + (0,-30)), so x=525 (dist ~40 px once back on the
-		# floor) is inside it with room for walk_to's ±4 px tolerance.
-		{"walk_to": 115.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 175.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 235.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 295.0}, {"jump": true}, {"wait": 0.7},
-		# Now on Platform4's surface — walk over to the glasses' exact x
-		# rather than relying on the jump to land precisely on them
-		# (platforming_day's HighGoal step does the same after its climb).
-		{"walk_to": 320.0}, {"satisfied": "body"},
-		{"walk_to": 525.0}, {"satisfied": "mind"},
+		# Head is near the entrance (180,306). Four one-way steps later in
+		# the room (centers 380/440/500/560, 36 px rise). Glasses on
+		# Platform4 (560,176). Carry back to the head — delivery_radius 50
+		# from body+(0,-30), so x=180 is inside it.
+		{"walk_to": 355.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 415.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 475.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 535.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 560.0}, {"satisfied": "body"},
+		{"walk_to": 180.0}, {"satisfied": "mind"},
 	],
 	"res://scenes/days/day_template.tscn": [
 		{"walk_to": 200.0}, {"satisfied": "mind"},
 		{"walk_to": 500.0}, {"satisfied": "body"},
 	],
-	"res://scenes/days/day_panic.tscn": [
-		# Stand still: panic starts at 15, holds 0.5 s, then falls 3/s → ~5.5 s.
+	"res://scenes/days/day_panic_still.tscn": [
+		# Stand still from spawn. PanicCounter win_on_zero satisfies both needs.
 		{"satisfied": "mind"},
+	],
+	"res://scenes/days/day_panic.tscn": [
+		# Run to the floor button under the hanging cage (520,320) — reaching
+		# it frees the cage, no key. Panic no longer wins on zero. Kikis may
+		# still hit the bot.
+		{"walk_to": 520.0}, {"wait": 0.3}, {"satisfied": "mind"},
 	],
 	"res://scenes/days/platforming_day.tscn": [
 		# Three one-way steps, 36 px apart (max jump 45.9 px): stand under
@@ -75,8 +75,9 @@ var plans: Dictionary = {
 		{"walk_to": 405.0}, {"jump": true},
 		{"walk_to": 560.0}, {"satisfied": "mind"},
 	],
+	# Nothing to press any more: walking within 64 px of the head dives.
 	"res://scenes/reunion/reunion.tscn": [
-		{"walk_to": 430.0}, {"wait": 0.2}, {"press": "interact"},
+		{"walk_to": 430.0}, {"wait": 0.5},
 	],
 }
 

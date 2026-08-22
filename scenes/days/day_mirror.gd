@@ -1,9 +1,10 @@
 extends Node2D
 ## Mirror World (C3d): head on a right-hand platform, staring into a tall
-## glass. Look-at-glass inverts walk *and* jump (↓ hops, ↑ / Space throws);
-## look-at-player restores them. Kikis fly out of the glass toward the body
-## — jump them; a hit is `DayManager.fail("kiki")`. `interact` (E) at the
-## glass throws it; the head rolls after it.
+## glass. Look-at-glass inverts walk *and* jump (↓ hops); look-at-player
+## restores them. Kikis fly out of the glass toward the body — jump them; a
+## hit is `DayManager.fail("kiki")`. **Getting the body within `grab_radius`
+## of the glass throws it** — no key press (Tucker, Sat: "when we hit a
+## trigger it just happens"); that satisfies both needs and ends the day.
 ##
 ## Invert is `Body.move_sign` + `Body.invert_vertical`. Spawn is a Timer
 ## like ThoughtRain. No SubViewport.
@@ -74,8 +75,9 @@ func _process(delta: float) -> void:
 		_elapsed = 0.0
 		_staring_at_mirror = not _staring_at_mirror
 		_apply_look()
-	if _grab_requested():
-		_try_grab()
+	# Getting to the mirror IS the throw — no key (Tucker, Sat). _try_grab()
+	# already range-checks against grab_radius and _threw guards the repeat.
+	_try_grab()
 
 
 func _apply_look() -> void:
@@ -95,22 +97,21 @@ func _apply_look() -> void:
 func _play_reflection(anim: StringName) -> void:
 	if reflection == null or reflection.sprite_frames == null:
 		return
-	if reflection.sprite_frames.has_animation(anim):
+	var frames: SpriteFrames = reflection.sprite_frames
+	var glasses_anim: StringName = &""
+	if anim == &"look_left":
+		glasses_anim = &"glasses_look_left"
+	elif anim == &"look_right":
+		glasses_anim = &"glasses_look_right"
+	if Game.wearing_glasses and glasses_anim != &"" and frames.has_animation(glasses_anim):
+		reflection.play(glasses_anim)
+	elif frames.has_animation(anim):
 		reflection.play(anim)
 
 
-func _grab_requested() -> bool:
-	if _staring_at_mirror:
-		# Arrows flipped: ↑ / Space / W throw; ↓ hops (body). E still throws.
-		if Input.is_action_just_pressed("jump"):
-			return true
-		if Input.is_action_just_pressed("interact") and not Input.is_action_pressed("move_down"):
-			return true
-		return false
-	return Input.is_action_just_pressed("interact")
-
-
 func _try_grab() -> void:
+	if _threw:
+		return
 	if body.global_position.distance_to(mirror.global_position) > grab_radius:
 		return
 	_threw = true
