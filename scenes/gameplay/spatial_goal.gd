@@ -13,11 +13,19 @@ extends Area2D
 ## place instead of drilling into the instanced sub-scene.
 @export_enum("body", "mind") var key: String = "body"
 
+## Marker colours, from the project palette (assets/palette/). Two goals sit in
+## every day, so they need to read apart at a glance: body needs are green, mind
+## needs light green. Placeholder rectangles until there is art for each need.
+@export var body_color: Color = Color("25c04b")
+@export var mind_color: Color = Color("b2f167")
+
 @onready var condition: WinCondition = $WinCondition
+@onready var visual: ColorRect = $Visual
 
 
 func _ready() -> void:
 	condition.key = key
+	visual.color = body_color if key == "body" else mind_color
 	body_entered.connect(_on_body_entered)
 
 

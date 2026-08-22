@@ -12,6 +12,11 @@ size = Vector2(640, 40)
 
 [node name="DayTemplate" type="Node2D" unique_id=531226403]
 
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
+
 [node name="Camera" type="Camera2D" parent="." unique_id=453660723]
 position = Vector2(320, 180)
 
@@ -26,7 +31,7 @@ offset_top = 320.0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.32, 0.22, 0.16, 1)
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 
 [node name="Body" parent="." unique_id=1999184252 instance=ExtResource("1_body")]
 position = Vector2(100, 320)
@@ -44,6 +49,5 @@ key = "body"
 [node name="SpatialGoalMind" parent="." instance=ExtResource("2_wb443")]
 position = Vector2(200, 320)
 key = "mind"
-next_scene = "res://scenes/reunion/reunion.tscn"
 
 [node name="Sun" parent="." unique_id=837465219 instance=ExtResource("3_sun")]
