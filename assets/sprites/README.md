@@ -24,3 +24,7 @@ Texture filtering is Nearest project-wide; nothing to set per sprite. Sources ar
 - `head_keyed.png` — 128×16, **8 frames of 16×16**, with Aseprite tags: **`look left`** (f1) · **`center`** (f2) · **`look right`** (f3) · **`wink`** (f4) · **`imprisoned`** (f5–8, a 4-frame loop at 100 ms/frame — the head behind bars). Building a SpriteFrames off these is one step whenever a day needs them.
 - `bridge.png` — a fence/railing, **26×8** (trimmed Fri 21:10: the canvas was 64×16 with 34 px of empty space on the right and 8 px on top, which put a gap around it wherever you placed it). At the project's integer scale 2 it draws 52×16.
 - `head_side.png` was re-exported from Tucker's updated source (12 px changed). The source has 3 frames but they are pixel-identical, so only frame 1 ships — `intro.tscn` uses it as a single texture, not a sheet.
+
+**Scene palette status (Fri 21:35):** `intro` · `day_template` · `reunion` · `platforming_day` all render entirely from the palette (verified by counting every pixel of a rendered frame). The only off-palette pixels anywhere are the antialiased edges of HUD/label text — Godot renders TTF text with antialiasing, so that is expected until we ship a bitmap font.
+
+Still un-palettised: `day_panic.tscn` (Ben's) and `game_over.tscn`'s dim/title, plus `day_01.tscn` which currently cannot open at all.

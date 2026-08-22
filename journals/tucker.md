@@ -165,3 +165,17 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - **head_keyed tags read:** `look left` (f1) · `center` (f2) · `look right` (f3) · `wink` (f4) · `imprisoned` (f5–8, 4-frame loop @ 100 ms). Recorded in `assets/sprites/README.md`.
 **Verified:** `--import` clean; intro / day_template / day_panic / reunion / full chain all run with no ERROR or SCRIPT ERROR. Ending measured from rendered frames: head art rows 290–319 against floor top 320; landed figure 248–319 continuous (no gap, no overlap), identical over 3 runs. Every colour in the frame on-palette.
 **Open:** **`day_panic.tscn` has no `WinCondition` anywhere — `WinConditions` warns "this day can never be won"** (Ben's, PR #11). Also `key = "body"` was dropped from `SpatialGoal` in `day_template.tscn` by Godot's re-save — harmless (it's the export default) but worth knowing. Did not touch `meeting-notes-friday.md`, which Tucker has open with unsaved edits.
+
+## 2026-08-21 21:30 — Sean's PR merged; palette/sky pass over his platforming day
+**Driver:** Tucker · **Agent:** Claude (Fable 5)
+**Asked:** "I think sean just added some stuff so make sure we integrate well with that" → "can we merge in seans files and then do it?"
+**Did:**
+- Integration-tested **#14** before merging: no file overlap with `tucker/ending-flip`, `git merge-tree` clean, and with both merged every scene ran headless with no errors. Then merged **#14** (Sean) and **#15** (my ending + intro restore). `main` = `4622f9b`.
+- **Palette pass on `scenes/days/platforming_day.tscn`** (Sean's file — merged, so no in-flight conflict; he should pull before reopening it): added the sky `Background` Polygon2D (`#988277`) the scene never had — it was rendering on Godot's default grey; floors `#523829` → `#006a3d` (matching `day_template` and the reunion); 3 platforms `#6b4c33` and the bridge `#8c6638` → `#645543`; HUD instruction now bone `#f1ffaf` with a `#201c02` outline (plain text on the mauve sky was ~3.6:1).
+- Fixed a copy/visual mismatch my own change caused: the instruction said "the high **gold** box" but the goal markers are green now (per-need colours from `spatial_goal.gd`) — now reads "high **green** box".
+**Verified:** `--import` clean; `platforming_day` runs with no ERROR/WARNING; counted **every pixel** of a rendered frame — all scene geometry is exact palette entries, and the only off-palette pixels (2588) are antialiased HUD text edges, which is inherent to TTF rendering.
+**Open (team calls, not mine):**
+1. **`day_01.tscn` is broken on `main`** — it references `res://scenes/days/day_01.gd`, which is not in the repo, so the scene fails to open (`Parse Error: [ext_resource] referenced non-existent resource`). It looks like a leftover duplicate of `platforming_day.tscn`. Sean should commit the script or delete the scene.
+2. **Sean's day is unreachable from the intro.** `intro.gd` still ends with `Game.start_days()` and `Game.DAY_SCENES` is still `[day_template, day_template]`. His `@export next_scene = platforming_day.tscn` on IntroScene is never read.
+3. **Two win/flow systems coexist:** `win_conditions.gd` → `Events.day_completed` → `Game` (day_template, day_panic) vs `win_condition_manager.gd` → `day_manager.gd` (platforming_day). Each works alone; one scene with both would release the head twice.
+4. `day_panic.tscn` still has no `WinCondition` — it can never be won.

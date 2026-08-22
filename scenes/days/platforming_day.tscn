@@ -25,6 +25,11 @@ size = Vector2(200, 80)
 
 [node name="PlatformingDay" type="Node2D"]
 
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
+
 [node name="WinConditionManager" type="Node" parent="."]
 script = ExtResource("7_wc_manager")
 
@@ -51,7 +56,7 @@ offset_right = 240.0
 offset_top = 320.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.32, 0.22, 0.16, 1)
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 
 [node name="FloorRight" type="StaticBody2D" parent="."]
 
@@ -65,7 +70,7 @@ offset_top = 320.0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.32, 0.22, 0.16, 1)
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 
 [node name="Platform1" type="StaticBody2D" parent="."]
 
@@ -80,7 +85,7 @@ offset_top = 284.0
 offset_right = 118.0
 offset_bottom = 300.0
 mouse_filter = 2
-color = Color(0.42, 0.3, 0.2, 1)
+color = Color(0.392156862745098, 0.333333333333333, 0.262745098039216, 1)
 
 [node name="Platform2" type="StaticBody2D" parent="."]
 
@@ -95,7 +100,7 @@ offset_top = 248.0
 offset_right = 178.0
 offset_bottom = 264.0
 mouse_filter = 2
-color = Color(0.42, 0.3, 0.2, 1)
+color = Color(0.392156862745098, 0.333333333333333, 0.262745098039216, 1)
 
 [node name="Platform3" type="StaticBody2D" parent="."]
 
@@ -110,7 +115,7 @@ offset_top = 212.0
 offset_right = 238.0
 offset_bottom = 228.0
 mouse_filter = 2
-color = Color(0.42, 0.3, 0.2, 1)
+color = Color(0.392156862745098, 0.333333333333333, 0.262745098039216, 1)
 
 [node name="Bridge" type="StaticBody2D" parent="."]
 position = Vector2(0, -80)
@@ -127,7 +132,7 @@ offset_top = 320.0
 offset_right = 400.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.55, 0.4, 0.22, 1)
+color = Color(0.392156862745098, 0.333333333333333, 0.262745098039216, 1)
 
 [node name="Pit" type="Area2D" parent="."]
 
@@ -158,7 +163,10 @@ offset_left = 12.0
 offset_top = 8.0
 offset_right = 628.0
 offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
-text = "Climb to the high gold box — it drops a bridge."
+text = "Climb to the high green box — it drops a bridge."
 
 [node name="GameOver" parent="." instance=ExtResource("6_game_over")]
