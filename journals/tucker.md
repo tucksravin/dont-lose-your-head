@@ -542,3 +542,28 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Did:** fetched; `git merge-tree` dry run said one conflict — `docs/CODEBASE.md`, adjacent hunks (my §6.2 transition rewrite + intro line vs #33's new **Reunion** bullet in §6.3). Merged `origin/main` (b884370, "reunin flipped" #33) into `tucker/polish-intro-transitions` in Tucker's checkout and kept both (§6.2/intro = branch, Reunion bullet = main's, byte-identical); merge commit 38a1413. DESIGN.md auto-merged.
 **Verified:** `git merge-tree --write-tree origin/main tucker/polish-intro-transitions` → exit 0 (clean). `tools/smoke_test.sh` on the merged branch → **ALL GREEN** (68/89/34/21/21/28; play_through: intro 4.5 s, transition_cage 5.4 s, reunion 6.2 s → main.tscn).
 **Open:** still not pushed — Tucker's call.
+
+## 2026-08-22 14:38 — Polish branch landed on main directly (no PR) — why, and the fix
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "i pushed, PR onto main"
+**Did:** went to open the PR and found no `origin/tucker/polish-intro-transitions` — `origin/main` itself was at the branch tip (baff5d4). Cause: when the agent created the branch from `origin/main` it didn't pass `--no-track`, so git set the branch's upstream to `origin/main`; Tucker's push/sync then went to main. Not reverted: the tree is exactly the merge-clean, ALL-GREEN state checked one entry up, and a revert-and-redo would only add churn. Fixed the footgun: `git branch --unset-upstream tucker/polish-intro-transitions`. Lesson (agent): create branches with `git checkout -b X --no-track origin/main` / `git worktree add --no-track`.
+**Verified:** `git merge-base --is-ancestor` both ways → main == branch tip; `git for-each-ref` shows no upstream now.
+**Open:** PR #30 (sfx-folders) is still open. Tucker's checkout is on the branch, which equals main — `git checkout main && git pull` whenever convenient.
+
+## 2026-08-22 14:43 — Kiki generator: one self-scrambling kiki, spawnable from code or the editor
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "i want to make a 'big_kiki' and 'lil_kiki' generator that the scenes can call, they start on a random frame and random 90 degree rotation so none of them looks the same"
+**Did:** new branch `tucker/kiki-generator` (off main, `--no-track` this time).
+- **`scenes/gameplay/kiki.gd`** (`class_name Kiki`, extends `AnimatedSprite2D`): `_ready()` plays `kind` (`lil_kiki` 9 frames / `big_kiki` 12) and calls `scramble()` — `set_frame_and_progress(randi() % count, randf())` (random frame **and** random sub-frame phase, so two that land on the same frame still drift apart) + `rotation_degrees = 90 * (randi() % 4)`. Two static factories so scenes can call it: `Kiki.spawn(parent, &"big_kiki", pos)` (returns the node) and `Kiki.make(...)` (no add_child). `@export_enum kind` (setter re-applies live in the editor), `@export scramble_on_ready` (off = keep the editor's frame/rotation). Unknown kind → `push_warning` + lil.
+- **`scenes/gameplay/kiki.tscn`**: a one-node scene on that script (frames + scale 2 preset) so kikis can be dragged in and tuned in the Inspector. Godot idiom notes for the team: `class_name` + static funcs instead of an autoload (no state to hold); `preload` of the SpriteFrames lives in the **script**, not the scene, and the scene is *not* preloaded by the script — that would be a resource cycle (scene → script → scene).
+- Did **not** touch `kiki_swarm.gd` / `flying_kiki.gd` (smahre's, from #27/#32 — they build their own AnimatedSprite2Ds). Swapping each onto `Kiki` is ~2 lines and would get them the scramble for free; flagged for Sean rather than done.
+- Docs: CODEBASE §0 quick-ref row + §5 bullet.
+**Verified:** `--import` clean. Probe (scratchpad `probe_kiki_gen.gd`): 40 spawns per kind → lil used **all 9 frames** (spread 1–9 each) and all four rotations (9/12/11/8); big used 11 of 12 frames, all four rotations; 40/40 playing the right loop at scale 2. 20 `kiki.tscn` instances → 12 distinct frames, all four rotations, 20/20 right animation. Bad kind → warning + lil. Animation keeps running after scramble (frame 4 at t=0.35 s). Windowed render of a 128-kiki grid saved to the scratchpad (`kiki_sheet.png`) — eyeballed: no two alike. `tools/smoke_test.sh` → **ALL GREEN** (70/89/34/21/21/28; load_all picked up both new files).
+**Open:** not pushed. Whether Sean's swarm/flying kiki adopt `Kiki` is his call. If you want a *swarm* generator (N kikis in a ring/scatter) rather than one-at-a-time, that's a second small node — say the word.
+
+## 2026-08-22 14:47 — Kiki generator pushed, PR #34 opened
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "great open the pr properly, are my intro changes on main?"
+**Did:** pushed `tucker/kiki-generator` (3f39c01) and opened **PR #34 → main** (mergeable, clean). Also confirmed the intro polish IS on main: `origin/main:scenes/intro/intro.gd` has `exit_margin`/`exit_delay`, the `sunset` hookup and `Game.start_days()`, and `intro.tscn` instances `sun.tscn` — it went up with the direct-to-main push (`git diff origin/main tucker/kiki-generator -- scenes/intro/` is empty).
+**Verified:** `gh pr view 34` → OPEN, MERGEABLE/CLEAN; smoke was ALL GREEN on this branch one entry up.
+**Open:** PR #30 (Sfx cue folders) shows **CLOSED, not merged** — main's `sfx.gd` is still one file per cue, so recordings in `assets/audio/sfx/<cue>/` folders won't play. Flagged for Tucker; re-open if that was accidental.

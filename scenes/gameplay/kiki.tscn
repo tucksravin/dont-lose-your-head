@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://bqnu2ev0l4e4e"]
+
+[ext_resource type="Script" path="res://scenes/gameplay/kiki.gd" id="1_kiki"]
+[ext_resource type="SpriteFrames" uid="uid://0pa5ul0vm38s" path="res://assets/sprites/kiki_frames.tres" id="2_frames"]
+
+[node name="Kiki" type="AnimatedSprite2D"]
+scale = Vector2(2, 2)
+sprite_frames = ExtResource("2_frames")
+animation = &"lil_kiki"
+script = ExtResource("1_kiki")
