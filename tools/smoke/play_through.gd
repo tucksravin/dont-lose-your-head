@@ -51,6 +51,10 @@ var plans: Dictionary = {
 		{"walk_to": 200.0}, {"satisfied": "mind"},
 		{"walk_to": 500.0}, {"satisfied": "body"},
 	],
+	"res://scenes/days/day_panic_still.tscn": [
+		# Stand still from spawn. PanicCounter win_on_zero satisfies both needs.
+		{"satisfied": "mind"},
+	],
 	"res://scenes/days/day_panic.tscn": [
 		# Run to the floor button under the hanging cage (520,320) — reaching
 		# it frees the cage, no key. Panic no longer wins on zero. Kikis may

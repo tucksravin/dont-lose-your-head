@@ -3,7 +3,8 @@ extends "res://scenes/transition/transition.gd"
 ## caught up to it, and a cage drops on it — the knock is what sends the caged
 ## head rolling off down the slope, ALL THE WAY OFF THE SCREEN (Tucker, Sat:
 ## "when the head is caged, have it roll all the way off the screen") → leads
-## into day_panic (whose head opens `caged = true`). Decided Sat (Tucker): "the
+## into the hanging day_panic (whose head opens `caged = true`). Comes after
+## day_panic_still, whose head just tipped off a cliff. Decided Sat (Tucker): "the
 ## cage should initiate the head's roll; the head isn't running away from the
 ## body".
 ##
