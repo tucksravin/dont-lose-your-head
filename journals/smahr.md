@@ -140,20 +140,93 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Verified:** `--headless --path . --import` clean (no errors). `--headless --path . --quit-after 1500 res://scenes/intro/intro.tscn` with a temporary `print()` in `Game.change_scene` (removed after) showed zero errors end-to-end and confirmed `change_scene -> res://scenes/days/day_template.tscn` actually fires (previously it never reached this line — the error loop ran forever instead). Not eyeballed in the editor by a human yet.
 **Open:** Should be spot-checked in-editor for the actual visual feel of the EXIT scroll (gravity/floor behavior unchanged, but worth a look). `reunion.gd` uses the same `process_mode = PROCESS_MODE_DISABLED` pattern on its own `body_blob` (line ~67) — that one is safe as written today because nothing calls `move_and_slide()` on it afterward (a Tween drives `global_position` directly instead), but if EXIT-phase logic is ever unified between `intro.gd` and `reunion.gd`, prefer `is_scripted` there too for consistency.
 
-## 2026-08-21 19:36 — Q&A: what's our next task?
-**Driver:** smahr · **Agent:** Cursor Grok 4.6
-**Asked:** "@TASKS.md @CLAUDE.md whats our next task?"
-**Did:** Answered in chat, no code. Cross-checked TASKS.md tonight list against journals + current files. Next for Sean/Ben: **T4** (WinCondition). T1/T6 done; T2 scripted but uncalled; T3 visual only; T5 stub; T7/T8/C2 blocked on T4. *(This session's working tree was behind HEAD's 19:22 T4+T5 commit — T4/T5 were already on `head_logic`.)*
-**Verified:** n/a — read TASKS.md, DESIGN.md, journals, game.gd, head.gd, day_template.tscn.
-**Open:** Collector location for T4 still undecided (container vs Day root vs Events bus) — ask before writing T4. *(Already decided in the 19:22 entry.)*
+## 2026-08-21 20:28 — Recorded a day idea (locked door / puzzle + button)
+**Driver:** smahr · **Agent:** Claude Sonnet 5
+**Asked:** Record a day pitch: body picks up head, a door locks, a button appears on the left and a tablet on the right — head solves a math puzzle on the tablet while body holds the button, both needed to unlock the door.
+**Did:** Added it to `docs/days/brainstorm.md` (the existing scratch doc for day pitches — matched its header + one-line-pitch style, same place `Don't panic`, `Velma`, `One Mental One Physical` live) under the heading **Lockdown** (placeholder name). Didn't touch `docs/DESIGN.md` — per CLAUDE.md §2 this isn't locked, it's one person's pitch, so it stays in the scratch/idea-bank doc until the team picks it up (matches C1 in TASKS.md: day cards get written up when owned). Called out two open mechanical questions inline rather than deciding them myself: hold-vs-press for the button, and what happens on a wrong puzzle answer.
+**Verified:** n/a — doc edit only, no code.
+**Open:** Needs an owner and a real name before it becomes a C3 day slot in TASKS.md. The two mechanical questions above block writing an actual `day_card` (§3.7 format) for it.
 
-## 2026-08-21 19:42 — Merge: T4/T5 template + sun + intro crash fix
+## 2026-08-21 19:54 — Q&A: first day challenge (C2) — waiting on a card
 **Driver:** smahr · **Agent:** Cursor Grok 4.6
-**Asked:** "handle merge conflicts"
+**Asked:** Next task is the first day challenge; Tucker on sprites; someone else on template / day 1 / scene transitions.
+**Did:** Stopped before writing code (CLAUDE.md §2 — don't invent day content). Assumed Sean owns a new `scenes/days/day_01.tscn` and does not touch `day_template.tscn`. Offered three cards from `docs/days/brainstorm.md`. Current checkout is `main`; T4/T5 WinCondition plumbing is not on this branch.
+**Verified:** n/a — read TASKS.md C2, DESIGN.md §2.1/§3.7, `docs/days/brainstorm.md`, `day_template.tscn`.
+**Open:** Waiting on which card. Blocked on T8/T4 if the day is supposed to use keyed WinConditions rather than the SpatialGoal `next_scene` stopgap.
+
+## 2026-08-21 20:03 — C2: Day 1 Bridge (platform, gap, dropping bridge)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** First day challenge. Tucker on sprites; someone else on template / day 1 / scene transitions. Then locked the card: two goals, one on a platform above, one across a floor gap; collecting the first drops a bridge.
 **Did:**
-- Merging `01e767f` ("fixed scene load error") into `head_logic`. Two conflicts.
-- **`journals/smahr.md`** — kept both sides in time order: 19:22 T4+T5, then 19:30 crash fix. Did not rewrite either entry.
-- **`scenes/days/day_template.tscn`** — kept HEAD's Head + WinConditions + two keyed SpatialGoals; added incoming Sun (`id="5_sun"` so it didn't collide with `3_head`). Dropped incoming `next_scene` on SpatialGoal — T4/T5 removed that stopgap (`spatial_goal.gd` no longer has the property).
-- Auto-merged `intro.gd` already had both: `is_scripted` (crash fix) and `Game.start_days()` (T5). Left as-is.
-**Verified:** conflict markers gone. Not run in Godot this pass.
-**Open:** Same as 19:22 / 19:30 — day loop unverified; sunset still not wired to `restart_day()`.
+- Did **not** edit `scenes/days/day_template.tscn` (Ben / template owner). New file instead — DESIGN "one file per day".
+- **`docs/DESIGN.md` §2.1** — locked Day 1 card. **`docs/TASKS.md` C2** — owner Sean, done-when matches the card (slopes already cut).
+- **New `scenes/days/day_01.tscn` + `day_01.gd`** — left/right floors with a 160px gap (default jump covers ~92px, so you cannot skip the bridge). Platform 40px up (jump height ~46px). HighGoal on the platform; FarGoal on the right ledge. Bridge starts 80px up with collision off; `create_tween()` drops it, then layer 1 turns on. Head sits on the far ledge at `(450, 306)`. Sun instanced; sunset reloads this scene locally (doesn't touch `Game.gd`). Pit Area2D under the gap also reloads — D5 is still "timer only", but without a catcher falling is a softlock; noted as a reversible assumption.
+- FarGoal does **not** use SpatialGoal's `next_scene`; empty so it doesn't steal T5. After both goals, this script calls `head.release()` and `Game.change_scene` on `left_scene` (stopgap default: reunion). Intro still points at the template — scene transitions left for the other owner.
+- **`scenes/head/head.gd`** — added `class_name Head` so day_01 can type `$Head` and call `release()`. Behaviour unchanged.
+- Rectangles only; Tucker swaps art later.
+**Verified:** `Godot_v4.7.2-stable_win64_console.exe --headless --path . --import` clean. `--quit-after 60 res://scenes/days/day_01.tscn` clean (no ERROR/WARNING). **Not eyeballed** — jump feel, bridge drop, and whether the platform reads as "above" need F6 in the editor.
+**Open:** Human playtest (F6 on `day_01.tscn`): jump to high gold → bridge falls → walk across → far gold → head rolls off → reunion. Intro does not load day 1 yet. Cursor GDScript linter still complains it can't see `class_name Head`; Godot import does. Say "I'm in `day_01.tscn`" in Discord.
+
+## 2026-08-21 20:12 — Rename to platforming_day; 3-jump stair; hide goals; wire intro
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Don't name it day_1 — use something like platforming_day. How to connect intro. Move first goal up so the player makes 3 jumps. Goals disappear after collected.
+**Did:**
+- Replaced `scenes/days/day_01.tscn`/`.gd` with `scenes/days/platforming_day.tscn`/`.gd`. Deleted the day_01 files.
+- Three stair platforms (surfaces y=284, 248, 212 — 36px steps; jump is ~46px so you cannot skip a step). HighGoal on Platform3. `_disappear_goal()` hides + stops monitoring on both HighGoal and FarGoal.
+- **`scenes/intro/intro.gd`** — `next_scene` default now `res://scenes/days/platforming_day.tscn`. That's the connection: intro already `@export`s `next_scene` and calls `Game.change_scene(next_scene)` after the head runs off. Also settable in the Inspector on IntroScene without editing the script.
+- DESIGN.md / TASKS.md C2 paths updated.
+**Verified:** `--import` clean; `--quit-after 60 res://scenes/days/platforming_day.tscn` no ERROR/WARNING. Not eyeballed — need F6 to confirm three jumps feel right.
+**Open:** Eyeball the stair. When T5's day list lands, this path should move into `Game.DAY_SCENES` and intro can call `Game.start_days()` instead of naming a file.
+
+## 2026-08-21 20:20 — Lose condition: game-over overlay with Retry on pit fall
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "add a lose condition if you fall down the hole in the map. It should display a game over screen with a retry button."
+**Did:**
+- **New reusable `scenes/ui/game_over.tscn` + `game_over.gd`** — `CanvasLayer` (layer 20, above the reunion fade's layer 10) with a dim `ColorRect`, a "Game Over" `Label`, and a "Retry" `Button`. `process_mode = 3` (Always) in the .tscn so the button still responds while the tree is paused. `show_over()` sets `visible = true` and `get_tree().paused = true` (idempotent); Retry unpauses then `reload_current_scene()`. Made it a standalone scene rather than baking it into the day — other days fall in holes too, and it's a small, self-contained overlay (idiomatic Godot: a scene you instance).
+- **`scenes/days/platforming_day.tscn`** — instanced `GameOver` at the scene root (after HUD).
+- **`scenes/days/platforming_day.gd`** — `_on_pit()` now calls `game_over.show_over()` instead of the old silent `reload_current_scene()`. Added `@onready var game_over`.
+- Chose **pause + overlay** over reloading immediately so the player sees they lost (the old behaviour just snapped the scene back with no feedback). Pausing freezes the sun and the falling body behind the dim.
+**Verified:** `ReadLints` clean on both scripts. `--headless --import` clean (the only ERRORs are the editor re-opening the deleted `day_01.gd` tab from `.godot/` editor layout — cache only, not committed, harmless). `--quit-after 90 res://scenes/days/platforming_day.tscn` clean, no ERROR/WARNING. **Not eyeballed:** the actual game-over panel + Retry click need F6 — walk into the gap, confirm the overlay shows and Retry restarts.
+**Open:** Only the pit triggers game over; **sunset still silently reloads** (`_on_sunset`) — the team may want it to use the same overlay once D5 fail details are decided. Retry reloads the day in place; once T5 owns flow it might route through `Game.restart_day()` instead.
+
+## 2026-08-21 20:23 — Platforms one-way so you can run under / fail
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "The body collides with the platforms. It should be possible to run under or through the platforms. Right now the player cannot fail this mission because the platforms block movement."
+**Did:** `scenes/days/platforming_day.tscn` — set `one_way_collision = true` on all three stair platforms' `CollisionShape2D`. One-way collision is Godot's standard platformer idiom: the body lands on the top face but passes through from below and the sides, so you can run underneath and it's now possible to miss a jump and fall in the pit (i.e. actually fail). Solid floors, bridge, and pit unchanged.
+**Verified:** `--quit-after 60 res://scenes/days/platforming_day.tscn` clean, no ERROR/WARNING. **Not eyeballed** — needs F6 to confirm you can walk under the stair and still land on top when jumping.
+**Open:** Same as prior entries. If the stair ever feels too easy to fall off, widen platforms or reduce step spacing.
+
+## 2026-08-21 20:44 — Rearchitect: WinCondition → WinConditionManager → DayManager (signal up, call down)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Genericize the day: WinCondition emits up to a WinConditionManager, which tells a DayManager condition X is satisfied; the day defines per-condition actions. "Signal up, call down." Chose (via AskQuestion) to build per-scene managers now but reuse the teammate's `WinCondition` leaf names, and flag the DayManager-vs-`Game`-autoload overlap.
+**Did:**
+- **New `scenes/gameplay/win_condition.gd`** — `class_name WinCondition extends Node`. `@export_enum("body","mind") key`, `signal satisfied(key)`, `satisfy()` (idempotent), `reset()`. Matches the head_logic leaf so the merge converges.
+- **New `scenes/gameplay/win_condition_manager.gd`** — `class_name WinConditionManager extends Node`. Finds WinConditions under `owner` (or `search_root`), re-emits `condition_satisfied(key)` and fires `all_satisfied` once every condition has fired (counts emissions — safe because `satisfy()` is idempotent). `push_warning` if none found.
+- **New `scenes/gameplay/day_manager.gd`** — `class_name DayManager extends Node`. Base controller. `@export_file next_scene`, NodePath exports for conditions/head/game_over. On `all_satisfied` → `head.release()` → on `left_scene` advance via `Game.change_scene`. `fail(reason)` → `game_over.show_over()`. Virtual `_on_condition_satisfied(key)` for subclasses. Signals `day_won` / `day_failed`.
+- **`scenes/gameplay/spatial_goal.gd`** — rewritten from the `next_scene`/`Game.change_scene` stopgap into a **dumb sensor**: on body overlap it calls `satisfy()` on its child `WinCondition`. Gained `@export_enum key`, forwarded to the child. **This matches what head_logic already did to this file** (removed next_scene, added WinCondition child, forwarded key) — deliberately, so the shared file converges instead of conflicting.
+- **`scenes/gameplay/spatial_goal.tscn`** — added a `WinCondition` child node (+ its ext_resource). Same shape as head_logic's.
+- **`scenes/days/platforming_day.gd`** — now `extends DayManager`; only day-specific bits remain: drop the bridge on the `body` need, wire pit + sun → `fail()`. All the release/advance/game-over plumbing moved to the base. Net: the day script shrank to actions only.
+- **`scenes/days/platforming_day.tscn`** — root Node2D lost its script (now a pure holder); added `WinConditionManager` and `DayManager` (script = platforming_day.gd) child nodes; `HighGoal` keyed `body`, `FarGoal` keyed `mind`.
+- **Gotcha found + fixed:** hand-authored **typed-node exports** (`@export var head: Head` with `head = NodePath(...)` in the .tscn) did **not** resolve — ran with `conditions`/`bridge` null (warning "DayManager has no WinConditionManager assigned" + a Nil `collision_layer` script error). Switched all cross-node refs to **`@export var *_path: NodePath` + `@onready ... = get_node_or_null(path)`**, which resolves deterministically relative to the node. Lesson for the team: prefer NodePath exports over typed-Node exports when authoring .tscn by hand.
+- **DESIGN.md §2.2** — added a "Day architecture" row recording the pattern + the head_logic reconciliation note.
+- Removed the bridge-must-be-down guard on the far goal — geometry enforces order (you can't cross the gap without the bridge), so the manager can treat the two needs as order-independent, which is what its done-when ("either order") wants.
+**Verified:** `--headless --import` registers all three classes (DayManager, WinCondition, WinConditionManager), no parse errors. `--quit-after 120 res://scenes/days/platforming_day.tscn` clean — no ERROR/WARNING, no "no WinConditions" (manager found both), no null-ref. Did **not** build a probe to force the win chain (per your earlier "don't test it yourself"); the signal wiring is verified to load and connect, but **nobody has watched a condition→release→advance run** — needs F6. The stale `day_01.gd` ERROR during import is the editor reopening a deleted tab from `.godot/` (cache, not committed) — harmless.
+**Open:** **Merge reconciliation with head_logic is the big one** — leaf `WinCondition` names match, but head_logic puts day flow in the `Game` autoload + a `WinConditions` manager, whereas this puts it in a per-scene `DayManager` + `WinConditionManager`. Team needs to pick one at merge (DESIGN §2.2 note). Human playtest of the full chain still needed. `Game.change_scene` is still the stopgap advance; a real `Game` day-list (T5) would replace `DayManager._advance`. HUD (T7) can now listen to `WinConditionManager.condition_satisfied`.
+
+## 2026-08-21 20:53 — Q&A: is WinCondition freely extendible?
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "With this architecture, win condition is easily extendible — child of any node (goal blocks) or an arbitrary future goal (head happiness = 100). Correct?"
+**Did:** Confirmed in chat, no code. Yes: `WinConditionManager` finds conditions via recursive `find_children("*","WinCondition",...)`, so a `WinCondition` can live under any node; the trigger (SpatialGoal, a happiness script, etc.) just calls `satisfy()`. Flagged three caveats: conditions are counted once at `_ready` (no runtime-spawned goals without a re-scan); `key` is currently `@export_enum("body","mind")` so a new category needs the enum widened (or tag it `mind`); per-day `_on_condition_satisfied(key)` switches on key, so distinct actions need distinct keys.
+**Verified:** n/a — conceptual; re-read `win_condition_manager.gd` to confirm the find_children claim.
+**Open:** Nothing new.
+
+## 2026-08-21 20:56 — WinConditionManager: support runtime-spawned conditions (resolves caveat 1)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** "Caveat 1 — can we not add a new child to the manager if we spawn a new win condition partway through the day?"
+**Did:** Yes. Reworked `scenes/gameplay/win_condition_manager.gd`:
+- Extracted a public **`register(condition)`** — `_ready`'s auto-scan now just calls it for each discovered condition, and a day can call it for a goal spawned mid-run. Idempotent (guards `_conditions.has`).
+- Completion is now tracked by **which conditions are done** (`_satisfied` array) instead of a raw fired-count, so adding an unsatisfied condition after some are met correctly keeps the day open. `_check_all()` fires `all_satisfied` once (`_completed` guard).
+- `register()` connects via `condition.satisfied.connect(_on_satisfied.bind(condition))` so the handler gets `(key, condition)` and can dedupe by instance without the leaf knowing about the manager. A condition already satisfied at register time counts immediately.
+- Edge documented in code: registering a brand-new unsatisfied condition *after* `all_satisfied` has already fired won't un-complete the day (you'd register before completion).
+**Verified:** `--headless --import` clean (no SCRIPT ERROR/Parse). `--quit-after 120 res://scenes/days/platforming_day.tscn` clean — no ERROR/WARNING, manager still finds both authored conditions. Cursor's linter flags `WinCondition` type (cross-file class_name blind spot) but Godot resolves it. Runtime-spawn path itself not exercised (no day spawns one yet).
+**Open:** Same reconciliation-with-head_logic note. `register()` is untested against an actual mid-run spawn — first day that needs it should verify.

@@ -25,6 +25,9 @@ enum Phase { CHASE, EXIT }
 @export var exit_margin: float = 120.0
 ## Seconds to wait after EXIT starts before changing scene.
 @export var exit_delay: float = 1.2
+## Scene to load after the intro. Shown in the Inspector on IntroScene —
+## change it there (or here) without touching Game.gd.
+@export var next_scene: String = "res://scenes/days/platforming_day.tscn"
 
 @onready var head_blob: CharacterBody2D = $HeadBlob
 ## Instanced body.tscn — body.gd drives player input in CHASE phase.

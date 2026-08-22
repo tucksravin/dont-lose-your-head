@@ -1,3 +1,4 @@
+class_name Head
 extends RigidBody2D
 ## The head — scripted, not simulated (DESIGN.md §2.1).
 ##
