@@ -567,3 +567,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Did:** pushed `tucker/kiki-generator` (3f39c01) and opened **PR #34 → main** (mergeable, clean). Also confirmed the intro polish IS on main: `origin/main:scenes/intro/intro.gd` has `exit_margin`/`exit_delay`, the `sunset` hookup and `Game.start_days()`, and `intro.tscn` instances `sun.tscn` — it went up with the direct-to-main push (`git diff origin/main tucker/kiki-generator -- scenes/intro/` is empty).
 **Verified:** `gh pr view 34` → OPEN, MERGEABLE/CLEAN; smoke was ALL GREEN on this branch one entry up.
 **Open:** PR #30 (Sfx cue folders) shows **CLOSED, not merged** — main's `sfx.gd` is still one file per cue, so recordings in `assets/audio/sfx/<cue>/` folders won't play. Flagged for Tucker; re-open if that was accidental.
+
+## 2026-08-22 14:51 — Sfx cue folders: leaving #30 closed (Ben owns audio right now)
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "ben is working on audio right now, so leaving that for now"
+**Did:** nothing — decision recorded. PR #30 (folder-per-cue with random takes) stays **closed**; `scripts/autoload/sfx.gd` on main keeps one file per cue. **Do not re-open or rebuild it** without checking with Ben (bjhogoboom), who is in the audio files now. Known consequence while it stays closed: recordings placed in `assets/audio/sfx/<cue>/` subfolders don't play — only `assets/audio/sfx/<cue>.wav|ogg` does.
+**Verified:** n/a (no code change).
+**Open:** if Ben's pass lands folder support himself, #30 is redundant; if not, the branch `tucker/sfx-folders` still exists and can be reworked onto whatever he merges.
