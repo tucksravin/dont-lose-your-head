@@ -77,6 +77,10 @@ func _begin_merge() -> void:
 	if body_sprite != null:
 		body_sprite.play(&"idle")
 		body_sprite.frame = 0
+	# And the procedural juice (breathing / lean) — same reason, same moment.
+	var juice: Node = body_blob.get_node_or_null("Juice")
+	if juice != null and juice.has_method("reset"):
+		juice.call("reset")
 
 	# Disable body.gd so it stops reading input and calling move_and_slide().
 	# With process_mode DISABLED, the CharacterBody2D holds position, letting
