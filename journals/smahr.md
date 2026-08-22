@@ -338,3 +338,32 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - `day_lockdown.gd`: pickup → `head.attach(body, carry_offset)`; place → `detach()` then snap to mount. No more per-frame `global_position` on the day. CODEBASE Head + Lockdown lines updated.
 **Verified:** `--headless --import` (known `day_01.gd` only). `load_all` PASS (51). Carry feel needs a human F6.
 **Open:** none.
+
+## 2026-08-22 11:53 — Plan for Working Out day
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Plan the working-out / button-masher day: walk in, head trapped by kikis (`kiki_frames.tres`), pick up a placeholder barbell, mash Space to push thoughts away, then head releases.
+**Did:** Chat plan only — no files. Reuse DayManager + `caged` head + `interact` pickup (not `Head.attach` — that's for the skull). New swarm node + barbell prop. Mash on existing `jump` action while lifting (lock walk/jump). Flagged: creep-back vs one-way push; fail = sunset only vs swarm wins; playlist slot; both WinCondition keys on "swarm gone" (lockdown pattern).
+**Verified:** n/a — plan.
+**Open:** smahr hasn't picked the fail/creep or the slot in `DAY_SCENES`.
+
+## 2026-08-22 11:59 — Build Working Out day (C3c)
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Implement the Working Out plan (creep-back; fail = sunset or kikis touching the head).
+**Did:**
+- `scenes/gameplay/barbell.tscn` — placeholder weights+bar, `interact` pickup, follows the body (not `Head.attach`).
+- `scenes/gameplay/kiki_swarm.tscn` — `kiki_frames.tres` ring; pressure 0 satisfies body+mind, 1 → `fail("kiki")`; creep after `begin()`.
+- `scenes/days/day_workout.tscn` + `.gd` — FIND_BAR → LIFT (`body.is_scripted`, mash `jump`) → DONE. Head `caged` at (560,306). In `DAY_SCENES` after lockdown.
+- DESIGN §2 / brainstorm / CODEBASE / TASKS C3c.
+**Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (58), day_lint (65), day_chain (26). Mash/creep/contact need a human F6.
+**Open:** play_through still force-satisfies (no mash bot). Human F6: walk-up does not fail, lift, mash vs creep, contact fail, sunset, win → roll.
+
+## 2026-08-22 12:03 — Workout: no cage, kikis block, bar pumps
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Remove the cage from the head. Body should be blocked from the head by the kikis. Bar moves up and down on Space.
+**Did:**
+- `day_workout.tscn` Head is loose (default `caged = false`); no imprisoned loop.
+- `kiki_swarm.gd` — `StaticBody2D` + `CircleShape2D` matches the ring radius so sprite gaps don't leak. Disabled at pressure ~0 / after win. (`StaticBody2D` because we need a solid wall for `CharacterBody2D.move_and_slide`, not overlap.)
+- `barbell.gd` `pump()` — Tween pops `_pump_y` up then down; `day_workout.gd` calls it on each `jump` mash.
+- DESIGN §2 / brainstorm / CODEBASE / TASKS: "caged head" → loose + circle-block + pump.
+**Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (58), day_lint (65), day_chain (26).
+**Open:** Human F6 — walk into the swarm (should stop), mash Space (bar should bob). Collision feel of a filled circle vs a ring is a guess.

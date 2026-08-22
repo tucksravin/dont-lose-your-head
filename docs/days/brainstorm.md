@@ -39,6 +39,8 @@ The head is watching television / doomscrolling the body needs to break the tv t
 
 need to mash and working out literally pushes the kikis away from the head. (barbell)
 
+**Built (smahr, Sat 12:01) as `day_workout.tscn` (C3c).** Walk in, interact with a placeholder barbell (two weights + a bar; pumps on mash), mash Space (`jump`) to shove kikis (`kiki_frames.tres`) off the **loose** head. The swarm's circle **blocks the body from walking to the head**. **Kikis creep back.** Fail: sunset or kikis touching the head. Both needs fire when the swarm is gone. In `Game.DAY_SCENES` after lockdown, before platforming.
+
 
 
 
