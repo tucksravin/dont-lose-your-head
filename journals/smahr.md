@@ -488,3 +488,12 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 - DESIGN / brainstorm / CODEBASE / TASKS / HOWTO.
 **Verified:** `--headless --import` (known `day_01.gd` only). Smoke **PASS**: load_all (62), day_lint (77), day_chain (30).
 **Open:** Human F6 — kiki height / interval / speed. Space throws while it stares (it's on `jump`). Say if Space should still hop.
+
+## 2026-08-22 14:08 — Reunion: upside-down walk-in, bounce, sunset walk-off
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Build brainstorm "Upside down — the final scene — reunion."
+**Did:**
+- `reunion.gd` / `.tscn` (Tucker last touched the dive — smallest add). Camera starts `zoom.y = -1` (vertical flip only — a PI rotation also mirrored X and the bot walked off to x=-1100). Dive unchanged, then bounce rights the camera + body + head, `Head.attach`, scripted walk off the right toward a parked `sun.png` (not the day-timer `sun.tscn`), fade to `main.tscn`.
+- DESIGN §2 Reunion row / brainstorm Built / CODEBASE 6.3 / TASKS C5 ◐. End card still N1.
+**Verified:** `--headless --import` (known `day_01.gd` only). load_all 68 / day_chain 34 PASS. play_through first FAIL (PI rotation mirrored X; bot walked to x=-1100). After `zoom.y = -1`: play_through **PASS** (20), reunion handed off in 6.2 s.
+**Open:** Human F6 — flipped walk, dive, righting, walk-off. `right_time` / `bounce_apex` are guesses. Did not build the §3.6 "faces camera" beat.

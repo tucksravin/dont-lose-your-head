@@ -32,7 +32,7 @@ flowchart LR
   Dlock -- "win" --> Dwork["day_workout.tscn<br/>(mash kikis off the head)"]
   Dwork -- "win" --> Dmir["day_mirror.tscn<br/>(look flips left/right)"]
   Dmir -- "win" --> D2["platforming_day.tscn<br/>(three steps, bridge, gap)"]
-  D2 -- "DayManager → Game.next_day" --> R["reunion.tscn<br/>(dive onto the head)"]
+  D2 -- "DayManager → Game.next_day" --> R["reunion.tscn<br/>(upside-down walk-in, dive, right, sunset)"]
   R -- "next_scene" --> M["main.tscn<br/>(placeholder end)"]
 ```
 
@@ -138,7 +138,7 @@ Every day = `Background` (Polygon2D, sky `#988277`; *anim* adds `sky_drift.gd` o
 ### 6.3 Intro, reunion, UI, placeholder
 
 - **Intro** — [scenes/intro/intro.tscn](../scenes/intro/intro.tscn) / [.gd](../scenes/intro/intro.gd): `HeadBlob` (CharacterBody2D, `head_side.png`) runs right on its own and leaves; **the player has to chase it off the right edge themselves** (Sat evening: no scripting moves the body; the scene changes only once the body is `exit_margin` 24 px past the edge, then `exit_delay` 0.4 s → `Game.start_days()`). It has a **Sun** like every day (found by its `sunset` signal): sunset before you have left → `Game.restart_day()` reloads the intro. The bot's plan is `run right`. Its `@export next_scene` is **never read**. The "head pops off" beat is a TODO in the file.
-- **Reunion** — [scenes/reunion/reunion.tscn](../scenes/reunion/reunion.tscn) / [.gd](../scenes/reunion/reunion.gd): walk to the upside-down head, `interact` within 64 px → dive Tween (`dive_rise/fall/apex`, `landing_offset (0,-56)`) → fade → `next_scene` = **[scenes/main.tscn](../scenes/main.tscn)** — the old input-test placeholder. **There is no end card yet.** [scenes/reunion/preview/sprites_preview.tscn](../scenes/reunion/preview/sprites_preview.tscn) is a standalone sprite check (ships in the export; harmless).
+- **Reunion** — [scenes/reunion/reunion.tscn](../scenes/reunion/reunion.tscn) / [.gd](../scenes/reunion/reunion.gd): camera starts at `zoom.y = -1` (screen upside down; left/right unchanged). Walk to the head, `interact` → dive Tween → bounce that rights the camera + body + head → `Head.attach` → scripted walk off the right toward a parked `sun.png` → fade → `next_scene` = **[scenes/main.tscn](../scenes/main.tscn)**. **There is no end card yet (N1).** [scenes/reunion/preview/sprites_preview.tscn](../scenes/reunion/preview/sprites_preview.tscn) is a standalone sprite check (ships in the export; harmless).
 - **Game over** — [scenes/ui/game_over.tscn](../scenes/ui/game_over.tscn) / [.gd](../scenes/ui/game_over.gd): CanvasLayer, `show_over()` pauses, Retry reloads. Every day instances it.
 
 ---
