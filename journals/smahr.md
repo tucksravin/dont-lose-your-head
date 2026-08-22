@@ -553,3 +553,12 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Two-beat Tween (same as the reunion dive): up-right to an apex above the skull, then down-right to `(720, 120)` past the 640 edge, spinning the whole way. Tweens are straight lines — the arc is two beats, not a Curve.
 **Verified:** not verified — F6 the launch.
 **Open:** Human F6 — apex height / end y.
+
+## 2026-08-22 15:07 — Merge main into glasses_on_head
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Handle merge conflicts.
+**Did:**
+- Kept both sides: intro glasses frames + main's Sun / chase-off-screen / sunset restart. Cage still plays `imprisoned_glasses` and then rolls (main's knock-then-roll). CODEBASE keeps PanicCounter/Glasses/Velma **and** main's `Kiki` node.
+- `transition_glasses._run` updated to the new base (`progress` + `_spin`); it still never parks.
+**Verified:** conflict markers gone. Smoke skipped.
+**Open:** F6 intro (chase + glasses + sun) and both transitions.

@@ -30,10 +30,16 @@ extends "res://scenes/transition/transition.gd"
 var _glasses_flew: bool = false
 
 
-## Full beat. Do not call super — that parks the head and waits for the body.
+## Full beat. Do not call super — the new base parks until the body is close,
+## then rolls and stops. This beat never parks.
 func _run() -> void:
+	# Same spin setup as the base so `_process` can rotate the skull.
+	var total: float = path.curve.get_baked_length()
+	var turns: int = maxi(1, roundi(total / (TAU * head_radius)))
+	_spin = float(turns) * TAU / total
+	_rolling = true
 	var roll: Tween = create_tween()
-	roll.tween_property(follow, "progress_ratio", 1.0, roll_time)\
+	roll.tween_property(follow, "progress", total, roll_time)\
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await roll.finished
 	_rolling = false

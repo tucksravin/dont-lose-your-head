@@ -19,7 +19,7 @@ extends SceneTree
 ##   {"satisfied": "body"}      wait until the WinCondition with that key is met
 ##   {"release_all": true}      let go of every held action
 ##   {"run": "move_right"}      hold an action until the scene changes (10 s cap)
-## A scene with no plan just waits for the scene to change (the intro). A
+## A scene with no plan just waits for the scene to change. A
 ## TRANSITION with no plan gets {"run": "move_right"}: the body is the player's
 ## there and the beat ends when it reaches the head, so running right is the
 ## plan for every fork. A DAY with no plan is force-satisfied with a warning, so
@@ -32,6 +32,9 @@ const START_SCENE: String = "res://scenes/intro/intro.tscn"
 const SCENE_BUDGET: float = 25.0
 
 var plans: Dictionary = {
+	# The intro ends when the PLAYER runs off the right edge (the head leaves on
+	# its own) — so run right until the scene changes.
+	"res://scenes/intro/intro.tscn": [{"run": "move_right"}],
 	"res://scenes/days/day_velma.tscn": [
 		# Head is near the entrance (180,306). Four one-way steps later in
 		# the room (centers 380/440/500/560, 36 px rise). Glasses on

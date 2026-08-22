@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://1q68x5u8xyd6" path="res://scenes/intro/intro.gd" id="1_intro"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
 [ext_resource type="SpriteFrames" uid="uid://bde5tdw2qau5v" path="res://assets/sprites/head_frames.tres" id="3_head_frames"]
+[ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="4_sun"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_1"]
 
@@ -46,3 +47,5 @@ autoplay = "glasses_look_right"
 
 [node name="Body" parent="." unique_id=473802789 instance=ExtResource("2_body")]
 position = Vector2(100, 320)
+
+[node name="Sun" parent="." instance=ExtResource("4_sun")]

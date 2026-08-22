@@ -4,8 +4,19 @@
 [ext_resource type="Script" path="res://scenes/transition/transition_cage.gd" id="2_cage_script"]
 [ext_resource type="SpriteFrames" path="res://assets/sprites/head_frames.tres" id="3_head_frames"]
 
+[sub_resource type="Curve2D" id="Curve2D_offscreen"]
+_data = {
+"points": PackedVector2Array(0, 0, 0, 0, 240, 178, 0, 0, 0, 0, 720, 338)
+}
+point_count = 2
+
 [node name="TransitionCage" instance=ExtResource("1_base")]
 script = ExtResource("2_cage_script")
+roll_time = 1.6
+brake_ratio = 1.0
+
+[node name="HeadPath" parent="."]
+curve = SubResource("Curve2D_offscreen")
 
 [node name="Head" parent="HeadPath/Follow" index="0"]
 animation = &"glasses"
