@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" uid="uid://1q68x5u8xyd6" path="res://scenes/intro/intro.gd" id="1_intro"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
-[ext_resource type="Texture2D" uid="uid://vcbcxq35aj8k" path="res://assets/sprites/head_side.png" id="3_head_tex"]
+[ext_resource type="SpriteFrames" uid="uid://bde5tdw2qau5v" path="res://assets/sprites/head_frames.tres" id="3_head_frames"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="4_sun"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_1"]
@@ -38,10 +38,12 @@ position = Vector2(200, 320)
 position = Vector2(0, -14)
 shape = SubResource("RectangleShape2D_head")
 
-[node name="Visual" type="Sprite2D" parent="HeadBlob" unique_id=438638277]
+[node name="Visual" type="AnimatedSprite2D" parent="HeadBlob" unique_id=438638277]
 position = Vector2(0, -14)
 scale = Vector2(2, 2)
-texture = ExtResource("3_head_tex")
+sprite_frames = ExtResource("3_head_frames")
+animation = &"glasses_look_right"
+autoplay = "glasses_look_right"
 
 [node name="Body" parent="." unique_id=473802789 instance=ExtResource("2_body")]
 position = Vector2(100, 320)
