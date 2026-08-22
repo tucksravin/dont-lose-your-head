@@ -59,6 +59,12 @@ func _before_head_release() -> void:
 		await get_tree().create_timer(sigh_time).timeout
 	if not is_instance_valid(head):
 		return
+	# The branch gives way (tree.png, Tucker's: whole → 3 frames of breaking),
+	# then the head falls. One-shot: it holds on the broken stub afterwards.
+	var tree_visual: AnimatedSprite2D = get_node_or_null("Tree/Visual") as AnimatedSprite2D
+	if tree_visual != null and tree_visual.sprite_frames != null \
+			and tree_visual.sprite_frames.has_animation(&"breaking"):
+		tree_visual.play(&"breaking")
 	var fall: Tween = create_tween()
 	fall.set_parallel(true)
 	fall.tween_property(head, "global_position", fall_end, fall_time)\
