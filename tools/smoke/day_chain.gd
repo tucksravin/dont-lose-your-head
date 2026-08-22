@@ -4,9 +4,10 @@ extends SceneTree
 ## Drives Game.start_days(), force-satisfies every WinCondition in each day as
 ## it loads, and asserts that the head leaves and the next day in
 ## Game.DAY_SCENES appears — in order — ending at Game.REUNION_SCENE. This is
-## the "does the plumbing still connect" test: no input, no physics skill,
-## just the signal chain WinCondition → manager → head.release() → left_scene
-## → next scene, for both flow systems.
+## the "does the plumbing still connect" test: no physics skill, just the
+## signal chain WinCondition → manager → head.release() → left_scene → next
+## scene, for both flow systems. (The one input it gives is "hold right" in a
+## transition, whose body is the player's.)
 
 const Smoke := preload("res://tools/smoke/smoke_lib.gd")
 
@@ -40,8 +41,13 @@ func _run() -> void:
 			break
 		sid = scene.get_instance_id()
 		if path.begins_with("res://scenes/transition/"):
+			# The body is the player's in a transition and the beat ends when it
+			# reaches the head — so hold "right" (the real action, like a key)
+			# until the scene hands off.
+			Input.action_press("move_right", 1.0)
 			var after: Node = await Smoke.wait_for_scene(self, sid, 10.0)
-			Smoke.check(after != null, "  transition played and moved on by itself")
+			Input.action_release("move_right")
+			Smoke.check(after != null, "  transition played through (body run to the head) and moved on")
 			if after == null:
 				break
 			continue
