@@ -1,0 +1,79 @@
+[gd_resource type="SpriteFrames" load_steps=12 format=3]
+
+[ext_resource type="Texture2D" path="res://assets/sprites/body_walk.png" id="1_walk"]
+[ext_resource type="Texture2D" path="res://assets/sprites/body_idle.png" id="2_idle"]
+[ext_resource type="Texture2D" path="res://assets/sprites/body_throw.png" id="3_throw"]
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w0"]
+atlas = ExtResource("1_walk")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w1"]
+atlas = ExtResource("1_walk")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w2"]
+atlas = ExtResource("1_walk")
+region = Rect2(64, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_w3"]
+atlas = ExtResource("1_walk")
+region = Rect2(96, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_i0"]
+atlas = ExtResource("2_idle")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t0"]
+atlas = ExtResource("3_throw")
+region = Rect2(0, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t1"]
+atlas = ExtResource("3_throw")
+region = Rect2(32, 0, 32, 32)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_t2"]
+atlas = ExtResource("3_throw")
+region = Rect2(64, 0, 32, 32)
+
+[resource]
+animations = [{
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_i0")
+}],
+"loop": true,
+"name": &"idle",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t2")
+}],
+"loop": false,
+"name": &"throw",
+"speed": 8.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w0")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w1")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w2")
+}, {
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_w3")
+}],
+"loop": true,
+"name": &"walk",
+"speed": 8.0
+}]
