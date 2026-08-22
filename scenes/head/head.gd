@@ -45,6 +45,13 @@ signal left_scene
 ## and collision don't move, only the sprite.
 @export var jitter_px: float = 1.5
 @export var jitter_full_agitation: float = 4.0
+## Caged only: sprite tint at 0 panic and at max panic — the head visibly
+## darkens toward the palette's ground green as it gets closer to failing the
+## day, on top of the jitter and the animation speeding up. Named from
+## Colors (scripts/colors.gd) rather than a one-off hex so it stays a palette
+## colour. Harmless on an uncaged head.
+@export var calm_tint: Color = Color.WHITE
+@export var panic_tint: Color = Colors.DARK_GREEN
 
 var _leaving: bool = false
 var _agitation: float = 1.0
@@ -65,7 +72,7 @@ func _ready() -> void:
 	# Nothing to do until release() — skip the per-frame callback entirely
 	# rather than running an early-return every physics tick.
 	set_physics_process(false)
-	set_process(caged)  # the shake below is caged-only
+	set_process(caged) # the shake below is caged-only
 
 
 func _process(_delta: float) -> void:
@@ -94,6 +101,12 @@ func set_agitation(scale: float) -> void:
 	_sprite.speed_scale = _agitation
 
 
+## How panicked the head is, 0–1 against max_panic. Tints the sprite from
+## `calm_tint` toward `panic_tint`. Harmless on an uncaged head.
+func set_panic_ratio(ratio: float) -> void:
+	_sprite.modulate = calm_tint.lerp(panic_tint, clampf(ratio, 0.0, 1.0))
+
+
 ## Let the head go. Game calls this once every WinCondition is satisfied.
 ## Safe to call more than once — repeat calls are ignored.
 func release() -> void:
@@ -112,7 +125,7 @@ func release() -> void:
 ## revisiting if a scene ever scrolled.
 func _is_off_screen() -> bool:
 	var view: Vector2 = get_viewport_rect().size
-	return (global_position.x > view.x + exit_margin
-			or global_position.x < -exit_margin
-			or global_position.y > view.y + exit_margin
-			or global_position.y < -exit_margin)
+	return (
+		global_position.x > view.x + exit_margin or global_position.x < -exit_margin
+		or global_position.y > view.y + exit_margin or global_position.y < -exit_margin
+	)
