@@ -38,6 +38,7 @@ Use it as the test for every idea this weekend: *does this make the player feel 
 | **Art** | Locked rule: **no generative art.** **Pixel art at 640×360** (confirmed — the project config stays). Tucker does art direction to start. |
 | **Sound** | Tucker & Ben. Different music per day is the intent — "burn that bridge once we have some scenes". |
 | **Stretch (from Friday)** | each day = a *mental* task + a *physical* task · the end scene is a **battle against the intrusive thoughts** |
+| **(C2)** | **Bridge** (`platforming_day`). Head is already on the far ledge (the snag: a gap in the floor). Body need: three jumps up a stair of platforms to the high goal. Mind need: collect the goal on the far side. Twist: the high goal **drops a bridge** across the gap. Goals vanish when collected. ~30 s. File: `scenes/days/platforming_day.tscn` (Sean). |
 
 ### 2.2 How it's built
 
@@ -45,6 +46,7 @@ Use it as the test for every idea this weekend: *does this make the player feel 
 |---|---|
 | **Days in code** | **One file per day.** Sean & Ben build the **scene template** first. **Tonight's target: the template + one ~30-second day running end to end** (slope in → snag → two problems → slope out → next day), rectangles only. |
 | **Win conditions** | **Keyed nodes** in the day scene (`body` / `mind`); the day completes when all keyed nodes are satisfied, which releases the head. **Their status is shown on the HUD to start** (remove later if it reads without). |
+| **Day architecture** *(added 2026-08-21, smahr)* | **Signal up, call down.** `WinCondition` (leaf, on each goal) emits `satisfied(key)` → `WinConditionManager` (one per day) re-emits `condition_satisfied(key)` and `all_satisfied` → `DayManager` (base `class_name`, per-day subclass on a node) reacts: overrides `_on_condition_satisfied(key)` for day-specific actions (e.g. drop a bridge), and on `all_satisfied` releases the head → advances; `fail(reason)` shows game over. Day scene root is just a node holder. Files: `scenes/gameplay/win_condition.gd`, `win_condition_manager.gd`, `day_manager.gd`. **Note:** the `head_logic` branch has a parallel `WinConditions` (autoload-`Game`-based) version of this — leaf `WinCondition` names match; the manager/flow split must be reconciled at merge (see §3). |
 | **Engine / target** | Godot 4.7.1 → itch.io web (HTML5), manual export. |
 
 ### 2.3 How we work
