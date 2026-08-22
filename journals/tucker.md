@@ -179,3 +179,10 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 2. **Sean's day is unreachable from the intro.** `intro.gd` still ends with `Game.start_days()` and `Game.DAY_SCENES` is still `[day_template, day_template]`. His `@export next_scene = platforming_day.tscn` on IntroScene is never read.
 3. **Two win/flow systems coexist:** `win_conditions.gd` → `Events.day_completed` → `Game` (day_template, day_panic) vs `win_condition_manager.gd` → `day_manager.gd` (platforming_day). Each works alone; one scene with both would release the head twice.
 4. `day_panic.tscn` still has no `WinCondition` — it can never be won.
+
+## 2026-08-21 21:34 — Sean's day added to the day list
+**Driver:** Tucker · **Agent:** Claude (Fable 5)
+**Asked:** "add seans day to the list then I want to take a look here"
+**Did:** `Game.DAY_SCENES` is now `[day_template, platforming_day]` (was `day_template` twice), so the intro leads into the template day and then Sean's platforming day. Added a doc comment recording **why the order is not free**: a `WinConditions` day advances through the list (`Events.day_completed` → `next_day()`), but a `DayManager` day calls `Game.change_scene(next_scene)` itself, defaulting to the reunion — so a DayManager day must sit **last** or everything after it is skipped. That constraint disappears once the team unifies the two systems.
+**Verified:** scripted flow test (throwaway, not committed) that force-satisfies every `WinCondition` in each day: `start_days()` → `day_template.tscn` (2 conditions) → `platforming_day.tscn` (2 conditions) → `reunion.tscn`. Full chain reaches the reunion. `--import` clean, no script errors.
+**Open:** unchanged — broken `day_01.tscn`, the two win systems, `day_panic` unwinnable, and `intro.gd`'s unread `next_scene` export.
