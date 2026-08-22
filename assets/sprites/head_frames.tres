@@ -48,6 +48,14 @@ region = Rect2(160, 0, 16, 16)
 atlas = ExtResource("3_glasses")
 region = Rect2(176, 0, 16, 16)
 
+[sub_resource type="AtlasTexture" id="AtlasTexture_look_l"]
+atlas = ExtResource("2_keyed")
+region = Rect2(0, 0, 16, 16)
+
+[sub_resource type="AtlasTexture" id="AtlasTexture_look_r"]
+atlas = ExtResource("2_keyed")
+region = Rect2(32, 0, 16, 16)
+
 [sub_resource type="AtlasTexture" id="AtlasTexture_wink"]
 atlas = ExtResource("2_keyed")
 region = Rect2(48, 0, 16, 16)
@@ -122,6 +130,22 @@ animations = [{
 }],
 "loop": 1,
 "name": &"loose",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_look_l")
+}],
+"loop": 1,
+"name": &"look_left",
+"speed": 5.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_look_r")
+}],
+"loop": 1,
+"name": &"look_right",
 "speed": 5.0
 }, {
 "frames": [{

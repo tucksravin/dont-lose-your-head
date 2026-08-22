@@ -9,7 +9,7 @@ The promise (TASKS.md T8): **a new day is one new file that runs end to end with
    - `Background` (Polygon2D, sky `#988277`) · `Camera` (fixed at 320,180 — do not move it, DESIGN §2.1)
    - `Floor` (StaticBody2D + ColorRect, ground green `#006a3d`, top at **y = 320**)
    - `Body` (instance of `body.tscn`; its origin is its **feet** — put it at y = 320 to stand on the floor)
-   - `Head` (instance of `head.tscn`; origin is its **centre**, 28 px box — y = 306 sits on the floor). Tick `caged` for the head behind bars. It stays frozen until every need is met, then rolls off to the right (`exit_direction`/`exit_speed` per instance).
+   - `Head` (instance of `head.tscn`; origin is its **centre**, 28 px box — y = 306 sits on the floor). Tick `caged` for the head behind bars. `look(-1/+1)` plays `look_left` / `look_right`. It stays frozen until every need is met, then rolls off to the right (`exit_direction`/`exit_speed` per instance).
    - `WinConditionManager` (finds every `WinCondition` in the scene; signals up to DayManager)
    - `DayManager` (releases the head when all needs are met, then `Game.next_day()`; fail → game-over card). A day with extra actions (drop a bridge) uses a script that `extends DayManager`.
    - `GameOver` (the Retry overlay)
@@ -28,8 +28,8 @@ Then press **F9** in the running game for the overlay (needs ✓/✗, sun %, bod
 |---|---|
 | Screen | **640 × 360**, fixed camera, 1 world px = 1 screen px (2× on a 1280×720 window) |
 | Floor convention | top of the ground at **y = 320**; 40 px of ground below it |
-| Body | `speed` **150 px/s** · `jump_velocity` **−300** · `gravity` **980** → **max rise 45.9 px** (a 36 px step is comfortable, 48 is impossible) · hang time **0.61 s** → **92 px horizontal reach** from a standing jump · collision **24 × 32** (feet at origin) · sprite 26×38 on screen · walks up/down slopes ≤ 45° out of the box |
-| Head | 28 × 28 box, centred · states: `loose` (plain), `imprisoned` (4-frame cage loop; `caged = true`), `wink` · `set_agitation(x)` scales the cage loop speed · **solid to the body** — if it sits on the path to a goal the player has to jump it (platforming_day does this, x=450) |
+| Body | `speed` **150 px/s** · `jump_velocity` **−300** · `gravity` **980** · `move_sign` **1** (set −1 to swap left/right) · `invert_vertical` (jump reads `move_down` / ↓) → **max rise 45.9 px** (a 36 px step is comfortable, 48 is impossible) · hang time **0.61 s** → **92 px horizontal reach** from a standing jump · collision **24 × 32** (feet at origin) · sprite 26×38 on screen · walks up/down slopes ≤ 45° out of the box |
+| Head | 28 × 28 box, centred · states: `loose` (plain), `look_left` / `look_right` (`Head.look`), `imprisoned` (4-frame cage loop; `caged = true`), `wink` · `set_agitation(x)` scales the cage loop speed · **solid to the body** — if it sits on the path to a goal the player has to jump it (platforming_day does this, x=450) |
 | Goals | `SpatialGoal` is a 32×32 area; origin at its bottom-centre (put it at floor y to sit on the ground) |
 | Sun | **30 s** per day by default · arcs left→right across the top · `sunset` fails the day (restart) — a won day ignores it |
 | Needs | one `body` + one `mind` per day (DESIGN §2.1). Both must be met; order is free. |
