@@ -22,10 +22,14 @@ class_name PanicCounter
 @export var max_panic: float = 400.0
 ## Speed below which the body counts as still (px/s).
 @export var still_speed: float = 1.0
-## Cage-animation speed at 0 panic and at max panic. The head visibly rattles
-## faster as the meter climbs.
-@export var calm_agitation: float = 1.0
+## Cage-animation speed at 0 panic and at max panic, as a multiple of the rate
+## authored in head_frames.tres. Calm is deliberately near-still — the eyes
+## barely drift until something is actually happening.
+@export var calm_agitation: float = 0.1
 @export var frantic_agitation: float = 4.0
+## Floor applied while the body is moving, so the head reacts the instant you
+## move rather than waiting for the meter to climb out of the calm range.
+@export var moving_agitation: float = 1.0
 
 ## Emitted whenever `value` changes — the panic display listens to this.
 signal panic_changed(value: int)
@@ -59,8 +63,12 @@ func _physics_process(delta: float) -> void:
 		panic_changed.emit(shown)
 
 	if _head != null and _head.has_method("set_agitation"):
-		_head.call("set_agitation",
-				lerpf(calm_agitation, frantic_agitation, value / max_panic))
+		# Ramp with the meter, but never below moving_agitation while moving —
+		# otherwise the first second of movement looks like nothing is wrong.
+		var agitation: float = lerpf(calm_agitation, frantic_agitation, value / max_panic)
+		if moving:
+			agitation = maxf(agitation, moving_agitation)
+		_head.call("set_agitation", agitation)
 
 	if value >= max_panic:
 		_failed = true
