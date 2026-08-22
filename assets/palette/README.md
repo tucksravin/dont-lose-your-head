@@ -17,4 +17,6 @@
 | `#006a3d` | dark green / ground |
 | `#8a4fb5` | **violet — intrusive thoughts / kikis** (added Sat 17:xx, Tucker; not in the original 8). Ramp if needed: `#5e2d8c` shadow · `#c79df2` highlight |
 
+In code use the named constants in `scripts/colors.gd` (`Colors.VIOLET` …), not hex literals — keep that file and this table in step.
+
 Base palette: **Gooseberry Ghost** by Rustocrat (Lospec), 8 colours; `#cdcd99` and `#8a4fb5` are ours. Everything shipped should come from this list — if you need a new colour, add it here and say so, don't one-off it in a scene.
