@@ -80,9 +80,10 @@ position = Vector2(480, 320)
 script = ExtResource("10_rain")
 thought_scene = ExtResource("11_thought")
 autostart = false
-interval = 0.32
-start_delay = 0.15
-fall_speed = 320.0
+interval = 1.4
+start_delay = 0.4
+fall_speed = 140.0
+miss_mult = 3.0
 burst = 2
 
 [node name="Sun" parent="." instance=ExtResource("4_sun")]

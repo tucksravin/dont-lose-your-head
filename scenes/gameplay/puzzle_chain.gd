@@ -6,8 +6,8 @@ extends Node2D
 ##
 ## One WinCondition per DESIGN need — not one per puzzle. The chain is internal
 ## state; the last correct answer satisfies *both* keys (surviving the rain is
-## the body need; finishing the chain is the mind need). A wrong pad or a hit
-## elsewhere fails through DayManager.
+## the body need; finishing the chain is the mind need). A hit still fails
+## through DayManager. A wrong pad speeds ThoughtRain — no panic on the head.
 
 signal puzzle_advanced(index: int)
 
@@ -85,7 +85,7 @@ func _on_chosen(value: String) -> void:
 	var correct_index: int = int(puzzle[2])
 	var correct: String = str(choices[correct_index])
 	if value != correct:
-		_fail("wrong")
+		_on_wrong()
 		return
 	_index += 1
 	if _index >= puzzles.size():
@@ -94,13 +94,15 @@ func _on_chosen(value: String) -> void:
 	_show_current()
 
 
+func _on_wrong() -> void:
+	var rain: Node = get_tree().get_first_node_in_group("thought_rain")
+	if rain != null and rain.has_method("speed_up"):
+		rain.call("speed_up")
+		return
+	push_warning("PuzzleChain: wrong answer but no ThoughtRain — rain will not speed up.")
+
+
 func _win() -> void:
 	_won = true
 	mind_need.satisfy()
 	body_need.satisfy()
-
-
-func _fail(reason: String) -> void:
-	var manager: Node = get_tree().get_first_node_in_group("day_manager")
-	if manager != null and manager.has_method("fail"):
-		manager.call("fail", reason)

@@ -676,3 +676,36 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Swapped the div-curl identity for a closed-surface flux: `∯ ⟨x³,y³,z³⟩ · dS` on the unit sphere, outward. Correct pad is `12π/5` (divergence theorem; the other two are the volume and the surface area, the usual traps).
 **Verified:** not verified — F6 whether ∯ / π / ⟨⟩ render in the default font.
 **Open:** Human F6 — if glyphs tofu, we ASCII-ify.
+
+## 2026-08-22 16:38 — Wrong pad panics; rain speeds up
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Nobody will get Q4 right. Wrong answer should increase panic and make kikis spawn faster, not fail. Add the panic sound and panic counter to the head in the lockdown puzzle.
+**Did:**
+- Wrong pad no longer calls `fail("wrong")` — stays on the question and `PanicCounter.add_panic(7)`.
+- `PanicCounter` on `day_lockdown.tscn`: `start_paused` until the head is seated, `panic_per_second` 0 so dodging does not wind it. Max still fails.
+- PanicLabel is a child of the Head (follows the seat). Heartbeat is the existing `Head.PanicSound` via `set_panic_level`; uncaged heads now shake when agitation is set.
+- ThoughtRain lerps interval 0.48→0.16 and fall speed 240→420 off `ratio()`.
+- Locked in DESIGN.md §2 Lockdown. Also resolved a leftover CODEBASE.md merge conflict in the day table.
+**Verified:** running Godot `--import` + lockdown headless next.
+**Open:** Human F6 — wrong-pad bump size / whether 4 misses to fail is fair. Smoke skipped unless import is clean.
+
+## 2026-08-22 16:39 — Lockdown panic import check
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** (verify the wrong-pad panic wire)
+**Did:** `--headless --import` clean. `--quit-after 60 res://scenes/days/day_lockdown.tscn` — no ERROR / SCRIPT ERROR / Parse Error.
+**Verified:** those two commands.
+**Open:** Human F6 the Q4 miss → heartbeat + rain. Smoke still skipped.
+
+## 2026-08-22 16:53 — Lockdown: no panic on the head
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Remove the panic mechanic on the head. Wrong answer still makes kikis fall faster, that's it.
+**Did:** Pulled PanicCounter + PanicLabel + heartbeat off lockdown. Wrong pad now calls `ThoughtRain.speed_up()` (miss count lerps interval 0.48→0.16 and fall 240→420). Reverted the lockdown-only PanicCounter/`Head` APIs. DESIGN §2 updated.
+**Verified:** `--import` and `--quit-after 60 res://scenes/days/day_lockdown.tscn` — no ERROR / SCRIPT ERROR / Parse Error.
+**Open:** Human F6 a miss — rain only, quiet skull.
+
+## 2026-08-22 16:55 — Rain starts slow; 3× per miss
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Start them slower, and make each change much faster. Like 3x as fast for each failure.
+**Did:** Lockdown rain opens at interval 1.4 / fall 140. Each wrong pad multiplies spawn rate and fall speed by `miss_mult` 3 (floor 0.06 s, cap 900 px/s). Timer restarts on miss so it hits immediately.
+**Verified:** not verified — F6 the first two misses. Smoke skipped.
+**Open:** Human F6 — opening pace / whether the 2nd miss is already unfair.
