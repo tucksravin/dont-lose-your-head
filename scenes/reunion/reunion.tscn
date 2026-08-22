@@ -1,0 +1,62 @@
+[gd_scene load_steps=6 format=3]
+
+[ext_resource type="Script" path="res://scenes/reunion/reunion.gd" id="1_reunion"]
+[ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
+[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
+size = Vector2(640, 40)
+
+[sub_resource type="LabelSettings" id="LabelSettings_prompt"]
+font_size = 10
+font_color = Color(1, 1, 1, 1)
+
+[node name="ReunionScene" type="Node2D"]
+script = ExtResource("1_reunion")
+
+[node name="Background" type="Polygon2D" parent="."]
+z_index = -1
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+color = Color(0.105882, 0.105882, 0.164706, 1)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(320, 180)
+
+[node name="Floor" type="StaticBody2D" parent="."]
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+position = Vector2(320, 340)
+shape = SubResource("RectangleShape2D_floor")
+
+[node name="Visual" type="ColorRect" parent="Floor"]
+offset_top = 320.0
+offset_right = 640.0
+offset_bottom = 360.0
+mouse_filter = 2
+color = Color(0.32, 0.22, 0.16, 1)
+
+[node name="Head" parent="." instance=ExtResource("3_head")]
+position = Vector2(480, 250)
+
+[node name="Body" parent="." instance=ExtResource("2_body")]
+position = Vector2(100, 320)
+
+[node name="InteractPrompt" type="Label" parent="."]
+visible = false
+position = Vector2(452, 264)
+size = Vector2(80, 20)
+text = "E: reunite"
+horizontal_alignment = 1
+label_settings = SubResource("LabelSettings_prompt")
+
+[node name="FadeOverlay" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Fade" type="ColorRect" parent="FadeOverlay"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)
+modulate = Color(1, 1, 1, 0)
