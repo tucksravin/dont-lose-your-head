@@ -41,7 +41,7 @@ Loops. **OGG Vorbis, ~128–160 kbps, 44.1 kHz**, stereo fine. Make the loop poi
 | `reunion` | the reunion | resolve |
 
 ## Format / web gotchas
-- Web export can't start audio until the player has clicked or pressed a key; cues before that are lost. Fine for us — the intro needs input.
+- Web export can't start audio until the player has clicked or pressed a key; cues before that are lost. **The intro plays hands-free**, so on the web it is silent and sound starts with the first keypress in day 1 (a press-any-key title screen — TASKS X4 — would fix that).
 - Keep total audio under a few MB; the web build loads everything up front.
 - Buses: `Master` → `Music`, `SFX` (`default_bus_layout.tres`). Mix there, not per file.
 - Import: WAV/OGG import with defaults is right. If a WAV sounds clipped, check it's 16-bit PCM.
