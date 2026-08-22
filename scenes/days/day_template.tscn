@@ -29,3 +29,4 @@ position = Vector2(100, 320)
 
 [node name="SpatialGoal" parent="." unique_id=1109840832 instance=ExtResource("2_wb443")]
 position = Vector2(500, 320)
+next_scene = "res://scenes/reunion/reunion.tscn"
