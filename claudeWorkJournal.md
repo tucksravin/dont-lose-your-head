@@ -111,3 +111,32 @@ A running log of everything an LLM assistant did in this repo, newest at the bot
 - **Rejected / not applied:** reviewer suggestion to hard-code a Friday bedtime (left as "agree a hard stop"); moving Discord to an open question (the team already works in Discord per brainstorm.md).
 **Verified:** re-ran import, 60-frame run, `tools/export_web.sh` after the earlier edits — clean; 0 broken markdown links after this round; §3 grep for recommend/should/best/prefer/trivial → clean; docs URL for "Your first 2D game" resolves (HTTP 200, see above); DESIGN.md is ~3.3k words (~10 min), README ~1.1k.
 **Open:** Tucker's read-through, then commit (and push?).
+
+## 2026-08-21 17:13 — Q&A: reference games for §3.10 head-movement options
+**Driver:** Tucker
+**Asked:** "B 3.10 can you provide an example of a game built using one method v the other"
+**Did:** answered in chat only (Path2D ≈ SMW line-guided platforms / tower-defense routes / Godot's *Dodge the Creeps*; physics ≈ Surgeon Simulator (GGJ 2013), Octodad, Katamari; AnimationPlayer ≈ Geometry Dash / Rayman Legends music levels / Cuphead transitions; noted A+visual-tween hybrid). Offered to add to DESIGN.md; Tucker declined — doc unchanged.
+**Verified:** n/a.
+**Open:** none.
+
+## 2026-08-21 17:22 — Integrated Friday meeting notes; dependency chart
+**Driver:** Tucker
+**Asked:** "added meeting notes, please review and integrate into design doc, and let me know if you've other questions we should answer now. After that, can you build a dependency chart of tasks?"
+**Did:**
+- Read `meeting-notes-friday.md` (left untracked/untouched — Tucker's file; DESIGN.md cites it as the source of truth).
+- **DESIGN.md rewritten.** §2 now holds Friday's decisions: silly-spooky skeleton (Undertale ref); no narrative text, instruction text on by default; intro & reunion = first two *narrative beats* but **not built first** (reverses the earlier build-order row); a day = ~30 s / one idea, starts and ends on slopes (flat middle), head gets stuck on a snag, solve both problems, head rolls on and gets away again; needs can interact but needn't; the head's situation affects the body and vice versa; Sun = timer arcing across the top; fail = time runs out and you can't get to the head; max 5 min, min ship 1 day, aiming ~5; kiki/bouba intrusive thoughts; one file per day; win conditions = keyed nodes; PRs; tasks in a Google Doc; sound Tucker & Ben (per-day music later); roles (art direction Tucker; scene template Sean & Ben); stretch: mental+physical task, final battle vs intrusive thoughts. Team listed as Tucker, Sean, Ben. §3 cut down to what's still open, ordered "answer now" (8) vs "decide when you build it" (10); answered items removed. §4 #1 → template + one day is the slice; #4 → small PRs; #8–9 made deadline-agnostic. §5 carries a ⚠ that the deadline is unconfirmed (notes say "submit Sunday night"; earlier computation said Sun 10:00). §6 filled with Friday's roles.
+- **New `docs/task-dependencies.md`:** Mermaid flowchart (decisions → template → content → ship, with art/sound lanes and stretch), critical path, "unblocked right now" list, and a text table of the same graph.
+- README: read-first line, "Where things are" (Google Doc link placeholder, Restricted itch, deadline-confirm), folder layout, git rules → branch + PR. CLAUDE.md §8: commits go on branches, never directly on `main` unless told.
+- Interpretations I made that the team should confirm (also listed in §3): "win conditions are keyed nodes" = Need-like nodes keyed body/mind; "stretch: a mental task and a physical task" = the two needs become mental vs physical task types; "slopes are hard" = hard to build, hence start/end only.
+**Verified:** markdown link check across README/CLAUDE/DESIGN/journal/task-dependencies (see below); Mermaid fence/subgraph/end counts balanced; no code changed so no Godot re-run.
+**Open:** §3.1–3.8 need answers now — above all the **deadline** (Sun 10:00 vs Sunday night) and **head-movement tech** (blocks Sean & Ben). Google Doc link to paste into README.
+
+## 2026-08-21 17:27 — Decisions recorded; task list written
+**Driver:** Tucker
+**Asked:** "saturday at midnight, head will by physics object, 3 that is tonights target, fixed scene for camera, others can merge pr or self merge if necessary. win nodes shown to start and 640x360 works, can we get the task list now?"
+**Did:**
+- DESIGN.md §2: deadline **Sat 23:59** (overrides the notes' "Sunday night"; I read "Saturday at midnight" as the Sat→Sun midnight and said so in chat); head = **physics object** (RigidBody2D: rolls in, stops at the snag, released to roll out); **fixed camera per scene**; PR rule: anyone merges, self-merge if necessary; win nodes **shown on HUD to start**; **pixel art 640×360 confirmed**; tonight's target = template + one ~30 s day end to end. §3 now has one "answer now" item (fail details, with a default) + the Google Doc link; the rest is "decide when you build it". §4 #8–9 and §5 re-cut for a Saturday-midnight deadline (freeze 19:00, submit by 22:30). §6 notes updated.
+- **New `docs/TASKS.md`**: tonight / Sat morning / Sat afternoon / Sat evening / stretch, with ID · task · owner (from Friday's roles; blanks where unassigned) · needs · size (S/M/L) · **done-when** acceptance test per task; cut order at the bottom. Idiomatic node types named in italics as suggestions, not requirements. IDs match `task-dependencies.md`, which now marks D1–D4/D6/D7 ✔ and D5 open-with-default, and points at TASKS.md.
+- README: "Where things are" gains TASKS.md + the deadline; folder layout lists TASKS.md.
+**Verified:** link check + Mermaid balance (below); no code changed.
+**Open:** D5 fail details; Google Doc link; owners for C2, C4, C5, P3, P4. A background review of TASKS.md vs DESIGN §2 (completeness, sizing realism, cross-file consistency) is running — findings will be applied and logged.

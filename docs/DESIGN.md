@@ -1,8 +1,8 @@
 # Don't Lose Your Head — Design Doc
 
-*Game jam · theme **Body and Mind** · Godot 4.7.1 · clock: Fri 2026-08-21 10:00 → **Sun 10:00** · Tucker, Globi, hugububba*
+*Game jam · theme **Body and Mind** · Godot 4.7.1 · Tucker, Sean, Ben*
 
-> ~10 minute read. §1–2 are settled. §3 is **tonight's agenda** — open questions with options, none pre-chosen. §4–6 are how we'll run the weekend. Add decisions to §2 as you make them; this doc is the source of truth for "what are we building".
+> ~8 minute read. **§1–2 are settled** — §2 now includes Friday's meeting ([meeting-notes-friday.md](../meeting-notes-friday.md) is the source; if this doc and the notes disagree, the notes win and this doc is wrong). **§3 is what's still open.** §4–6: how we run the weekend. **Task list: [TASKS.md](TASKS.md)** (seed for the Google Doc) · dependencies: [task-dependencies.md](task-dependencies.md).
 
 ---
 
@@ -20,142 +20,71 @@ Use it as the test for every idea this weekend: *does this make the player feel 
 
 ## 2. Locked — what we've agreed
 
+### 2.1 The game
+
 | | |
 |---|---|
 | **Title** | Don't Lose Your Head |
-| **Structure** | Intro (head pops off) → N days → Reunion |
-| **A day** | Sun rises → something befalls the head, body chases it → a **body need** *and* a **mind need** must both be satisfied before sunset → next day |
-| **Fail** | Sunset with either need unmet, *or* body lost off-screen → **restart that day** (the exact lose distance is tuning — §3.9) |
-| **Player controls** | The **body**. The **head** is on rails — a scripted path per day |
-| **Perspective** | 2D side-scroller; **camera follows the head** |
-| **Art** | Locked rule: **no generative art**. Style is open (§3.14). The project is *provisionally* configured for pixel art at 640×360; switching to HD is a few Project Settings (README says how) |
-| **Engine / target** | Godot 4.7.1 → itch.io web (HTML5), manual export |
-| **Build order** | **Intro and reunion first**, then days slot in as ideas come. Friday-night target: intro → a stub day → reunion running end to end |
-| **Time** | 48-hour jam, started **Fri 10:00** → deadline **Sun 10:00**. Team starts ~Fri 16:00 *(assumed — confirm)* → ~42 h on the clock; after two nights' sleep that's roughly **24–26 working hours each**. Sunday morning is for submitting, not building |
+| **Tone** | **Silly-spooky** (Undertale as a reference). The character is a **skeleton**. |
+| **Words** | **No narrative text** by default. **Instruction text is on by default**; remove it wherever the design reads without it. |
+| **Structure** | Intro → days → reunion. Intro and reunion are the **first two narrative beats** — define them first, but **don't build them first**. Intro: the head falls off and starts rolling down. |
+| **A day** | **~30 seconds, one idea.** The scene **starts on a slope** (head rolling in); the head **gets stuck on a snag**; the middle of the scene is flat ground / platforms (slopes are hard — use them for the start and end); the body **solves both problems** (body need + mind need); the head gets moving again and rolls out. At the end of each day **the head gets away and starts rolling again.** Days are **variations on a theme**, each with a WarioWare-style little setup beat. The implicit goal of every day: *get the head moving again* — what the snag is depends on the day. |
+| **Needs** | One body need + one mind need per day. **The situation the head is in affects the body, and vice versa.** Needs *can* interact mechanically but don't have to. |
+| **Timer & fail** | **The Sun is the day timer — it arcs across the top.** Fail: time runs out and **you can't get to the head** → restart that day. |
+| **Scope** | **Max 5 minutes** of play. **Minimum shippable = 1 day.** Aiming for **~5 days.** |
+| **Intrusive thoughts** | Abstracted as **kiki / bouba** shapes (spiky vs. round). |
+| **Player controls** | The body. **The head is a physics object** (`RigidBody2D`): it rolls down the entry slope, stops against the day's snag, and is released to roll out when both needs are met. |
+| **Perspective** | 2D side-scroller. **Fixed camera per scene** — each day is one framed screen. |
+| **Art** | Locked rule: **no generative art.** **Pixel art at 640×360** (confirmed — the project config stays). Tucker does art direction to start. |
+| **Sound** | Tucker & Ben. Different music per day is the intent — "burn that bridge once we have some scenes". |
+| **Stretch (from Friday)** | each day = a *mental* task + a *physical* task · the end scene is a **battle against the intrusive thoughts** |
 
-Everything not in this table is open. When you decide something in §3, move it here.
+### 2.2 How it's built
+
+| | |
+|---|---|
+| **Days in code** | **One file per day.** Sean & Ben build the **scene template** first. **Tonight's target: the template + one ~30-second day running end to end** (slope in → snag → two problems → slope out → next day), rectangles only. |
+| **Win conditions** | **Keyed nodes** in the day scene (`body` / `mind`); the day completes when all keyed nodes are satisfied, which releases the head. **Their status is shown on the HUD to start** (remove later if it reads without). |
+| **Engine / target** | Godot 4.7.1 → itch.io web (HTML5), manual export. |
+
+### 2.3 How we work
+
+| | |
+|---|---|
+| **Git** | **Pull requests** into `main`. **Anyone can merge someone else's PR; self-merge if necessary** (don't wait at 01:00). One owner per `.tscn` still applies — PRs don't merge scene files for you. |
+| **Tasks** | Shared **Google Doc** — *(paste the link into README → "Where things are")*. Dependencies: [task-dependencies.md](task-dependencies.md). |
+| **Roles to start** | Art direction: **Tucker** · Scene template: **Sean, Ben** · Sound: **Tucker, Ben** |
+| **Clock** | Jam started **Fri 10:00**. **Deadline: Saturday at midnight (Sat 23:59)** — per Tucker, overriding the notes' "Sunday night". From Fri ~17:30 that's ~30 h on the clock, ~21 working hours each after tonight's sleep. **Submit by ~22:30 Sat.** |
 
 ---
 
-## 3. Decide together — tonight's agenda
+## 3. Still open
 
-Options are candidates, not recommendations. Godot terms used below are explained in README → *Godot in ten lines*.
+### Answer now
+#### 3.1 Fail details
+"You can't get to the head": the sun timer only? Does the body falling behind / off the fixed screen also fail? On fail: instant snap-back · short "try again" card · the head looks back at you. *(Blocks T3/T5 polish, not the template itself — default until decided: timer only, instant restart.)*
+#### 3.2 Google Doc link
+Paste it into README → "Where things are".
 
-Suggested split: **A. Game** ~30 min · **B. Code** ~10 min · **C. Team & admin** ~15 min (run 3.17 in parallel while you talk). That's ~2.5 min per item — so a *suggestion*, not a cut: decide tonight what blocks tonight's build (**3.1–3.4**, the *platforming?* line of 3.6, **3.11**, **3.14**, **3.16–3.17**) and mark the rest **"decide when you build it"**. Anything you can't settle: pick the cheapest option, move on, revisit Saturday. Move decisions into §2 as you make them.
+### Decide when you build it
+#### 3.3 Needs interaction, per day — allowed, not required; decide per day card.
+#### 3.4 Day timer numbers — seconds allowed vs the ~30-second design; same every day?
+#### 3.5 Intrusive thoughts mid-day — intro only · recurring hazard (kiki shapes).
+#### 3.6 Intro & reunion specifics — title / "press any key" screen (also unlocks web audio): yes · no. Skip the intro on retry? Reunion trigger and look (brainstorm: *the head faces the camera and the guy walks into the screen*). Stretch: the final battle.
+#### 3.7 Day card — a five-line format for pitching a day, if you want one: `name · the snag / what befalls the head (mind need) · the body need · the verb for each · the twist · length`. Needs from the brainstorm: hungry · hurt · tired · cold · can't see · only hears · falls in love · scared · lonely.
+#### 3.8 Mental vs. physical task (stretch) — what distinguishes them, mechanically?
+#### 3.9 Kiki / bouba mapping *(art direction)* — which is which?
+#### 3.10 Controller & browsers — gamepad is mapped: test it · ignore it. Browser matrix: Chrome · + Firefox · + Safari. `pause` = Esc also exits browser fullscreen — keep or remap?
+#### 3.11 Team habits — sync cadence · tiebreak when time's up · stuck rule · outside playtesters via the itch secret URL · commit + push before stepping away.
+#### 3.12 Jam admin — re-read the rules (third-party assets, generative art); itch page as **Restricted** tonight; what "submittable" means (runs from the itch URL in two browsers · no softlock · controls shown); who presses Submit.
 
-### A. Game
-
-#### 3.1 Tone & the character
-- One sentence of tone so art, sound, and any text agree: silly-spooky? gentle and melancholy? slapstick? How heavy do "intrusive thoughts" get?
-- Who is this? The brainstorm pictured a **skeleton** (the joke works, the art is easy). Confirm or change.
-- Any words on screen at all (day titles, one line per day), or wordless?
-
-#### 3.2 Intro & reunion — you're building these first
-- **Intro:** playable (you walk, thoughts swarm, head pops) · short non-interactive cutscene · a title card. Is the intro also the tutorial (move, jump, interact)? What do intrusive thoughts look like — creatures, scribbles, words? How does the head leave — pops, rolls, flies?
-- **Title / "press any key" screen:** yes · no. (Browsers block audio until the first input either way — README gotchas.)
-- **On retry or browser refresh:** always from the intro · skip straight to the day · remember the furthest day in `user://` (works on web). Moot if the intro is under ~20 s.
-- **Reunion:** what triggers it (walk up and `interact`? automatic on proximity?) and what it looks like — brainstorm: *the head ends up facing camera and the guy walks into the screen.* How long? Credits?
-- What does intro + reunion with **zero days** between them feel like — is that already a tiny complete game? (That's the Friday-night target.)
-
-#### 3.3 What a day is — the "day card"
-Days get filled in as ideas come, so agree the **card** for pitching one (five lines, anyone can write one):
-`name · what befalls the head (mind need) · what the body needs (body need) · the verb for each — how the player actually satisfies it · the twist, if any · rough length`
-- Body needs (brainstorm): hungry · hurt · tired · cold · …
-- Mind needs (brainstorm): can't see · can only hear · falls in love · scared · lonely · …
-- Verbs: touch a pickup · stay near the head for T seconds · carry a thing to the head · stand on a switch at a fork · a WarioWare-style micro-task · …
-- Is the need an **obstacle** (head can't see → it stalls at forks until the body points it), an **objective** (bring it glasses), or both?
-- Is `interact` needed at all, or is everything touch/proximity? (It's mapped either way.)
-
-#### 3.4 How many days, how long a run, how hard
-- **Minimum shippable** = intro + ? days + reunion. One? Two?
-- Weekend target: 3? 4–5 only if each day is cheap to author (same systems, new path + new needs).
-- **Run length for a first-time judge:** ~3 min · ~6 min · ~10 min. (Day length in 3.7 follows from this.)
-- **Expected fails on day 1:** zero · a couple · whatever playtests say.
-- Write the **cut order** — which day disappears first if Saturday runs long.
-
-#### 3.5 Do the two needs interact? *(can wait until after the first real day)*
-- **Independent** — two checkboxes, no interplay. Least code; the thesis lives in the content, not the rules.
-- **Mutual buff** — satisfying one makes the other easier (e.g. fed body runs faster; calmed head rolls slower). Puts the thesis into the mechanics.
-- **Shared resource** — both draw on one meter. The brainstorm's *spectrum* idea: the further apart head and body are, the faster/more chaotic/more fragile; the closer, the slower/more controlled/tankier.
-
-#### 3.6 The chase & the camera
-- Does the body **platform** (jumps, gaps, hazards) or mostly run and interact? *(decide tonight — it shapes the body controller)*
-- Head speed: constant? Pauses at beats (a fork, a cliff, a distraction)?
-- Camera follows the head (locked) — how far ahead does it look? Smoothing? Vertical follow? *(these are `@export` numbers; tune when it exists)*
-- A *catch-up* mechanic when you fall behind, or is falling behind simply the fail?
-
-#### 3.7 The Sun, the HUD, and the night
-- How does the player read need status — two icons that light up? diegetic (the head's face, the body's posture)? both?
-- How long is a day, in seconds? The same every day? *(follows from 3.4)*
-- How is the Sun shown — an arc across the top? Does sunset tint the world (a `CanvasModulate` node does this in one line)?
-- Between days: a night card with the day's name? The body lies down? Straight cut?
-
-#### 3.8 Intrusive thoughts *(can wait for Saturday)*
-- **Intro only** — the inciting event, then gone.
-- **Recurring hazard** — swarm mid-day; knock the body back, spin the head, flip controls (brainstorm: *controls orientation changes with the head's orientation*).
-
-#### 3.9 Fail & retry feel *(can wait for Saturday)*
-- Restart is locked — but how fast? Instant snap-back · a short "try again" card · a beat where the head looks back for you.
-- Lose distance: body fully off-screen, or a margin before that?
-
-### B. Code
-
-#### 3.10 Head movement
-- `Path2D` + `PathFollow2D` — *pro:* drawn in the editor, same every run, "wait here" markers are a progress ratio. *con:* every pause and beat is hand-placed; the head goes exactly where the line goes.
-- Physics (`RigidBody2D` bounce) — *pro:* emergent, funny, zero path authoring. *con:* not the same twice; hard to promise a day is beatable.
-- Hand-keyed `AnimationPlayer` — *pro:* precise timing, keyframe spin/squash alongside position. *con:* slow to iterate; the path isn't visible in the 2D view.
-
-#### 3.11 Day authoring
-- One base `day.tscn` + an **inherited scene per day** (`day_01.tscn` …) — *pro:* one file per day, one owner. *con:* base-scene changes ripple; scene inheritance has quirks when overriding children.
-- One day scene, **data-driven** from a `DayConfig` resource — *pro:* all days in one place, tweak numbers without touching scenes. *con:* one scene everyone edits; twists still need code.
-- Freeform scene per day — *pro:* zero constraints. *con:* copy-paste; fixes don't propagate.
-- Criterion, not a verdict — since days arrive as ideas come: can a day be added as **one new file, touching no shared scene**?
-- **How do you open day 3 directly on Saturday?** Run Current Scene (`F6` / `⌘R`) on its `.tscn` · a debug day-select hidden behind `OS.is_debug_build()` · always replay from the intro.
-
-#### 3.12 Needs
-- A `Need` base (`extends Node`, `signal satisfied`, `enum Kind { BODY, MIND }`) with tiny subclasses per verb (pickup, proximity, deliver, switch…) — *pro:* adding a verb = one small file. *con:* more files/classes up front.
-- An enum + `match` in the day script — *pro:* one place, fast to type. *con:* one file three people edit.
-
-### C. Team & admin
-
-#### 3.13 Sound
-- Who owns it? Sources: jsfxr / ChipTone for SFX, Kenney / freesound CC0, or hand-made. Music: one loop per day, or one loop total?
-
-#### 3.14 Art direction
-The one rule: **no generative art.** Otherwise open.
-- **Pixel art** — matches the current 640×360 / nearest-filter config. Small canvas = fast to draw; a skeleton reads well at 16–32 px.
-- **Hand-drawn / scanned / vector** — switch the viewport to 1280×720 (or 1920×1080), texture filter to Linear, pixel snap off (README says how). Bigger textures → watch web load times.
-- **Flat shapes / Godot primitives** (`Polygon2D`, `ColorRect`, `Line2D`) — no drawing pipeline at all; can look intentional with a good palette.
-- **Free asset packs** (CC0 / CC-BY: Kenney, OpenGameArt, itch free assets) — check the jam's rules on third-party assets and credit them on the itch page.
-- Whoever draws: pick a palette and a canvas size tonight so everyone's placeholders match the final scale.
-
-#### 3.15 Controller & browsers
-- Gamepad is already mapped. Test it · ignore it.
-- Browser test matrix: Chrome only · + Firefox · + Safari. (Note: `pause` = Esc also exits browser fullscreen — keep, or remap?)
-
-#### 3.16 How we work this weekend
-This jam is partly about learning how you work together — decide it on purpose.
-- **Sync cadence:** a 5-minute stand-up every ~3 h · at meals · only when someone's blocked.
-- **Where tasks live:** GitHub Issues · a `TASKS.md` in the repo · a pinned Discord message. One place.
-- **Tiebreak when two of you disagree and time's up:** majority (three people, no ties) · the §6 owner of that area decides · cheapest option wins. Pick tonight — you'll want it at 01:00.
-- **Stuck rule:** how long alone on a Godot unknown before you say so — 15 · 30 · 60 min? Then: pair · ask an LLM · park it.
-- **Review:** none · glance at each other's diffs at sync · only for shared files.
-- **Outside eyes:** a friend plays via the itch secret URL Saturday evening · only each other · nobody.
-- *Proposed house rules — strike any you don't want:* say it in Discord before opening a `.tscn` someone else made · commit + push before bed or stepping away, leaving `main` runnable · shared config (`project.godot`, `export_presets.cfg`) has one owner.
-
-#### 3.17 Jam admin — one owner, ten minutes tonight (in parallel with the above)
-- Re-read the jam rules: third-party assets and credits, the no-generative-art rule, team registration, submission format.
-- **Deadline timezone** — confirm "Sun 10:00" is right in the jam's clock.
-- Create the itch project tonight as **Restricted** with a secret URL (*Draft* is visible only to the owner — teammates couldn't test it), or add teammates as project admins. Join the jam page; note what submit needs (screenshots, short description, theme statement).
-- **"Submittable" means:** runs from the itch URL in Chrome + Firefox (+ Safari?) · no softlock in any day · controls shown (itch page · in-game · both). **Who presses Submit?** Is every Saturday-evening upload a valid fallback if Sunday's export breaks?
-
-#### 3.18 Idea bank (appendix, from brainstorm.md, unsorted — steal freely)
+#### 3.13 Idea bank (appendix, from brainstorm.md — steal freely)
 - WarioWare with two things going on at once
 - "What happens to the head will also happen to the body"
 - Only the head can see what's going on · minigames seen from the head's perspective
 - Bullet hell: head attacks only work on head enemies, body attacks only on body enemies
 - Head solves puzzles, body runs/dodges/fights — could they switch roles?
-- Stances: zen & in tune vs. berserker & separated — or a spectrum (see 3.5)
+- Stances: zen & in tune vs. berserker & separated — or a spectrum (distance = speed/chaos/fragility)
 - Controls orientation changes with the head's orientation
 - The head falls in love · the body falls in love
 - What if the head can't see? · only hears? · the body is hurt? · hungry?
@@ -167,60 +96,56 @@ This jam is partly about learning how you work together — decide it on purpose
 
 Honest advice, in priority order.
 
-1. **Bookends first, then the loop stays whole.** You've agreed to build the intro and reunion first — put a **stub day** between them so intro → day → reunion runs end to end **Friday night**. From then on the game is always complete and every new day is an insert, never a rewrite. Coloured rectangles for everything; every hour after that goes into *days, art, sound, juice* — not new systems.
+1. **Template + one day = the vertical slice.** Friday's call: scene template first, minimum ship is one day. So the first milestone is one ~30-second day running end to end — slope in → snag → two problems → slope out → next day — with coloured rectangles. Every day after is an insert; intro and reunion slot in around it.
 2. **Export to the web tonight, then every few hours.** Web is where jam builds die (renderer, audio, threads, load time). The pipeline is proven on Tucker's machine — `tools/export_web.sh` → upload to a **Restricted** itch page (secret URL; *Draft* is owner-only) tonight so Sunday has zero surprises. On web, `print()` goes to the browser devtools console, and keys only arrive once the canvas has focus (click it first). Keep the last known-good `web.zip` in Discord.
 3. **One owner per scene file.** `.tscn` merges are the worst part of Godot-in-a-team. Say "I'm in `day_02.tscn`" in Discord before you open it. Scripts merge fine. `project.godot` (input map, autoloads) and `export_presets.cfg` are shared files too — give them an owner. After `git pull` with the editor open: **Scene → Reload Saved Scene**, or restart Godot. If Godot re-saves a `.tscn` you didn't touch, `git checkout -- <file>` before committing. First-timer time sinks to timebox at ~45 min: TileMap/TileSet editor, AnimationTree, shaders, `RigidBody2D` tuning.
-4. **Small commits, straight to `main`, fix forward.** No branch ceremony this weekend.
-5. **Pick the cut order while you're calm** (tonight). e.g. last day → intro cutscene (→ text card) → ending cutscene (→ text card) → music → … Write it in §2 once chosen.
+4. **Small PRs, short-lived branches.** You chose PRs — keep them hours long, not days: a `.tscn` that lives on a branch overnight is a conflict in the morning. Agree who can approve/merge (§3.6) so nobody waits at 01:00.
+5. **Pick the cut order while you're calm.** Days beyond the first are the cut list, in reverse order of how much each one teaches. Write it in §2 once chosen.
 6. **Timebox tasks to ~2 h.** If it's not done, ship what works or cut it. Polishing one thing for 5 hours is how jams are lost.
-7. **Placeholder art until the mechanic it's for is stable.** Code stabilises against rectangles; art swaps in behind stable code (§5 puts that Saturday afternoon). Swapping `ColorRect` → `Sprite2D` changes bounds, pivots, and collision feel — budget an hour for it, body and head first. Art that arrives before the mechanic is locked gets redrawn.
-8. **Sleep Saturday night.** With a 10:00 Sunday deadline, Saturday evening is the last real build session — plan it that way.
-9. **Feature-freeze Saturday night; submit by ~08:30 Sunday.** Uploads fail, the clock is cruel, itch is slow at deadline. Sunday morning = final playtest, export, page, submit.
+7. **Placeholder art until the mechanic it's for is stable.** Code stabilises against rectangles; art swaps in behind stable code. Swapping `ColorRect` → `Sprite2D` changes bounds, pivots, and collision feel — budget an hour for it, body and head first.
+8. **Sleep tonight.** Saturday is one long day with the deadline at its end — agree a hard stop tonight and keep it.
+9. **Feature-freeze Saturday ~19:00; submit by ~22:30.** Uploads fail, the clock is cruel, itch is slow at deadline. The last three hours = playtest the *web build* in two browsers, fix showstoppers, export, page, submit.
 10. **The itch page is part of the game.** GIF/screenshot, controls, one line on how it hits the theme. Judges read it before they play.
 
 **Godot, for people who already program:** the ten-line mental model and a glossary are in README → *Godot in ten lines*. "Your first 2D game" in the official docs is a 1-hour read that covers 80 % of what we need: https://docs.godotengine.org/en/stable/getting_started/first_2d_game/
 
 ---
 
-## 5. Suggested schedule
+## 5. Schedule
 
-Clock: Fri 10:00 → **Sun 10:00**. Team on site from ~Fri 16:00. Adjust to reality and write the real one here.
+Deadline **Sat 23:59**. Tonight = template + one day. Saturday = days, beats, art, sound, ship. Details per task in [TASKS.md](TASKS.md).
 
 | When | Goal |
 |---|---|
-| **Fri 16:00–18:00** | Read this. Decide §3 (timebox it). Fill §6 roles. Everyone: open the project, run it, make one commit. First web export → **draft itch page**. |
-| **Fri 18:00–late** | **Intro + reunion** (agreed build order) with a stub day between, so the whole arc runs end to end. Rectangles. Day system skeleton (sun, needs, fail/restart) if time. Web export before bed. **Agree a hard stop.** |
-| **Sat 10:00** | Ten minutes playing Friday's *web* build together before anyone codes. |
-| **Sat morning** | First real day(s) from the day cards. Finish the day system. |
-| **Sat 14:00** | Scope check — apply the cut order now, not at 23:00. |
-| **Sat afternoon** | More days as cards are ready. Art swaps in (budget an hour for the swap). |
-| **Sat 19:00–21:00** | Itch page text, screenshots, GIF — while the art is in and before you're tired. Not Sunday. |
-| **Sat evening** | Reunion polish. Sound. **Feature freeze ~21:00.** Web export → itch updated. Play each other's days, fix what's broken. **Sleep.** |
-| **Sun 07:00–08:30** | Final playtest on the *web build* in two browsers. Showstoppers only. Export, **submit by 08:30**. |
-| **Sun 10:00** | Deadline. |
+| **Fri 17:30–19:00** | Everyone: clone, run, download export templates, one PR merged. Sean & Ben start the template; Tucker: art direction kickoff + Restricted itch page with tonight's `web.zip`. |
+| **Fri 19:00–late** | **Template + one ~30-second day end to end**, rectangles (tonight's target). Web export before bed. **Hard stop — agree the hour.** |
+| **Sat 09:00** | Stand-up (≤15 min): play last night's *web* build together; write the day cards; assign one owner per day. |
+| **Sat 09:15–13:00** | Days 2–5 in parallel (one file, one owner each). Intro beat. Skeleton/head sprites swap in (budget an hour). SFX pass. |
+| **Sat 13:00–14:00** | Lunch + **scope check** — apply the cut order now, not at 21:00. |
+| **Sat 14:00–17:00** | Finish days. Reunion beat. Per-day props/sun/HUD art. Music if there's time. |
+| **Sat 17:00–19:00** | Itch page text, screenshots, GIF. Last features land. **Feature freeze 19:00.** |
+| **Sat 19:00–22:00** | Export → itch. Playtest the web build in two browsers, everyone plays every day. Showstoppers only. Remove instruction text where it reads without. |
+| **Sat 22:00–22:30** | Final export, upload, page check, **Submit.** |
+| **Sat 23:59** | Deadline. |
 
 ---
 
-## 6. Roles (fill in tonight)
+## 6. Roles
 
 | Area | Owner | Notes |
 |---|---|---|
-| Body movement & feel | | run, jump, interact, buffs |
-| Head path & day flow | | head on rails, sun timer, needs, win/fail, day transitions |
-| Day authoring | | one owner per day, however days end up stored (§3.11) |
-| Art | | skeleton, head, environment, sun, HUD |
-| Sound | | SFX, music |
-| UI / HUD | | need indicators, sun, fail/win cards |
-| Intro & reunion | | |
-| Export, itch page, playtest, jam admin | | owns `tools/export_web.sh` runs, the itch page, rules/deadline check (§3.17) |
+| Art direction | **Tucker** | pixel 640×360; palette, skeleton + head, kiki/bouba shapes, sun, HUD |
+| Scene template | **Sean, Ben** | body controller, physics head roll/stuck/release, sun timer, keyed win nodes, day flow, fixed camera, instruction HUD — TASKS.md T1–T8 |
+| Sound | **Tucker, Ben** | SFX, per-day music — once scenes exist |
+| Day authoring | | one owner per day file |
+| Intro & reunion | | first two narrative beats; built after the template + a day |
+| Export, itch page, playtest, jam admin | | `tools/export_web.sh` runs, the itch page, rules check (§3.12), presses Submit |
 | Shared config | | `project.godot` (input map, autoloads) and `export_presets.cfg` — one owner; others ask first |
-
-Everyone: commit often, journal in Discord what you're touching, playtest each other.
 
 ---
 
 ## 7. Conventions
 
-See [README.md](../README.md) — folders, naming, input actions, export steps, git rules. Short version: input via actions, not keys; tunables as `@export`; scripts next to their scenes; commit `.import`/`.uid`, never `.godot/` or `build/`; one owner per `.tscn`.
+See [README.md](../README.md) — folders, naming, input actions, export steps, git rules. Short version: input via actions, not keys; tunables as `@export`; scripts next to their scenes; commit `.import`/`.uid`, never `.godot/` or `build/`; one owner per `.tscn`; PRs into `main`.
 
-*Original brainstorm: [brainstorm.md](../brainstorm.md). LLM working agreement: [CLAUDE.md](../CLAUDE.md). LLM activity log: [claudeWorkJournal.md](../claudeWorkJournal.md).*
+*Sources: [meeting-notes-friday.md](../meeting-notes-friday.md) · [brainstorm.md](../brainstorm.md). LLM working agreement: [CLAUDE.md](../CLAUDE.md). LLM activity log: [claudeWorkJournal.md](../claudeWorkJournal.md).*

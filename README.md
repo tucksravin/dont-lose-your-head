@@ -4,7 +4,9 @@ Game jam entry — theme **Body and Mind**. Godot **4.7.1** (standard/GDScript b
 
 > A skeleton is assaulted by intrusive thoughts and its head pops off. Each day the Sun rises, something befalls the head, and the body chases after it. Both body and mind have to be taken care of before sunset. At the end, they're reunited.
 
-**Read first:** [docs/DESIGN.md](docs/DESIGN.md) — what's decided, what we decide together, how we'll run the weekend (clock ends **Sun 10:00**).
+**Read first:** [docs/DESIGN.md](docs/DESIGN.md) — what's decided (incl. Friday's meeting), what's still open, how we'll run the weekend. Task order: [docs/task-dependencies.md](docs/task-dependencies.md). Friday's raw notes: [meeting-notes-friday.md](meeting-notes-friday.md).
+
+**Where things are:** tasks → [docs/TASKS.md](docs/TASKS.md) and the shared Google Doc *(paste link here)* · chat → Discord · build → itch (Restricted, secret URL in Discord) · **deadline → Sat 23:59, submit by 22:30**.
 **If you're an LLM:** read [CLAUDE.md](CLAUDE.md) and log your work in [claudeWorkJournal.md](claudeWorkJournal.md).
 
 ## Quickstart
@@ -60,7 +62,10 @@ assets/sprites|audio|fonts
 tools/export_web.sh    headless web export + zip for itch
 build/                 export output (git-ignored, except build/.gdignore — keeps Godot from importing old builds)
 docs/DESIGN.md         design doc
+docs/TASKS.md          the task list (IDs, owners, sizes, done-when)
+docs/task-dependencies.md  what blocks what (Mermaid)
 brainstorm.md          original brainstorm
+meeting-notes-friday.md    Friday kickoff decisions (source for DESIGN §2)
 CLAUDE.md              instructions for LLM assistants
 claudeWorkJournal.md   running log of everything an LLM did in this repo
 ```
@@ -85,7 +90,7 @@ Web gotchas to keep in mind: audio can't start until the player clicks/presses s
 
 ## Git conventions (jam edition)
 
-- Commit small, commit often, straight to `main`. No PRs this weekend unless you want one.
+- **Branch per task, PR into `main`** (team decision Friday). Keep PRs small and short-lived — hours, not days; a `.tscn` sitting on a branch overnight is a conflict in the morning. Approval/merge rules: DESIGN §3.6 until decided.
 - `.import` and `.uid` files **are committed** (they sit next to assets/scripts). `.godot/` and `build/` are **ignored**.
 - **One owner per `.tscn` file.** Scene files merge badly. Before editing a scene someone else made, say so in Discord. Scripts (`.gd`) merge fine.
 - Naming: `snake_case` for files and variables, `PascalCase` for node names and `class_name`s. Scene and its script share a name (`body.tscn` + `body.gd`).
