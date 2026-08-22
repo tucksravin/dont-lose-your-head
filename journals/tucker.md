@@ -252,3 +252,18 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - `stillness_goal.gd/.tscn` deleted — superseded; day_panic no longer references it. Instruction text updated.
 **Verified:** probe through a full cycle — opens at **panic 15.0, eye 4.00**; 1 s of movement → **21.1**; **0.4 s after stopping the value is unchanged** (the hold works); then it falls to **0** with eye speed back to **0.10** and the WinCondition satisfied. Flow test still runs day_template → day_panic → platforming_day → **reunion**; full chain and import clean.
 **Open:** `panic_per_second = 6` vs `calm_per_second = 3` means panic climbs twice as fast as it falls — a guess, easy to retune. From 15, moving fails the day in 2.5 s of solid movement; that may be harsh once there is something in the day worth walking to.
+
+## 2026-08-21 22:31 — Fence runs end on a post; step height left alone
+**Driver:** Tucker · **Agent:** Claude Opus 5 (claude-opus-5[1m])
+**Asked:** "make the bridges a bit higher, right now the sprite walks through the first one if they stay on the ground. also, every instance of the fences should end with a post, currently the bridge does and the platforms do not"
+**Did:**
+- Posts: measured `assets/sprites/bridge.png` — posts sit at texture columns 0-1, 6-7, 12-13, 18-19 of the 24-wide tile, so the post pitch is **6**. A tiled run starts *and* ends on a post only when its width ≡ 2 (mod 6). Bridge = 80 (6·13+2) ✓. Platforms were 35 → last column landed mid-rail ✗.
+- `scenes/days/platforming_day.tscn`: platform `region_rect` 35→**38** (6·6+2) and the shared `RectangleShape2D_platform` 70→**76** so collision still matches the art exactly (the bridge already has visual == collision at 160). Widening rather than narrowing to 32 because a bigger ledge is the forgiving direction.
+- Height: **not changed** — Tucker said "leave it for now then" after seeing the constraint below.
+**Verified:**
+- Rendered `platforming_day.tscn` windowed (`-s` harness, body pinned to idle frame 0 at x=83 on the ground) and decoded the PNG. All four fence runs — Bridge and Platforms 1/2/3 — now have a **full post as both their first and last column**, and every post run is exactly 4 screen px (no doubles). Platform runs are 76 px, bridge 160 px.
+- `--headless --import` clean; `--quit-after 120 res://scenes/days/platforming_day.tscn` clean (no ERROR/SCRIPT ERROR).
+- Clipping measured, not eyeballed: body occupies y 278..319 standing on the ground; Platform1's fence band is y 272..287 → **10 px overlap**. Platforms 2 (bottom y 252) and 3 (bottom y 216) already clear the body's head — only step 1 was ever the problem.
+**Open:**
+- **The step can't be raised without retuning the jump.** `body.gd` jump_velocity −300 vs gravity 980 → max rise **45.9 px**. Clearing the body's head needs step 1 up ≥11 px, which makes the ground→step-1 jump ~47 px. Three ways out, all rejected for now: (a) raise all three 12 px + `jump_velocity = -320` as a per-scene override on this day's Body, (b) same but globally in `body.gd` (touches Sean's shared tuning, affects every day), (c) leave heights and fill step 1 down to the ground so there's nothing to walk under. Tucker deferred; (c) needs no physics change if we come back to it.
+- Widening the platforms 70→76 makes the staircase overlap horizontally a little more (centres are only 60 px apart). Looks fine in the render, but it is a change to Sean's day — worth him seeing.
