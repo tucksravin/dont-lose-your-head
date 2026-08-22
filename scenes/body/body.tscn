@@ -4,12 +4,17 @@
 [ext_resource type="SpriteFrames" uid="uid://b2t0p72hq8rfo" path="res://assets/sprites/body_frames.tres" id="2_body_frames"]
 [ext_resource type="Script" uid="uid://bumb8etg23i02" path="res://scenes/body/body_juice.gd" id="3_body_juice"]
 [ext_resource type="AudioStream" uid="uid://1qb8mq6cwteo" path="res://assets/audio/sfx/walk/walk_2.wav" id="4_walk_sound"]
+[ext_resource type="AudioStream" uid="uid://dncrrhjydvubj" path="res://assets/audio/sfx/jump/jump_1.wav" id="5_jump_1"]
+[ext_resource type="AudioStream" uid="uid://7dsjj8dece01" path="res://assets/audio/sfx/jump/jump_2.wav" id="6_jump_2"]
+[ext_resource type="AudioStream" uid="uid://tmu0v7feqfga" path="res://assets/audio/sfx/jump/jump_3.wav" id="7_jump_3"]
+[ext_resource type="AudioStream" uid="uid://bc0cqlalg5w03" path="res://assets/audio/sfx/jump/jump_4.wav" id="8_jump_4"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_body"]
 size = Vector2(24, 32)
 
 [node name="Body" type="CharacterBody2D" unique_id=361722092]
 script = ExtResource("1_body_script")
+jump_sounds = Array[AudioStream]([ExtResource("5_jump_1"), ExtResource("6_jump_2"), ExtResource("7_jump_3"), ExtResource("8_jump_4")])
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." unique_id=1242203201]
 position = Vector2(0, -16)
@@ -30,4 +35,8 @@ sprite = NodePath("../Visual")
 
 [node name="Sound" type="AudioStreamPlayer" parent="." unique_id=1248686272]
 stream = ExtResource("4_walk_sound")
+bus = &"SFX"
+
+[node name="JumpSound" type="AudioStreamPlayer" parent="." unique_id=528734338]
+volume_db = -10.0
 bus = &"SFX"

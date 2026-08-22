@@ -10,6 +10,9 @@ extends CharacterBody2D
 ## When true, jump reads `move_down` (↓) instead of `jump` (↑ / Space / W).
 ## Mirror day flips this with the head's look. Other days leave it false.
 @export var invert_vertical: bool = false
+## Jump sounds, cycled in order (not random) each time the body jumps — set
+## in the scene, one per jump_N.wav. Empty is fine (no jump sound).
+@export var jump_sounds: Array[AudioStream] = []
 
 ## The body left the ground by jumping (not by walking off a ledge).
 signal jumped
@@ -27,6 +30,7 @@ var is_scripted: bool = false
 
 var _was_on_floor: bool = true
 var _was_walking: bool = false
+var _jump_sound_index: int = 0
 
 ## Sprite animation: "walk" while moving, "idle" otherwise; faces the direction of travel.
 ## Driven by velocity (not input) so cutscenes that set velocity directly animate too.
@@ -37,6 +41,10 @@ var _was_walking: bool = false
 ## instead of broadcasting a signal for something else to translate back into
 ## play()/stop(). Docs: https://docs.godotengine.org/en/stable/tutorials/audio/audio_streams.html
 @onready var _walk_sound: AudioStreamPlayer = $Sound
+## Same local-to-body idea as `_walk_sound`, one-shot instead of a loop —
+## cycles through `jump_sounds` in order so four presses in a row don't sound
+## identical, without a global sfx script picking the variant for it.
+@onready var _jump_sound: AudioStreamPlayer = $JumpSound
 
 
 func _process(_delta: float) -> void:
@@ -76,6 +84,7 @@ func _physics_process(delta: float) -> void:
 	if _jump_requested() and is_on_floor():
 		velocity.y = jump_velocity
 		jumped.emit()
+		_play_jump_sound()
 
 	var direction: float = Input.get_axis("move_left", "move_right") * move_sign
 	if direction != 0.0:
@@ -86,6 +95,16 @@ func _physics_process(delta: float) -> void:
 	move_and_slide()
 	_track_landing()
 	_track_walking()
+
+
+## Play the next jump variant in order and advance the cycle, wrapping back
+## to the start. No-op if jump_sounds is empty (nothing wired yet).
+func _play_jump_sound() -> void:
+	if jump_sounds.is_empty():
+		return
+	_jump_sound.stream = jump_sounds[_jump_sound_index]
+	_jump_sound.play()
+	_jump_sound_index = (_jump_sound_index + 1) % jump_sounds.size()
 
 
 func _jump_requested() -> bool:

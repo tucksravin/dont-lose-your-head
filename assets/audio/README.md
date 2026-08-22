@@ -1,7 +1,9 @@
 # Audio — what to make, where to put it
 
-Everything is already wired. **Drop a file in with the right name and it plays.** Nothing else to touch. Until a file exists its cue is silent (no error), and the game prints the missing list at boot:
-`Sfx: 16/16 cues have no file yet — …`
+Everything below Sfx.CUES is already wired. **Drop a file in with the right name and it plays.** Nothing else to touch. Until a file exists its cue is silent (no error), and the game prints the missing list at boot:
+`Sfx: 15/15 cues have no file yet — …`
+
+**Jump and footsteps are the exception** — they're wired directly on the Body node (`scenes/body/body.gd`: `jump_sounds` array on `JumpSound`, the loop on `Sound`), not through `Sfx.CUES`. `jump`: light hop / bone click, ~80 ms, one-shot, cycled on every jump — several short variants (`assets/audio/sfx/jump/jump_1.wav`, `jump_2.wav`, …) read better than one file playing on repeat; add more and assign them in `body.tscn`'s `jump_sounds` array (order = play order, not random). Footsteps: `assets/audio/sfx/walk/walk_2.wav`, looped while the body is moving on the ground.
 
 ## SFX — `assets/audio/sfx/<cue>.wav` (or `.ogg`)
 
@@ -9,7 +11,6 @@ One-shots. **WAV, mono, 44.1 kHz, 16-bit**, trimmed tight (no leading silence �
 
 | cue (file name) | fires when | suggestion | ~length |
 |---|---|---|---|
-| `jump` | body leaves the ground | light hop / bone click | 80 ms |
 | `land` | body touches down | dull knock; heavier than jump | 100 ms |
 | `step` | each walk-cycle foot (optional — only if a file exists) | tiny tick | 40 ms |
 | `need_met` | one of the day's two needs satisfied | bright blip, major | 200 ms |

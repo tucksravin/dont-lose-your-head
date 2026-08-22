@@ -29,7 +29,6 @@ extends Node
 
 ## cue → what it is for. Keep this the single source of truth.
 const CUES: Dictionary = {
-	&"jump": "body leaves the ground (every jump)",
 	&"land": "body touches down after a jump or fall",
 	&"step": "optional footstep; fires from the walk cycle only if a file exists",
 	&"need_met": "one of the day's two needs just got satisfied (body or mind)",
@@ -130,11 +129,8 @@ func has_file(cue: StringName) -> bool:
 ## _ready, so groups aren't set yet; match on signals/methods instead.
 func _on_node_added(node: Node) -> void:
 	if node is CharacterBody2D and node.has_signal("jumped") and node.has_signal("landed"):
-		node.connect(
-			"jumped",
-			func() -> void:
-				play(&"jump"),
-		)
+		# jumped is body.gd's own local sound now (jump_sounds/_jump_sound) —
+		# only landed is still a global cue here.
 		node.connect(
 			"landed",
 			func() -> void:
