@@ -20,5 +20,9 @@ signal day_completed
 ## ("sunset" is the only one planned — DESIGN.md §2.1 "Timer & fail").
 signal day_failed(reason: String)
 
-## The sun finished its arc. The Sun timer emits this (TASKS.md T3).
+## The sun finished its arc (TASKS.md T3). NOTE: nothing emits this yet — the
+## Sun node has its own local `sunset` signal (scenes/sun/sun.gd) and the day's
+## controller connects to that directly (WinConditions → day_failed("sunset");
+## DayManager days connect it themselves). Kept so the T0 contract still reads
+## the same; emit it from the Sun if a cross-scene listener ever needs it.
 signal sunset

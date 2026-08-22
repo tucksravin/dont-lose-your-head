@@ -1,0 +1,4 @@
+# Scenes the smoke suite reports but does not fail on. Keep this list SHORT and
+# every line justified — an entry here is a decision someone still owes the team.
+#     res://path | why, and whose call it is
+res://scenes/days/day_01.tscn | references res://scenes/days/day_01.gd, which does not exist. Superseded by platforming_day.tscn. Delete it or restore the script — Sean's file (flagged Fri night).

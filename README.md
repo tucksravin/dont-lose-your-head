@@ -71,6 +71,16 @@ CLAUDE.md              instructions for LLM assistants
 claudeWorkJournal.md   running log of everything an LLM did in this repo
 ```
 
+## Smoke tests (run before a PR)
+
+```sh
+tools/smoke_test.sh          # ~1 min, headless, prints SMOKE: ALL GREEN or RED
+tools/smoke_test.sh --web    # also runs the web export and checks the output
+tools/smoke_test.sh play_through   # one suite by name
+```
+
+Five suites in `tools/smoke/` (each is a plain `SceneTree` script run with `-s`): **load_all** — every scene/script/resource loads and every `ext_resource` path exists · **day_lint** — every `scenes/days/*.tscn` has one head, one body, a Sun, a camera, a win-condition manager and ≥1 `WinCondition`; `Game.DAY_SCENES` entries exist and are ordered legally · **day_chain** — force-satisfies each day's needs and asserts the chain reaches the reunion · **day_sunset** — each day reacts to sunset, and a *won* day ignores it · **play_through** — a bot presses the real input actions and plays intro → every day → reunion → end card; a day whose plan can't be executed goes red (update its plan in `play_through.gd` when you change a layout). `tools/smoke/known_broken.txt` lists scenes allowed to be broken, one justified line each — keep it short.
+
 ## Exporting to itch.io
 
 **From the editor:** Project → Export → Web → *Export Project…* → pick `build/web/index.html` → zip the contents of `build/web/`.

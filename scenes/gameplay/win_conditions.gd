@@ -13,6 +13,13 @@ class_name WinConditions
 ## (a WinCondition under the SpatialGoal it belongs to) instead of collecting
 ## them all under one parent. Order doesn't matter — needs can be met either way
 ## round (TASKS.md T4).
+##
+## It also wires the one fail every day shares: if the scene has a Sun, its
+## `sunset` fails the day (`Events.day_failed("sunset")` → Game restarts it),
+## unless the day is already won — the head is on its way out and the sun
+## running out mid-exit must not yank the scene away (TASKS.md T3: "a won day
+## ignores it"). Lives here rather than in the Sun so sun.gd stays a pure
+## timer and a day gets the rule just by containing this node.
 
 ## Emitted when the last condition is satisfied. Local mirror of
 ## `Events.day_completed`, for anything in this scene that wants to react.
@@ -40,6 +47,17 @@ func _ready() -> void:
 	if _conditions.is_empty():
 		push_warning("WinConditions: no WinCondition nodes under '%s' — this day can never be won." % root.name)
 
+	# The Sun is found the same way as the conditions: by what it is, not where
+	# it sits. Duck-typed on its signal so this file doesn't depend on sun.gd.
+	var sun_found: bool = false
+	for node in root.find_children("*", "Node2D", true, false):
+		if node.has_signal("sunset"):
+			node.connect("sunset", _on_sunset)
+			sun_found = true
+			break
+	if not sun_found:
+		push_warning("WinConditions: no Sun under '%s' — this day has no timer." % root.name)
+
 
 ## Every condition currently tracked. The HUD (TASKS.md T7) uses this to build
 ## one indicator per need at startup.
@@ -57,3 +75,9 @@ func _on_condition_satisfied(key: String) -> void:
 	_won = true
 	all_satisfied.emit()
 	Events.day_completed.emit()
+
+
+func _on_sunset() -> void:
+	if _won:
+		return
+	Events.day_failed.emit("sunset")
