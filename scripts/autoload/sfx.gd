@@ -43,7 +43,7 @@ const CUES: Dictionary = {
 	&"dive": "the body leaps for the head (reunion)",
 	&"reunite": "the body lands on the head (reunion)",
 	&"cage": "a cage drops onto the head (transition)",
-	&"thud": "the head stops rolling at the foot of the hill (transition)",
+	&"thud": "the head stops rolling on the slope (transition)",
 	&"ui_confirm": "button press / retry",
 }
 

@@ -23,7 +23,7 @@ One-shots. **WAV, mono, 44.1 kHz, 16-bit**, trimmed tight (no leading silence �
 | `dive` | body leaps for the head (reunion) | whoosh | 300 ms |
 | `reunite` | body lands on the head (reunion) | satisfying clack + little chord | 500 ms |
 | `cage` | cage drops on the head (transition) | metal clang | 400 ms |
-| `thud` | head stops at the foot of the hill (transition) | soft thud | 150 ms |
+| `thud` | head stops rolling on the slope (transition) | soft thud | 150 ms |
 | `ui_confirm` | retry button / menu | click | 60 ms |
 
 Not wired yet, worth recording anyway: **`pop`** (head comes off — the intro beat, not built), **`intrusive`** (kiki shape appears), **`roll_loop`** (continuous roll, for the transition — if we want it, it needs a looping player; say so).
@@ -37,7 +37,7 @@ Loops. **OGG Vorbis, ~128–160 kbps, 44.1 kHz**, stereo fine. Make the loop poi
 | `intro` | intro scene | head falls off, chase |
 | `day` | **any day that doesn't name its own track** | the all-purpose day loop — make this one first |
 | `day_panic` *(example)* | a day that sets `@export var music_track = &"day_panic"` on its root script | per-day music is an export on the day; no code |
-| `transition` | the head-rolls-down-the-hill beat (~4 s) | short; could be a sting rather than a loop |
+| `transition` | the head-rolls-down-the-slope beat (~5 s, longer if the player dawdles — the body is theirs there) | short; could be a sting rather than a loop |
 | `reunion` | the reunion | resolve |
 
 ## Format / web gotchas
