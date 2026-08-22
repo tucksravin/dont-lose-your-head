@@ -20,7 +20,7 @@ enum Phase { FIND_HEAD, PLACE_HEAD, PUZZLE }
 @export var tip_time: float = 0.5
 @export var find_text: String = "Go get your head."
 @export var place_text: String = "The way out is blocked. Put the head on the pedestal."
-@export var puzzle_text: String = "Dodge the thoughts. Land on the right answer."
+@export var puzzle_text: String = "Dodge the thoughts. Wrong answers make them fall faster."
 
 @onready var body: CharacterBody2D = $Body
 @onready var head: Head = $Head

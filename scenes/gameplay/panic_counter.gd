@@ -114,15 +114,21 @@ func _physics_process(delta: float) -> void:
 		if _head != null and _head.has_method("play_calm"):
 			_head.call("play_calm")
 		_satisfy_needs()
-	elif value >= max_panic:
-		_failed = true
-		# DayManager owns fail presentation (game-over card). Found by group
-		# so this node stays free of a scene path.
-		var manager: Node = get_tree().get_first_node_in_group("day_manager")
-		if manager != null and manager.has_method("fail"):
-			manager.call("fail", "panic")
-		else:
-			Events.day_failed.emit("panic")
+	else:
+		_fail_if_maxed()
+
+
+func _fail_if_maxed() -> void:
+	if _failed or value < max_panic:
+		return
+	_failed = true
+	# DayManager owns fail presentation (game-over card). Found by group
+	# so this node stays free of a scene path.
+	var manager: Node = get_tree().get_first_node_in_group("day_manager")
+	if manager != null and manager.has_method("fail"):
+		manager.call("fail", "panic")
+	else:
+		Events.day_failed.emit("panic")
 
 
 ## Satisfy every WinCondition child (body + mind on the still day, or a

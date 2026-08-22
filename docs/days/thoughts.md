@@ -6,4 +6,11 @@ Intro - attacked by intrusive thoughts
 
 Cage. Put in air. Moving causes panic to go up. Body must press button to release cage while dodging kikis. Race between keeping panic low, dodging, and reaching the button.
 
-First panic: head on the right-edge cliff, ground slopes down just past it. Panic to 0 → sigh → falls backward off the drop → cage transition.
+
+lockdown. The last question is impossible to answer correctly on first glance. **Decided Sat 16:51:** wrong pad speeds the rain only — no panic meter / heartbeat on the head. Hit still cards.
+
+
+
+Remove platforming day from map for now. Can revisit later
+
+reconfigure velma - 
