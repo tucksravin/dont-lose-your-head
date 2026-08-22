@@ -26,8 +26,9 @@ const GENERIC_DAY_TRACK: StringName = &"day"
 ## Emitted when the track changes (StringName, may be empty for silence).
 signal track_changed(track: StringName)
 
-@export var crossfade: float = 0.8
-@export var volume_db: float = -6.0
+## Tunables — plain vars, not @export: an autoload has no Inspector, edit here.
+var crossfade: float = 0.8
+var volume_db: float = -6.0
 
 var current_track: StringName = &""
 var _scene_path: String = ""

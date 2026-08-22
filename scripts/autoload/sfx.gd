@@ -49,10 +49,12 @@ const CUES: Dictionary = {
 ## smoke tests listen to this; the debug overlay could too.
 signal played(cue: StringName)
 
+## Tunables. Plain vars, not @export: an autoload has no scene and no
+## Inspector, so there is nowhere else to edit these — change them here.
 ## How many cues can overlap before the oldest is cut. 6 is plenty for a jam.
-@export var voices: int = 6
+var voices: int = 6
 ## Seconds before sunset at which "sunset_warning" fires.
-@export var sunset_warning_lead: float = 5.0
+var sunset_warning_lead: float = 5.0
 
 var _streams: Dictionary = {}  # cue → AudioStream (only cues that have a file)
 var _players: Array[AudioStreamPlayer] = []
