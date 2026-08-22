@@ -9,7 +9,7 @@ size = Vector2(640, 40)
 
 [sub_resource type="LabelSettings" id="LabelSettings_prompt"]
 font_size = 10
-font_color = Color(1, 1, 1, 1)
+font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
 
 [node name="ReunionScene" type="Node2D"]
 script = ExtResource("1_reunion")
@@ -17,7 +17,7 @@ script = ExtResource("1_reunion")
 [node name="Background" type="Polygon2D" parent="."]
 z_index = -1
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
-color = Color(0.105882, 0.105882, 0.164706, 1)
+color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
 
 [node name="Camera2D" type="Camera2D" parent="."]
 position = Vector2(320, 180)
@@ -33,7 +33,7 @@ offset_top = 320.0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0.32, 0.22, 0.16, 1)
+color = Color(0, 0.415686274509804, 0.23921568627451, 1)
 
 [node name="Head" parent="." instance=ExtResource("3_head")]
 position = Vector2(480, 306)

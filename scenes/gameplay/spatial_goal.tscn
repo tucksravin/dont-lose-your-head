@@ -18,7 +18,7 @@ offset_left = -16.0
 offset_top = -32.0
 offset_right = 16.0
 mouse_filter = 2
-color = Color(0.95, 0.8, 0.15, 1)
+color = Color(0.145098039215686, 0.752941176470588, 0.294117647058824, 1)
 
 [node name="WinCondition" type="Node" parent="."]
 script = ExtResource("2_win_condition_script")
