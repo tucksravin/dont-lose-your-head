@@ -23,7 +23,9 @@ extends Node
 ##
 ## Web: browsers refuse to start audio until the page has had a click/keypress.
 ## Godot queues nothing — cues fired before the first input are just lost. The
-## intro needs a keypress to move, so in practice the first day has sound.
+## intro plays hands-free (the head runs off on its own), so on the web the
+## intro is silent and sound starts with the first keypress in day 1 — a
+## title / press-any-key screen (TASKS X4) would move that earlier.
 
 ## cue → what it is for. Keep this the single source of truth.
 const CUES: Dictionary = {
