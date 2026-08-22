@@ -16,7 +16,7 @@ if [[ ! -x "$GODOT" ]]; then
   exit 2
 fi
 
-SUITES=(load_all day_lint day_chain day_sunset play_through)
+SUITES=(load_all day_lint day_chain day_sunset play_through audio)
 WEB=0
 ONLY=()
 for arg in "$@"; do
