@@ -18,6 +18,7 @@ extends Node
 ## transition scene (scenes/transition/) ends by calling next_day() itself, so
 ## the run is simply "the scenes, in order". See transition.gd for how to make one.
 const DAY_SCENES: Array[String] = [
+	"res://scenes/days/day_velma.tscn",
 	"res://scenes/days/day_template.tscn",
 	"res://scenes/transition/transition_cage.tscn",
 	"res://scenes/days/day_panic.tscn",

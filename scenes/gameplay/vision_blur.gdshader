@@ -1,0 +1,37 @@
+shader_type canvas_item;
+// A cheap real Gaussian-ish blur: no hand-written kernel, just reading the
+// screen texture at a high mip level (Godot builds the mip chain for us
+// because of the filter_linear_mipmap hint below). Sharp inside
+// clear_radius_px of clear_center, blurred outside it, `fade` dials the
+// whole effect out (used to lift the day's vision impairment on win).
+// Docs: https://docs.godotengine.org/en/stable/tutorials/shaders/screen-reading_shaders.html
+//
+// clear_center/clear_radius_px/edge_softness_px are in this project's usual
+// world-px-equals-screen-px convention (fixed camera, no zoom — same
+// assumption head.gd's _is_off_screen() relies on): VERTEX in vertex() is
+// this rect's own local position, which for a full-rect CanvasLayer child
+// the engine keeps in that same logical 640x360 space regardless of
+// window/stretch scaling, so no manual transform is needed here — only the
+// SCREEN_TEXTURE sample itself needs SCREEN_UV, which Godot already gets
+// right per-fragment.
+
+uniform sampler2D screen_texture : hint_screen_texture, repeat_disable, filter_linear_mipmap;
+uniform vec2 clear_center = vec2(320.0, 180.0);
+uniform float clear_radius_px = 90.0;
+uniform float edge_softness_px = 50.0;
+uniform float blur_lod : hint_range(0.0, 8.0) = 3.0;
+uniform float fade : hint_range(0.0, 1.0) = 1.0;
+
+varying vec2 local_pos;
+
+void vertex() {
+	local_pos = VERTEX;
+}
+
+void fragment() {
+	float dist = distance(local_pos, clear_center);
+	float t = smoothstep(clear_radius_px, clear_radius_px + edge_softness_px, dist) * fade;
+	vec4 sharp = textureLod(screen_texture, SCREEN_UV, 0.0);
+	vec4 blurred = textureLod(screen_texture, SCREEN_UV, blur_lod);
+	COLOR = mix(sharp, blurred, t);
+}
