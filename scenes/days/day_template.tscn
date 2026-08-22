@@ -2,6 +2,9 @@
 
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_body"]
 [ext_resource type="PackedScene" uid="uid://bl5agwe6qbg1n" path="res://scenes/gameplay/spatial_goal.tscn" id="2_wb443"]
+[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
+[ext_resource type="Script" path="res://scenes/gameplay/win_conditions.gd" id="4_win_conditions"]
+
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="3_sun"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
@@ -28,8 +31,19 @@ color = Color(0.32, 0.22, 0.16, 1)
 [node name="Body" parent="." unique_id=1999184252 instance=ExtResource("1_body")]
 position = Vector2(100, 320)
 
+[node name="Head" parent="." instance=ExtResource("3_head")]
+position = Vector2(560, 306)
+
+[node name="WinConditions" type="Node" parent="."]
+script = ExtResource("4_win_conditions")
+
 [node name="SpatialGoal" parent="." unique_id=1109840832 instance=ExtResource("2_wb443")]
 position = Vector2(500, 320)
+key = "body"
+
+[node name="SpatialGoalMind" parent="." instance=ExtResource("2_wb443")]
+position = Vector2(200, 320)
+key = "mind"
 next_scene = "res://scenes/reunion/reunion.tscn"
 
 [node name="Sun" parent="." unique_id=837465219 instance=ExtResource("3_sun")]
