@@ -421,3 +421,13 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 **Did:** #16 was squash-merged to main (8a13668), which made #17 CONFLICTING on six files (assets/sprites/README.md, docs/TASKS.md, journals/tucker.md, scenes/days/day_panic.tscn, scenes/head/head.gd, scripts/autoload/game.gd). main's tree == the palette-pass tip (4c6e87a, `git diff --stat` empty), which is an ancestor of night/all, so night/all already contained everything on main: merged origin/main into night/all with ours on all six (98b6c3d). Tucker's two uncommitted local files were not touched.
 **Verified:** `git diff a109880 HEAD` → empty: the merge changed nothing in the tree, so the last ALL GREEN (42/37/18/9/14/28) still holds. `gh pr view 17` after the push — see below.
 **Open:** nothing.
+
+## 2026-08-22 10:44 — Palette: violet `#8a4fb5` for the kikis; palette card on the Desktop
+**Driver:** Tucker ("can you suggest a violet hex for the kikis" → "add it to palette and pop a palette out onto my desktop") · **Agent:** Claude (Fable 5)
+**Asked:** a violet for the intrusive-thought shapes; add it to the palette; a palette file on the Desktop
+**Did:**
+- Suggested **`#8a4fb5`** (138,79,181): luma 99 — ~35 under the sky mauve (134), ~20 over the ground green (80), so it reads on both with the `#201c02` outline; hue is the near-complement of our greens/bone, so kikis clash with everything friendly on purpose. Optional ramp noted in the README: `#5e2d8c` shadow · `#c79df2` highlight. It is colour #10 — the second colour we've added to Gooseberry Ghost (8) after `#cdcd99`.
+- Branch `tucker/palette-violet` (off main): `assets/palette/gooseberry-ghost-plus-bone-shadow.gpl` (+ row, Columns 10, name), the `.png` swatch strip regenerated 288×32 → 320×32 (pure-Python PNG writer, same filename so the `.import` and links hold), `assets/palette/README.md` (row + header + "ours" note), `assets/sprites/CREDITS.md`, `docs/days/HOWTO.md` palette row, `docs/CODEBASE.md` §7 palette line — all say "violet for intrusive thoughts / kikis only".
+- Desktop: `~/Desktop/dlyh-palette/` — `dlyh-palette-card.png` (1280², every swatch with hex + rgb + use; SVG rendered via Quick Look since PIL isn't installed), `dlyh-palette-card.svg`, `dlyh-palette-strip.png` (640×64 eyedropper strip), `dlyh-palette.gpl` (Aseprite/GIMP). Not in the repo.
+**Verified:** `--headless --import` after regenerating the png: no errors. Card PNG eyeballed: 10 rows, violet last. Luma numbers computed (Rec.709 on sRGB bytes).
+**Open:** PR for `tucker/palette-violet` — pushed, not opened (Tucker checks first). The checkout is left on this branch so the repo's palette files show the violet. The violet is a rule-break by design; if anyone wants it back to 9, revert this one commit.

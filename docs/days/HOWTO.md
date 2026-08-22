@@ -31,7 +31,7 @@ Then press **F9** in the running game for the overlay (needs ✓/✗, sun %, bod
 | Goals | `SpatialGoal` is a 32×32 area; origin at its bottom-centre (put it at floor y to sit on the ground) |
 | Sun | **30 s** per day by default · arcs left→right across the top · `sunset` fails the day (restart) — a won day ignores it |
 | Needs | one `body` + one `mind` per day (DESIGN §2.1). Both must be met; order is free. |
-| Palette | Gooseberry Ghost + bone shadow — `assets/palette/`. Sky `#988277` · ground `#006a3d` · bone `#f1ffaf` · outline `#201c02` · greens `#25c04b` / `#b2f167` · browns `#645543` / `#45381c`. Write colours at full float precision in `.tscn` (`0.596078431372549`, not `0.596078` — the short form rounds to the wrong byte). |
+| Palette | Gooseberry Ghost + bone shadow + violet — `assets/palette/`. Sky `#988277` · ground `#006a3d` · bone `#f1ffaf` · outline `#201c02` · greens `#25c04b` / `#b2f167` · browns `#645543` / `#45381c` · **violet `#8a4fb5` for intrusive thoughts / kikis only**. Write colours at full float precision in `.tscn` (`0.596078431372549`, not `0.596078` — the short form rounds to the wrong byte). |
 | Sprites | `assets/sprites/` — body: `idle` `walk` `throw` · head: `loose` `imprisoned` `wink` · `bridge.png` (24×8 tile; posts every 6 px — a run that starts *and* ends on a post is 6n+2 wide) · `sun.png`. No generative art — if a day needs a prop, ask Tucker. |
 | Fail | `Events.day_failed("why")` → `Game.restart_day()` (instant reload). Sean's `DayManager` days show a game-over card instead — two systems coexist until the team unifies them (Saturday agenda). |
 | Transitions | head-rolls-down-the-hill beat between days: `scenes/transition/` — fork recipe in `transition.gd`'s header (inherited scenes). |
