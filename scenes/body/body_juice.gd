@@ -82,3 +82,15 @@ func _impulse_to(deformed: Vector2, settle: float) -> void:
 	_impulse = create_tween()
 	_impulse.tween_property(sprite, "scale", _base_scale, settle)\
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
+
+
+## Put the sprite back to rest: base scale, upright, any impulse dropped. For
+## cutscenes that are about to pin the body (the reunion dive) so a breath or a
+## lean isn't baked into the pose.
+func reset() -> void:
+	if _impulse != null and _impulse.is_valid():
+		_impulse.kill()
+	_breath_t = 0.0
+	if sprite != null:
+		sprite.scale = _base_scale
+		sprite.rotation = 0.0
