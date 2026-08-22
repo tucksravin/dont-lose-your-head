@@ -41,8 +41,14 @@ signal left_scene
 ## instead of the plain head. Set it per instance in the day scene; day_panic
 ## uses it. The cage is art only: nothing about release() changes.
 @export var caged: bool = false
+## Caged only: how far (px) the sprite shakes at full agitation (set_agitation
+## ≥ jitter_full_agitation). 0 = never shakes. Cosmetic — the head's position
+## and collision don't move, only the sprite.
+@export var jitter_px: float = 1.5
+@export var jitter_full_agitation: float = 4.0
 
 var _leaving: bool = false
+var _agitation: float = 1.0
 
 @onready var _sprite: AnimatedSprite2D = $Visual
 
@@ -60,6 +66,17 @@ func _ready() -> void:
 	# Nothing to do until release() — skip the per-frame callback entirely
 	# rather than running an early-return every physics tick.
 	set_physics_process(false)
+	set_process(caged)  # the shake below is caged-only
+
+
+func _process(_delta: float) -> void:
+	# Shake grows with agitation (day_panic drives it off the meter); the
+	# random offset is sprite-only so nothing physical moves.
+	var amount: float = jitter_px * clampf(_agitation / jitter_full_agitation, 0.0, 1.0)
+	if amount < 0.25:
+		_sprite.position = Vector2.ZERO
+		return
+	_sprite.position = Vector2(randf_range(-amount, amount), randf_range(-amount, amount))
 
 
 func _physics_process(delta: float) -> void:
@@ -74,7 +91,8 @@ func _physics_process(delta: float) -> void:
 ## head_frames.tres; a day raises it to show the head getting agitated (day_panic
 ## does this as panic climbs). Harmless on an uncaged head.
 func set_agitation(scale: float) -> void:
-	_sprite.speed_scale = maxf(scale, 0.0)
+	_agitation = maxf(scale, 0.0)
+	_sprite.speed_scale = _agitation
 
 
 ## Let the head go. Game calls this once every WinCondition is satisfied.

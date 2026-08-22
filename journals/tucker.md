@@ -331,3 +331,15 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - `bridge_drop` is declared; the call belongs in Sean's `platforming_day.gd` `_drop_bridge()` — left for him (one line).
 - `step` (footsteps) is declared but nothing fires it yet — needs a frame-change hook on the walk animation; trivial once someone wants it.
 - Music volume −6 dB default, SFX 0 dB — mix on the buses once there are files.
+
+## 2026-08-21 23:30 — Overnight run, part 5: animation polish (breathing, squash/stretch, lean, sun pulse, sky drift, caged jitter, goal pop)
+**Driver:** Tucker · **Agent:** Claude Opus 5 (claude-opus-5[1m])
+**Asked:** "add some idle breathing, interpolation and squash/stretch to the animations (put them on a separate branch), maybe some subtle animation to the backdrop and sun" — and "yes on sky color drift". Branch `night/anim` off `night/sfx` (it needs body.gd's `jumped`/`landed` signals from there).
+**Did — all procedural, no new pixels (the art rule):**
+- `scenes/body/body_juice.gd` — a child component (`Juice` node appended to `body.tscn`, with `body`/`sprite` exported NodePaths): **idle breathing** (scale.y ±0.06 on a 2.2 s sine, x compensates — with pixel snapping that's a 1 px bob, which is what pixel-art breathing is), **stretch on take-off** (1.8, 2.3 → back in 0.16 s), **squash on landing** (2.35, 1.7 → back in 0.2 s, TRANS_BACK overshoot), **lean** ±4° into the run, eased at 10/s. Pivot is the feet because the sprite is drawn from the origin up. Delete the node and the body is exactly as before.
+- `sun.gd` (Sean's, additive): `progress() -> float` (0→1 through the day) so others stop poking `_elapsed`; the disc pulses ±8 % on a 1.6 s cycle (`pulse_amount` = 0 turns it off).
+- `scenes/gameplay/sky_drift.gd` on the `Background` Polygon2D of `day_template` and `day_panic` — colour lerps dawn `#988277` → dusk `#645543` by `Sun.progress()`. **Off-palette in between, as flagged and OK'd;** `steps` > 0 quantises it if the ramp reads wrong. Not on Sean's `platforming_day` (his scene — one line to add).
+- `head.gd`: caged head shakes (sprite-only, ±1.5 px at full agitation, nothing at rest) — `set_agitation` now also drives the jitter, so on the panic day the head visibly rattles as panic climbs. Physical position/collision untouched.
+- `spatial_goal.gd`: a 1.35× pop when its need is met, pivot bottom-centre.
+**Verified:** headless probe on day_panic — breathing samples 1.940…2.059; jump+land envelope x 1.90…2.35 / y 1.70…2.15; lean +4.0° right, −4.0° left, −0.02° after stopping; sky #988277 → #7e6c5d at 50 %; sun scale.x 1.84…2.06; caged sprite offset 0.7–1.7 px at agitation 4, 0.00 at 0.1; head position unchanged. `tools/smoke_test.sh` ALL GREEN. **Needs a human eye** — amplitudes are guesses; all are `@export`s on the Juice node / Sun / Background.
+**Open:** the body's landing squash fires on the first frame of every scene (the body spawns 0 px above the floor and "lands") — harmless, but if it bothers you, `_was_on_floor` could start true after one physics tick. The head's release spin has no squash; the transition has its own bounce.
