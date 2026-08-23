@@ -784,3 +784,44 @@ Rendered the title (no kikis, confirmed) and the transition's opening frame (hea
 **Did:** **Dropped my `barbell.gd` change.** Sean landed the same fix in **`52e0b89` "fixes a couple of bugs" (#56)** — the identical 6-line deletion of the duplicate `_on_visual_looped()`. Reverted my copy so the branch below doesn't carry a redundant edit. The diagnosis in the entry above still stands; only the fix was duplicated work.
 **Verified:** `git show origin/main:scenes/gameplay/barbell.gd | grep -c "^func _on_visual_looped"` → **1**. Working tree matches main for that file.
 **Open:** none.
+
+## 2026-08-22 21:03 — Background music wired in as the bed under everything
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "ben and I made a loopable background song, it's a wav on my desktop, can you wire it in?"
+**Did:** Almost all of this already existed — [scripts/autoload/music.gd](scripts/autoload/music.gd) (your file) already loads `res://assets/audio/music/<track>.ogg` per scene, crossfades, and **returns early when the track name doesn't change**. That last bit is what makes one unbroken bed possible, so the change is small.
+- **The file.** `~/Desktop/dontloseyourheadbg.wav` — 3:20, stereo, 48 kHz, 24-bit, **55 MB**. Encoded to **[assets/audio/music/bg.ogg](assets/audio/music/bg.ogg)**, Ogg Vorbis q4, **2.62 MB**, native 48 kHz kept (no resample — one less transformation across a loop seam). Duration preserved exactly (200.347813 s). The source WAV is **not** committed: too big for the checkout and for a web build that loads all audio up front. Recipe is in [assets/audio/README.md](assets/audio/README.md) if it needs re-encoding.
+  - Homebrew's ffmpeg ships **without `libvorbis`** (it has Opus, which Godot can't read). Installed `vorbis-tools` for `oggenc` — the reference encoder — and piped through it. You approved the ffmpeg install; flagging the second one since it wasn't in the question.
+  - I did **not** use `~/Desktop/Untitled_1 #01dont_lose_ur_piano.wav` (8 s, mono) — read as a stem, not the song. Say if it was meant to be in too.
+- **One line of behaviour, in `_track_for()`:** a scene whose wanted track has **no file yet falls back to `DEFAULT_TRACK` (`bg`) instead of to silence**. Every scene therefore resolves to the same name, `_switch_to` sees no change and returns early, and the song runs unbroken title → intro → transitions → days → reunion → thanks. Split the old function into `_wanted_track()` (what a scene asks for) + `_has_file()` so the fallback reads clearly.
+  - **The scaffolding is intact, not replaced.** Drop in `intro.ogg` and the intro resolves to `intro` again and crossfades off the bed on its own; per-day `music_track` exports still win; delete `bg.ogg` and everything is silent exactly as before.
+  - `scene == null` (the frame mid-`change_scene_to_file`) now resolves to the bed too — it used to resolve to silence, which meant every scene change had a chance to blip the song out and back in through a crossfade.
+- Docs: [assets/audio/README.md](assets/audio/README.md) Music section (the `bg` row, the fallback rule, the re-encode command, credit to you + Ben) and [docs/CODEBASE.md](docs/CODEBASE.md) §3 autoload table + the audio bullet.
+**Verified:** `--import` clean; main scene boots clean. Two probes:
+- **Track resolution** — title, intro, transition_bird, transition_cage, day_panic, day_workout, reunion, thanks, **and `null`** all resolve to **`bg`**; "distinct tracks across all scenes: ["bg"]". Stream loads as `AudioStreamOggVorbis`, `loop=true`, length **200.35 s**.
+- **Continuity across scene changes** — drove title → intro → day_panic → reunion with 2 s in each: **same AudioStreamPlayer instance throughout**, `playing=true`, playback position monotonically increasing (0.74 → 1.58 → 2.42 → 3.16 s), volume steady at −6 dB. It never restarts and never fades at a boundary.
+- Source analysis: `silencedetect` at −50 dB found **no silence anywhere**, so no fade-in/out to fight the loop seam; whole-file peak −0.1 dB, mean −18.8 dB.
+- The `ERROR: 2 resources still in use at exit` line is **pre-existing** — I reproduced it with `bg.ogg` moved out of the tree. Not the music.
+- **Not verified: how it sounds, the loop seam by ear, or the music/SFX balance.** Headless audio is a dummy driver — it proves the plumbing, not the mix. **Your and Ben's pass.**
+**Open:**
+- **Mix.** The bed plays at `Music.volume_db = -6.0` against a track that peaks at −0.1 dB. That may well sit on top of the SFX. One number at the top of `music.gd`, or the Music bus in `default_bus_layout.tres`.
+- **Audio payload is now 5.5 MB** (music 2.8 + sfx 2.6). README budgets "a few MB" for the web build, which loads it all up front. Under budget-ish, but it's the biggest thing in the export now — worth an `export_web.sh` run and a load-time check before we ship.
+- **Web can't start audio before the first click/keypress.** The title screen has a button, so the first click starts the bed — better than it was, since the intro used to be the hands-free scene that lost its audio.
+- **Not committed** — CLAUDE.md §8 says not without asking. Sitting uncommitted on `main`; say the word and I'll branch, commit and push.
+
+## 2026-08-22 21:14 — Music bed down 8 dB
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "can we pull the music down by 8db?"
+**Did:** `Music.volume_db` **−6.0 → −14.0** in [scripts/autoload/music.gd](scripts/autoload/music.gd), with a comment saying why (bg.ogg peaks at −0.1 dB, so at −6 it sat on the SFX).
+- **Chose the autoload tunable over the Music bus** (`default_bus_layout.tres` is still 0.0 dB). Same audible result — nothing but music is on that bus — but it's the knob the file already documents as "edit here", it's a clean one-line text diff, and it avoids the .tres, which Godot rewrites the `uid=` on every time the engine touches it (that produced spurious diffs twice already this session). Say if you'd rather it live on the bus so it shows up in the editor's Audio panel.
+- The crossfade already tweens up to `volume_db` from −40, so the new level is the target on every fade-in; nothing else needed changing. No doc mentioned the old number.
+**Verified:** `--import` clean. Probe: tunable reads −14.0; after the crossfade settles on the title the front player is at **−14.0 dB, playing, track `bg`**; still −14.0 and still playing (position advancing) after a scene change to day_panic; **Music bus confirmed untouched at 0.0 dB**. **Not verified: whether −14 is actually the right level against the SFX** — headless is a dummy audio driver. Ears needed.
+**Open:**
+- If −14 is too far, it's the same one line. The SFX side has its own levels baked per-node (jump/landing/panic/cage all play through their own players), so if the balance is still off it may be those, not this.
+- Still uncommitted, along with the music wiring above.
+
+## 2026-08-22 21:22 — Correction: the bed sits at −19, not −14
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "updated it a little lower, go ahead and branch + pr this"
+**Did:** Tucker set `Music.volume_db` to **−19.0** himself after listening — the entry above says −14.0, which is now wrong. Left his value and his formatting exactly as written; the "why −14" comment I had put above the var came off with his edit and I did **not** re-add it, since removing it may have been deliberate.
+**Verified:** `--import` clean. Probe: front player settles at **−19.0 dB** on the title, still −19.0 and still playing (position advancing) after a scene change into day_panic. This is the first level in this session that was actually chosen by ear rather than by me guessing at a number.
+**Open:** none — branching and opening the PR next.
