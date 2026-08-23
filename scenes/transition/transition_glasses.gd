@@ -11,14 +11,13 @@ extends "res://scenes/transition/transition.gd"
 
 ## Progress along the path (0–1) when the glasses leave the skull.
 @export_range(0.0, 1.0) var glasses_fly_at: float = 0.42
-## Arc: up above the head, then off the right edge. Two Tweens (rise / fall)
-## — same pattern as the reunion dive. Godot Tweens are straight lines, so
-## the arc is two beats, not a curve resource.
-@export var glasses_apex_height: float = 88.0
-@export var glasses_apex_right: float = 90.0
-@export var glasses_end: Vector2 = Vector2(720.0, 120.0)
-@export var glasses_rise: float = 0.28
-@export var glasses_fall: float = 0.5
+## Upward kick (px/s) added to the head's roll velocity. The glasses keep
+## the downhill speed and peel up while the skull stays on the path.
+@export var glasses_up_kick: float = 280.0
+## Gravity on the glasses after they leave (px/s², +Y is down).
+@export var glasses_gravity: float = 520.0
+## How long the projectile is simulated.
+@export var glasses_fly_time: float = 1.1
 @export var glasses_spin: float = 8.0
 ## After the path ends, keep rolling off the right (seconds).
 @export var exit_time: float = 0.65
@@ -28,6 +27,10 @@ extends "res://scenes/transition/transition.gd"
 @onready var lost_glasses: Sprite2D = $LostGlasses
 
 var _glasses_flew: bool = false
+var _head_last_pos: Vector2 = Vector2.ZERO
+var _head_vel: Vector2 = Vector2.ZERO
+var _glasses_start: Vector2 = Vector2.ZERO
+var _glasses_vel: Vector2 = Vector2.ZERO
 
 
 ## Full beat. Do not call super — the new base parks until the body is close,
@@ -37,6 +40,8 @@ func _run() -> void:
 	var total: float = path.curve.get_baked_length()
 	var turns: int = maxi(1, roundi(total / (TAU * head_radius)))
 	_spin = float(turns) * TAU / total
+	_head_last_pos = head.global_position
+	_head_vel = Vector2.ZERO
 	_rolling = true
 	var roll: Tween = create_tween()
 	roll.tween_property(follow, "progress", total, roll_time)\
@@ -63,6 +68,12 @@ func _run() -> void:
 
 func _process(delta: float) -> void:
 	super._process(delta)
+	if _rolling and delta > 0.0:
+		var now: Vector2 = head.global_position
+		var sample: Vector2 = (now - _head_last_pos) / delta
+		if sample.length() > 8.0:
+			_head_vel = sample
+		_head_last_pos = now
 	if _glasses_flew or not _rolling:
 		return
 	if follow.progress_ratio >= glasses_fly_at:
@@ -79,12 +90,21 @@ func _fly_glasses() -> void:
 	lost_glasses.global_position = head.global_position
 	lost_glasses.rotation = 0.0
 	lost_glasses.visible = true
-	var start: Vector2 = head.global_position
-	var apex: Vector2 = Vector2(start.x + glasses_apex_right, start.y - glasses_apex_height)
+	_glasses_start = head.global_position
+	# Inherit the roll, then kick up so they peel off while the head drops.
+	_glasses_vel = _head_vel + Vector2(0.0, -glasses_up_kick)
+	if _glasses_vel.length() < 40.0:
+		_glasses_vel = Vector2(220.0, -glasses_up_kick)
 	var fly: Tween = create_tween()
-	fly.tween_property(lost_glasses, "global_position", apex, glasses_rise)\
-			.set_ease(Tween.EASE_OUT).set_trans(Tween.TRANS_QUAD)
-	fly.tween_property(lost_glasses, "global_position", glasses_end, glasses_fall)\
-			.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	fly.tween_method(_set_glasses_flight, 0.0, glasses_fly_time, glasses_fly_time)
 	var spin: Tween = create_tween()
-	spin.tween_property(lost_glasses, "rotation", glasses_spin, glasses_rise + glasses_fall)
+	spin.tween_property(lost_glasses, "rotation", glasses_spin, glasses_fly_time)
+
+
+## Projectile: x = x0 + v t, y = y0 + v t + ½ g t² (Y-down).
+func _set_glasses_flight(t: float) -> void:
+	lost_glasses.global_position = (
+		_glasses_start
+		+ _glasses_vel * t
+		+ Vector2(0.0, 0.5 * glasses_gravity * t * t)
+	)

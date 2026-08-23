@@ -747,3 +747,17 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Instance tunables only (`day_panic.tscn`): panic 12→24 / calm 8→16 / calm max 16→32. Flying kikis interval 1.2→2.4, speed 180→360. KikiCloud untouched (visual ring, not the flyers).
 **Verified:** not verified — F6 a hop and a still. Smoke skipped.
 **Open:** Human F6 — if "by 2" meant +2 not ×2, say so.
+
+## 2026-08-22 17:22 — Glasses fly as one Bézier arc
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** transition_glasses arc looks like two moves (up, then away). Give a smooth arc from the head off screen.
+**Did:** Replaced the two sequential Tweens with one quadratic Bézier (`tween_method` on t 0→1). Apex exports are now the control point, not a waypoint. Same total flight time (rise+fall).
+**Verified:** not verified — F6 the mid-roll pop. Smoke skipped.
+**Open:** Human F6 height / how far right they leave.
+
+## 2026-08-22 17:25 — Glasses inherit roll velocity
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Glasses still go oddly up — velocity should start at the rolling head's, then continue up a bit while the head goes down.
+**Did:** Sample head velocity while it rolls. On pop: `v = head_vel + (0, -up_kick)`, then a projectile (`½gt²`). They peel off the skull instead of launching from rest toward an apex.
+**Verified:** not verified — F6 the pop. Smoke skipped.
+**Open:** Human F6 `glasses_up_kick` / `glasses_gravity` if they rise too little or too much.
