@@ -838,3 +838,17 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Replaced `← →` and `·` with `Left/Right` and `-`. Godot's default Label font has no system fallback on HTML5, so those glyphs tofu. Desktop hid it.
 **Verified:** not verified — re-export web and check the chase hint.
 **Open:** Lockdown's last puzzle uses `∯` / `π` — same web-font risk if that label is on.
+
+## 2026-08-22 20:12 — Reunion head centred on the neck
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** After pickup in reunion the head is slightly offset; it should sit centred.
+**Did:** `attach_offset`  (0,−40) → (0,−52), same `head_mount` as title/intro (jaw on the neck stub). Disabled Body Juice for the walk-off so the lean doesn't slide the sprite out from under the skull.
+**Verified:** not verified — F6 reunion, dive, watch the walk-off.
+**Open:** —
+
+## 2026-08-22 20:12 — Cage-panic kikis from the head
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** day_panic_still — kikis from the head, right, down, left at the player (not the button).
+**Did:** Still-panic has no button kikis (cloud only). Wired the hanging-cage day (`day_panic.gd`) to `FlyingKiki.start_head_arc` like Velma/mirror. Spawn offset off the button is gone.
+**Verified:** not verified — F6 `day_panic.tscn`.
+**Open:** If they really wanted flying hazards on the stand-still tree day, say so — jumping there winds panic.

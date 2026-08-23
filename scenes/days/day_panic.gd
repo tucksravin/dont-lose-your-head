@@ -11,16 +11,21 @@ extends Node2D
 ## is the stand-still day, `day_panic_still`). A KikiCloud closes in as
 ## panic rises — visual only, same node as the still day.
 ##
-## FlyingKiki is reused from the mirror day. They spawn just left of the
-## button and fly left. Standing on the button puts the body in `kiki_safe`
-## so a hit there is ignored. Timer spawn is the same idiom as ThoughtRain.
+## FlyingKiki is reused from the mirror day. They leave the **head**, curve
+## right, drop, then fly left at the body. Standing on the button puts the
+## body in `kiki_safe` so a hit there is ignored. Timer spawn is the same
+## idiom as ThoughtRain.
 
 @export var kiki_scene: PackedScene
 @export var kiki_interval: float = 1.2
 @export var kiki_start_delay: float = 0.6
 @export var kiki_speed: float = 180.0
-## Spawn just left of the floor button, at jump height (button origin is feet).
-@export var kiki_spawn_offset: Vector2 = Vector2(-40.0, -16.0)
+## How far right of the head the attack curve peaks (px).
+@export var kiki_arc_right: float = 48.0
+## Seconds for the right-then-down curve.
+@export var kiki_arc_time: float = 0.55
+## World y of the horizontal run — in jump reach of the floor body.
+@export var kiki_approach_y: float = 300.0
 @export var drop_time: float = 0.35
 @export var floor_y: float = 306.0
 @export var instruction_text: String = "Jump on the button to free the cage. Moving winds panic. Jump the thoughts."
@@ -106,16 +111,21 @@ func _open_cage() -> void:
 
 
 func _spawn_kiki() -> void:
-	if _done or kiki_scene == null:
+	if _done or kiki_scene == null or head == null:
 		return
 	var kiki: Node2D = kiki_scene.instantiate() as Node2D
 	if kiki == null:
 		return
-	kiki.global_position = release.global_position + kiki_spawn_offset
-	# Always left — they come from beside the button toward the approach.
-	kiki.set("direction", Vector2.LEFT)
 	kiki.set("speed", kiki_speed)
+	kiki.set("arc_right", kiki_arc_right)
+	kiki.set("arc_time", kiki_arc_time)
+	kiki.set("approach_y", kiki_approach_y)
 	add_child(kiki)
+	if kiki.has_method("start_head_arc"):
+		kiki.call("start_head_arc", head.global_position)
+	else:
+		kiki.global_position = head.global_position
+		kiki.set("direction", Vector2.LEFT)
 
 
 ## DayManager awaits this before `head.release()`. Drop the hanging skull

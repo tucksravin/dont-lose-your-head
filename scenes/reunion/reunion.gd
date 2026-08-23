@@ -24,7 +24,10 @@ enum Phase { WALKING, MERGING, RIGHTING, SUNSET, DONE }
 @export var right_time: float = 0.55
 @export var bounce_apex: float = 28.0
 @export var land_time: float = 0.18
-@export var attach_offset: Vector2 = Vector2(0.0, -40.0)
+## Same neck mount as the title / intro (`head_mount`). −40 sat the skull
+## *centre* on the neck stub; the jaw is 14 px below the head origin, so
+## −52 puts it on the spine and centred. See title.gd.
+@export var attach_offset: Vector2 = Vector2(0.0, -52.0)
 @export var walk_off_speed: float = 150.0
 @export var exit_x: float = 700.0
 @export var fade_duration: float = 0.8
@@ -127,6 +130,13 @@ func _begin_sunset() -> void:
 	body_blob.process_mode = Node.PROCESS_MODE_INHERIT
 	body_blob.set("is_scripted", true)
 	body_blob.velocity = Vector2.ZERO
+	# Juice leans the *sprite* into the walk; Head.attach follows the
+	# body's origin, so a lean made the skull sit off the neck. Park it.
+	var juice: Node = body_blob.get_node_or_null("Juice")
+	if juice != null:
+		if juice.has_method("reset"):
+			juice.call("reset")
+		juice.set_process(false)
 	if head_blob.has_method("attach"):
 		head_blob.attach(body_blob, attach_offset)
 

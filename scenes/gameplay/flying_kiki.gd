@@ -3,10 +3,11 @@ extends Area2D
 ## fails the day (same as FallingThought). The head is a RigidBody2D, so the
 ## CharacterBody2D check leaves it alone.
 ##
-## Two flights: **straight** (panic — left from a spawn point) and **head
-## arc** (mirror — out of the skull, curve right, drop, then horizontal at
-## the player). `start_head_arc()` runs a cubic Bézier in `_process`; a Tween
-## would also work, but one `_process` keeps both flights in one place.
+## Two flights: **straight** (legacy left-from-a-point) and **head arc**
+## (mirror + cage panic — out of the skull, curve right, drop, then
+## horizontal at the player). `start_head_arc()` runs a cubic Bézier in
+## `_process`; a Tween would also work, but one `_process` keeps both
+## flights in one place.
 ## Docs: https://docs.godotengine.org/en/stable/tutorials/physics/using_area_2d.html
 
 @export var speed: float = 200.0
