@@ -12,14 +12,20 @@ extends Node2D
 ##      path, body, fade — is inherited and greyed out; you only add/override.
 ##   2. Make scenes/transition/transition_<situation>.gd with
 ##          extends "res://scenes/transition/transition.gd"
-##      and override ONLY `_play_arrival()` (it is awaited — take as long as the
-##      beat needs; when it returns, the head rolls). Set that script on the
+##      and override ONLY the beat you need. Both are awaited, so take as long
+##      as the beat wants: `_play_arrival()` is the situation that knocks the
+##      resting head loose (when it returns, the head rolls), and
+##      `_play_exit()` is what happens after you have caught up to the stopped
+##      head (when it returns, the scene fades). Set that script on the
 ##      inherited scene's root.
 ##   3. Add any props the situation needs as new nodes in the inherited scene.
 ##      Tunables below can be overridden on the inherited root too.
 ##   4. Put the scene in Game.DAY_SCENES right BEFORE the day it leads into.
-##   transition_cage.tscn / .gd is the worked example (the cage drops on the
-##   head and knocks it rolling → day_panic). Scene inheritance docs:
+##   transition_cage.tscn / .gd is the worked example for `_play_arrival`
+##   (a cage drops on the head and knocks it rolling → day_panic);
+##   transition_bird.tscn / .gd is the one for `_play_exit` (a bird takes the
+##   head off the ground and flies away with it → day_panic_still). Scene
+##   inheritance docs:
 ##   https://docs.godotengine.org/en/stable/tutorials/scripting/scene_organization.html#inheritance
 ##
 ## Why inherited scenes and not one shared scene with a slot: the team chose it
@@ -50,7 +56,8 @@ extends Node2D
 ##   → the head ROLLS: roll_time at constant speed (it was knocked, so it leaves
 ##     at speed) for brake_ratio of the path, then brake_time easing to a stop
 ##   → the beat ENDS only once the body has actually reached the head (no
-##     timeout; the hint label says to go after it) → hold → fade → Game.next_day().
+##     timeout; the hint label says to go after it) → hold → `_play_exit` (a
+##     bird carries it off…) → fade → Game.next_day().
 ##
 ## The head here is a plain AnimatedSprite2D on the same head_frames.tres as
 ## head.tscn — NOT an instance of head.tscn. Tried that first: a frozen
@@ -149,6 +156,8 @@ func _run() -> void:
 	# ...and the beat only ends once the body is actually there.
 	await _wait_for_gap(arrive_distance, -1.0)
 	await get_tree().create_timer(hold_after_arrival).timeout
+	# ...and whatever happens once you HAVE caught up (a bird takes it…).
+	await _play_exit()
 	var out: Tween = create_tween()
 	out.tween_property(fade, "modulate:a", 1.0, fade_duration)
 	await out.finished
@@ -208,6 +217,19 @@ func _physics_process(delta: float) -> void:
 		body.velocity.y += float(body.get("gravity")) * delta
 	body.velocity.x = move_toward(body.velocity.x, 0.0, float(body.get("speed")))
 	body.move_and_slide()
+
+
+## The SECOND forkable beat: what happens once the body has actually reached
+## the stopped head — called after `hold_after_arrival`, before the fade. Await
+## whatever the beat needs; the fade starts the moment it returns. The base does
+## nothing, so a fork that doesn't want one (the cage, the glasses) cuts to the
+## fade exactly as before. transition_bird.gd is the worked example: a bird
+## swoops in, takes the head off the ground and carries it off to the right.
+##
+## It awaits a frame rather than being empty so that `await _play_exit()` above
+## is always awaiting a coroutine, whichever fork is running.
+func _play_exit() -> void:
+	await get_tree().process_frame
 
 
 ## The forkable beat: the situation that befalls the resting head — called once

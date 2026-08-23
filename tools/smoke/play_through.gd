@@ -1,5 +1,7 @@
 extends SceneTree
 ## Smoke: the whole game can be PLAYED from the intro to the end card, by a bot.
+## (From the *intro* — the landing screen before it is a mouse/UI click, see
+## START_SCENE.)
 ##
 ## This is the test that asks "is it completable", not "does it load". A tiny
 ## bot presses the real input actions (Input.action_press / action_release —
@@ -27,14 +29,21 @@ extends SceneTree
 
 const Smoke := preload("res://tools/smoke/smoke_lib.gd")
 
+## The run really starts at scenes/ui/title.tscn, but that screen is a Button
+## click and the bot presses *actions* (Input.action_press), which never reaches
+## Control input — so the suite starts one scene later, at the intro. The title
+## is covered by load_all instead.
 const START_SCENE: String = "res://scenes/intro/intro.tscn"
 ## Per-scene budget, real seconds. Below the 30 s sun on purpose.
 const SCENE_BUDGET: float = 25.0
 
 var plans: Dictionary = {
-	# The intro ends when the PLAYER runs off the right edge (the head leaves on
-	# its own) — so run right until the scene changes.
-	"res://scenes/intro/intro.tscn": [{"run": "move_right"}],
+	# The intro is a cutscene now (Sat): it takes no input at all and hands off
+	# on its own after ~10.8 s — the head pops off and rolls away. An empty plan
+	# means "just wait for the scene to change", which is exactly right, and the
+	# 25 s scene budget covers it. It must NOT be {"run": …}: that step gives up
+	# after 10 s, which is shorter than the cutscene.
+	"res://scenes/intro/intro.tscn": [],
 	"res://scenes/days/day_velma.tscn": [
 		# Body starts at 80. Walk right to the first step, then climb
 		# left/up: 560/500/440/380 then glasses at 320. Pickup locks the

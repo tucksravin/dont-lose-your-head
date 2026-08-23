@@ -18,11 +18,17 @@ extends Node
 ## transition scene (scenes/transition/) ends by calling next_day() itself, so
 ## the run is simply "the scenes, in order". See transition.gd for how to make one.
 ##
+## The opening: the landing screen (scenes/ui/title.tscn, the boot scene) loads
+## the intro, the intro's head pops off and rolls over a crest, and it calls
+## start_days() — so the run opens on transition_bird, where the player gets the
+## controls and chases it until a bird carries it into the tree of the first day.
+##
 ## Glasses story: intro wears them; still-panic is caged-with-glasses; the
 ## head falls out of the tree / off the cliff into the cage transition;
 ## hanging panic keeps them; glasses transition knocks them off; Velma
 ## finds them. Order: still → cage transition → hanging panic.
 const DAY_SCENES: Array[String] = [
+	"res://scenes/transition/transition_bird.tscn",
 	"res://scenes/days/day_panic_still.tscn",
 	"res://scenes/transition/transition_cage.tscn",
 	"res://scenes/days/day_panic.tscn",
