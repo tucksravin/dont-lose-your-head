@@ -1,55 +1,81 @@
 [gd_scene format=3 uid="uid://b8ewiy634u34t"]
 
-[ext_resource type="Script" uid="uid://1q68x5u8xyd6" path="res://scenes/intro/intro.gd" id="1_intro"]
+[ext_resource type="Script" path="res://scenes/intro/intro.gd" id="1_intro"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
-[ext_resource type="SpriteFrames" uid="uid://bde5tdw2qau5v" path="res://assets/sprites/head_frames.tres" id="3_head_frames"]
-[ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="4_sun"]
-[ext_resource type="PackedScene" path="res://scenes/head/head_thoughts.tscn" id="5_thoughts"]
+[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
+[ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="4_panic_counter"]
+[ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="5_panic_label"]
+[ext_resource type="PackedScene" uid="uid://c8kicloudpanic1" path="res://scenes/gameplay/kiki_cloud.tscn" id="6_cloud"]
 
-[sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_1"]
+[sub_resource type="LabelSettings" id="LabelSettings_panic"]
+font_size = 10
+font_color = Color(0.94509804, 1, 0.6862745, 1)
+outline_size = 4
+outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
 
-[sub_resource type="RectangleShape2D" id="RectangleShape2D_head"]
-size = Vector2(28, 28)
-
-[node name="IntroScene" type="Node2D" unique_id=479735300]
+[node name="IntroScene" type="Node2D"]
 script = ExtResource("1_intro")
 
-[node name="Background" type="Polygon2D" parent="." unique_id=1896323117]
+[node name="Background" type="Polygon2D" parent="."]
 z_index = -1
 color = Color(0.59607846, 0.50980395, 0.46666667, 1)
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
 
-[node name="Camera2D" type="Camera2D" parent="." unique_id=2066016079]
+[node name="Camera" type="Camera2D" parent="."]
 position = Vector2(320, 180)
 
-[node name="Ground" type="StaticBody2D" parent="." unique_id=592797279]
-position = Vector2(0, 320)
+[node name="Ground" type="StaticBody2D" parent="."]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Ground" unique_id=273467968]
-shape = SubResource("WorldBoundaryShape2D_1")
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="Ground"]
+polygon = PackedVector2Array(-120, 200, 260, 200, 740, 360, 740, 440, -120, 440)
 
-[node name="Visual" type="Polygon2D" parent="Ground" unique_id=1939201382]
-color = Color(0.27058825, 0.21960784, 0.10980392, 1)
-polygon = PackedVector2Array(-5000, 0, 5000, 0, 5000, 50, -5000, 50)
+[node name="Visual" type="Polygon2D" parent="Ground"]
+color = Color(0, 0.41568628, 0.23921569, 1)
+polygon = PackedVector2Array(-120, 200, 260, 200, 740, 360, 740, 440, -120, 440)
 
-[node name="HeadBlob" type="CharacterBody2D" parent="." unique_id=1717716912]
-position = Vector2(200, 320)
+[node name="Body" parent="." instance=ExtResource("2_body")]
+position = Vector2(-40, 200)
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="HeadBlob" unique_id=1366747971]
-position = Vector2(0, -14)
-shape = SubResource("RectangleShape2D_head")
+[node name="Head" parent="." instance=ExtResource("3_head")]
+position = Vector2(-40, 148)
 
-[node name="Visual" type="AnimatedSprite2D" parent="HeadBlob" unique_id=438638277]
-position = Vector2(0, -14)
-scale = Vector2(2, 2)
-sprite_frames = ExtResource("3_head_frames")
-animation = &"glasses_look_right"
-autoplay = "glasses_look_right"
+[node name="PanicLabel" type="Label" parent="." node_paths=PackedStringArray("counter")]
+offset_left = 268.0
+offset_top = 60.0
+offset_right = 368.0
+offset_bottom = 76.0
+text = "Panic: 0"
+label_settings = SubResource("LabelSettings_panic")
+horizontal_alignment = 1
+script = ExtResource("5_panic_label")
+counter = NodePath("../PanicCounter")
 
-[node name="HeadThoughts" parent="HeadBlob" instance=ExtResource("5_thoughts")]
-position = Vector2(0, -14)
+[node name="PanicCounter" parent="." instance=ExtResource("4_panic_counter")]
+start_panic = 0.0
+max_panic = 100.0
+scripted_per_second = 25.0
 
-[node name="Body" parent="." unique_id=473802789 instance=ExtResource("2_body")]
-position = Vector2(100, 320)
+[node name="KikiCloud" parent="." instance=ExtResource("6_cloud")]
+floor_y = 196.0
 
-[node name="Sun" parent="." instance=ExtResource("4_sun")]
+[node name="Instruction" type="Label" parent="."]
+visible = false
+offset_left = 12.0
+offset_top = 8.0
+offset_right = 628.0
+offset_bottom = 32.0
+theme_override_colors/font_color = Color(0.94509804, 1, 0.6862745, 1)
+theme_override_colors/font_outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "A/D or ← → to run · Space to jump. Go after your head."
+
+[node name="FadeOverlay" type="CanvasLayer" parent="."]
+layer = 10
+
+[node name="Fade" type="ColorRect" parent="FadeOverlay"]
+modulate = Color(1, 1, 1, 0)
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+color = Color(0.1254902, 0.10980392, 0.007843138, 1)

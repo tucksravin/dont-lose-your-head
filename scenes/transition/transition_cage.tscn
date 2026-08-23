@@ -8,15 +8,16 @@
 
 [sub_resource type="Curve2D" id="Curve2D_offscreen"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 240, 178, 0, 0, 0, 0, 720, 338)
+"points": PackedVector2Array(0, 0, 0, 0, 240, 164, 0, 0, 0, 0, 260, 164, 0, 0, 0, 0, 720, 317)
 }
-point_count = 2
+point_count = 3
 
 [node name="TransitionCage" unique_id=1986657385 instance=ExtResource("1_base")]
 script = ExtResource("2_cage_script")
 cage_drop_height = 220.0
 cage_drop_time = 0.35
 cage_land_sound = ExtResource("3_qs22s")
+trigger_distance = 150.0
 roll_time = 1.6
 brake_ratio = 1.0
 
@@ -24,7 +25,7 @@ brake_ratio = 1.0
 curve = SubResource("Curve2D_offscreen")
 
 [node name="Follow" parent="HeadPath" index="0"]
-position = Vector2(240, 178)
+position = Vector2(240, 164)
 
 [node name="Head" parent="HeadPath/Follow" index="0"]
 animation = &"glasses"

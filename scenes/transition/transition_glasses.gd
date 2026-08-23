@@ -21,7 +21,9 @@ extends "res://scenes/transition/transition.gd"
 @export var glasses_spin: float = 8.0
 ## After the path ends, keep rolling off the right (seconds).
 @export var exit_time: float = 0.65
-@export var exit_end: Vector2 = Vector2(720.0, 348.0)
+## (720, 317) is 16 px above the ground there — the hill gained a flat shelf at
+## its top on Sat, which lifted everything right of x=260 by 20 px.
+@export var exit_end: Vector2 = Vector2(720.0, 317.0)
 @export var exit_spin: float = 3.5
 
 @onready var lost_glasses: Sprite2D = $LostGlasses
