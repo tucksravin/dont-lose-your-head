@@ -23,14 +23,6 @@ animations = [{
 "frames": [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_t0")
-}],
-"loop": true,
-"name": &"whole",
-"speed": 10.0
-}, {
-"frames": [{
-"duration": 1.0,
-"texture": SubResource("AtlasTexture_t0")
 }, {
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_t1")
@@ -41,7 +33,7 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_t3")
 }],
-"loop": false,
+"loop": 0,
 "name": &"breaking",
 "speed": 9.0
 }, {
@@ -49,7 +41,15 @@ animations = [{
 "duration": 1.0,
 "texture": SubResource("AtlasTexture_t3")
 }],
-"loop": true,
+"loop": 1,
 "name": &"broken",
+"speed": 10.0
+}, {
+"frames": [{
+"duration": 1.0,
+"texture": SubResource("AtlasTexture_t0")
+}],
+"loop": 1,
+"name": &"whole",
 "speed": 10.0
 }]

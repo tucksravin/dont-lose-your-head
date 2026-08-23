@@ -1,17 +1,17 @@
 [gd_scene format=3 uid="uid://ca5bsb5sj4yc3"]
 
-[ext_resource type="Script" path="res://scenes/days/day_panic_still.gd" id="1_day"]
+[ext_resource type="Script" uid="uid://cn53fgchooarg" path="res://scenes/days/day_panic_still.gd" id="1_day"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="1_uxlmw"]
-[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="2_wgxpk"]
-[ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="3_vx7en"]
+[ext_resource type="PackedScene" uid="uid://icgagian0sgo" path="res://scenes/head/head.tscn" id="2_wgxpk"]
+[ext_resource type="Script" uid="uid://b52e5l8in6h8c" path="res://scenes/gameplay/win_condition_manager.gd" id="3_vx7en"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_jila2"]
 [ext_resource type="PackedScene" uid="uid://dw8hb3tpyauj6" path="res://scenes/gameplay/panic_counter.tscn" id="6_panic_counter"]
 [ext_resource type="Script" uid="uid://omcistp86lxg" path="res://scenes/gameplay/panic_label.gd" id="7_panic_label"]
-[ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
-[ext_resource type="Script" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
+[ext_resource type="Script" uid="uid://drgvctg8sgork" path="res://scenes/gameplay/sky_drift.gd" id="9_sky_drift"]
+[ext_resource type="Script" uid="uid://cdgvssoc46s8n" path="res://scenes/gameplay/day_manager.gd" id="10_day_manager"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="11_game_over"]
-[ext_resource type="Script" path="res://scenes/gameplay/win_condition.gd" id="12_win"]
-[ext_resource type="PackedScene" uid="uid://c8kicloudpanic1" path="res://scenes/gameplay/kiki_cloud.tscn" id="13_cloud"]
+[ext_resource type="Script" uid="uid://cc46s87eug7f5" path="res://scenes/gameplay/win_condition.gd" id="12_win"]
+[ext_resource type="PackedScene" uid="uid://tt53kd82hn5o" path="res://scenes/gameplay/kiki_cloud.tscn" id="13_cloud"]
 [ext_resource type="SpriteFrames" uid="uid://biau5a2mebmtn" path="res://assets/sprites/tree_frames.tres" id="20_tree"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
@@ -26,52 +26,52 @@ font_color = Color(0.94509804, 1, 0.6862745, 1)
 outline_size = 4
 outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
 
-[node name="DayPanicStill" type="Node2D"]
+[node name="DayPanicStill" type="Node2D" unique_id=1886198477]
 script = ExtResource("1_day")
 
-[node name="Background" type="Polygon2D" parent="."]
+[node name="Background" type="Polygon2D" parent="." unique_id=1287881013]
 z_index = -1
 color = Color(0.59607846, 0.50980395, 0.46666667, 1)
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
 script = ExtResource("9_sky_drift")
 
-[node name="Camera" type="Camera2D" parent="."]
+[node name="Camera" type="Camera2D" parent="." unique_id=1556529235]
 position = Vector2(320, 180)
 
-[node name="Floor" type="StaticBody2D" parent="."]
+[node name="Floor" type="StaticBody2D" parent="." unique_id=581336100]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=1235661424]
 position = Vector2(318, 340)
 shape = SubResource("RectangleShape2D_floor")
 
-[node name="Visual" type="Polygon2D" parent="Floor"]
+[node name="Visual" type="Polygon2D" parent="Floor" unique_id=579221710]
 color = Color(0, 0.41568628, 0.23921569, 1)
 polygon = PackedVector2Array(0, 320, 636, 320, 780, 500, 780, 560, 0, 360)
 
-[node name="Pit" type="Area2D" parent="."]
+[node name="Pit" type="Area2D" parent="." unique_id=1447818792]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Pit"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Pit" unique_id=650906567]
 position = Vector2(730, 430)
 shape = SubResource("RectangleShape2D_pit")
 
-[node name="Body" parent="." instance=ExtResource("1_uxlmw")]
+[node name="Body" parent="." unique_id=1524494513 instance=ExtResource("1_uxlmw")]
 position = Vector2(100, 320)
 
-[node name="Tree" type="Node2D" parent="."]
+[node name="Tree" type="Node2D" parent="." unique_id=1310093643]
 position = Vector2(544, 320)
 
-[node name="Visual" type="AnimatedSprite2D" parent="Tree"]
+[node name="Visual" type="AnimatedSprite2D" parent="Tree" unique_id=1998899606]
+scale = Vector2(2, 2)
 sprite_frames = ExtResource("20_tree")
 animation = &"whole"
 centered = false
 offset = Vector2(-30, -96)
-scale = Vector2(2, 2)
 
-[node name="Head" parent="." instance=ExtResource("2_wgxpk")]
+[node name="Head" parent="." unique_id=508426481 instance=ExtResource("2_wgxpk")]
 z_index = 1
 position = Vector2(592, 246)
 
-[node name="PanicLabel" type="Label" parent="." node_paths=PackedStringArray("counter")]
+[node name="PanicLabel" type="Label" parent="." unique_id=272532498 node_paths=PackedStringArray("counter")]
 offset_left = 548.0
 offset_top = 88.0
 offset_right = 608.0
@@ -82,33 +82,32 @@ horizontal_alignment = 1
 script = ExtResource("7_panic_label")
 counter = NodePath("../PanicCounter")
 
-[node name="WinConditionManager" type="Node" parent="."]
+[node name="WinConditionManager" type="Node" parent="." unique_id=2066286619]
 script = ExtResource("3_vx7en")
 
-[node name="DayManager" type="Node" parent="."]
+[node name="DayManager" type="Node" parent="." unique_id=1441066675]
 script = ExtResource("10_day_manager")
 conditions_path = NodePath("../WinConditionManager")
 head_path = NodePath("../Head")
 game_over_path = NodePath("../GameOver")
 
-[node name="PanicCounter" parent="." instance=ExtResource("6_panic_counter")]
+[node name="PanicCounter" parent="." unique_id=145339514 instance=ExtResource("6_panic_counter")]
 start_panic = 70.0
 max_panic = 100.0
 panic_per_second = 40.0
 calm_max_per_second = 20.0
 win_on_zero = true
 
-[node name="BodyNeed" type="Node" parent="PanicCounter"]
+[node name="BodyNeed" type="Node" parent="PanicCounter" unique_id=1729886204]
 script = ExtResource("12_win")
-key = "body"
 
-[node name="MindNeed" type="Node" parent="PanicCounter"]
+[node name="MindNeed" type="Node" parent="PanicCounter" unique_id=155639367]
 script = ExtResource("12_win")
 key = "mind"
 
-[node name="KikiCloud" parent="." instance=ExtResource("13_cloud")]
+[node name="KikiCloud" parent="." unique_id=1076019020 instance=ExtResource("13_cloud")]
 
-[node name="Instruction" type="Label" parent="."]
+[node name="Instruction" type="Label" parent="." unique_id=540628064]
 offset_left = 12.0
 offset_top = 8.0
 offset_right = 628.0
@@ -119,6 +118,6 @@ theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
 text = "Hold still. Panic to zero — your head sighs and falls out of the tree."
 
-[node name="Sun" parent="." instance=ExtResource("5_jila2")]
+[node name="Sun" parent="." unique_id=822733499 instance=ExtResource("5_jila2")]
 
-[node name="GameOver" parent="." instance=ExtResource("11_game_over")]
+[node name="GameOver" parent="." unique_id=180284479 instance=ExtResource("11_game_over")]

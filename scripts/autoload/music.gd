@@ -41,7 +41,7 @@ signal track_changed(track: StringName)
 ## Tunables — plain vars, not @export: an autoload has no Inspector, edit here.
 var crossfade: float = 0.8
 
-var volume_db: float = -19.0
+var volume_db: float = -12.0
 
 var current_track: StringName = &""
 var _scene_path: String = ""
