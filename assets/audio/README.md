@@ -1,11 +1,13 @@
 # Audio — what to make, where to put it
 
 Everything below Sfx.CUES is already wired. **Drop a file in with the right name and it plays.** Nothing else to touch. Until a file exists its cue is silent (no error), and the game prints the missing list at boot:
-`Sfx: 12/12 cues have no file yet — …`
+`Sfx: 11/11 cues have no file yet — …`
 
-**Jump, landing, footsteps, and panic (including calm) are the exception** — they're wired directly on the node that owns the state, not through `Sfx.CUES`. `jump` and `land` (`scenes/body/body.gd`): light hop / dull knock (heavier than jump), ~80–100 ms, one-shot, cycled in order each time — several short variants (`assets/audio/sfx/jump/jump_1.wav`, `jump_2.wav`, … and `assets/audio/sfx/landing/landing_1.wav`, `landing_2.wav`, …) read better than one file on repeat; add more and assign them in `body.tscn`'s `jump_sounds` / `landing_sounds` arrays (order = play order, not random). Footsteps: `assets/audio/sfx/walk/walk_2.wav`, looped while the body is moving on the ground.
+**Jump, landing, footsteps, panic (including calm), and the cage-drop are the exception** — they're wired directly on the node that owns the moment, not through `Sfx.CUES`. `jump` and `land` (`scenes/body/body.gd`): light hop / dull knock (heavier than jump), ~80–100 ms, one-shot, cycled in order each time — several short variants (`assets/audio/sfx/jump/jump_1.wav`, `jump_2.wav`, … and `assets/audio/sfx/landing/landing_1.wav`, `landing_2.wav`, …) read better than one file on repeat; add more and assign them in `body.tscn`'s `jump_sounds` / `landing_sounds` arrays (order = play order, not random). Footsteps: `assets/audio/sfx/walk/walk_2.wav`, looped while the body is moving on the ground.
 
-Panic (`scenes/head/head.gd`, caged heads only): **discrete, not continuous** — `PanicCounter.level()` (thirds of `max_panic`: <⅓ = 1, <⅔ = 2, else 3) picks one of `assets/audio/sfx/panic/panic_level_1_1.wav` / `panic_level_2_1.wav` / `panic_level_3_1.wav`, a heartbeat-style thump that replays whenever the band changes. Not a smooth pitch-shift like the old `panic_tick` cue was — three fixed takes, swapped by band. Add more per level and wire them into `head.gd`'s `panic_sounds` array (index 0 = level 1 … index 2 = level 3). `calm`: `assets/audio/sfx/calm/calm_1.wav`, one-shot, plays once when `PanicCounter.calmed` fires (panic hit 0 and the day won that way — `win_on_zero` days only); wired as `head.gd`'s `calm_sound`.
+Panic (`scenes/head/head.gd`, caged heads only): **discrete, not continuous** — `PanicCounter.level()` (thirds of `max_panic`: <⅓ = 1, <⅔ = 2, else 3) picks one of `assets/audio/sfx/panic/panic_level_1_1.wav` / `panic_level_2_1.wav` / `panic_level_3_1.wav`, a heartbeat-style thump that replays whenever the band changes. Not a smooth pitch-shift like the old `panic_tick` cue was — three fixed takes, swapped by band. Add more per level and wire them into `head.gd`'s `panic_sounds` array (index 0 = level 1 … index 2 = level 3). `calm`: `assets/audio/sfx/calm/calm_1.wav`, one-shot, plays once when `PanicCounter.calmed` fires (panic hit 0 and the day won that way — `win_on_zero` days only); wired as `head.gd`'s `calm_sound`, on its own `CalmSound` player so it can be mixed separately from the panic-level thumps.
+
+Cage-drop (`scenes/transition/transition_cage.gd`): `assets/audio/sfx/cage/cage_2.wav`, one-shot, plays the instant the falling cage sprite reaches the head (end of the drop `Tween`, before it hides and the head switches to the caged loop); wired as `cage_land_sound`, played through its own `CageSound` player.
 
 ## SFX — `assets/audio/sfx/<cue>.wav` (or `.ogg`)
 
@@ -22,7 +24,6 @@ One-shots. **WAV, mono, 44.1 kHz, 16-bit**, trimmed tight (no leading silence �
 | `bridge_drop` | bridge lands (platforming day) | wood thunk + creak | 400 ms |
 | `dive` | body leaps for the head (reunion) | whoosh | 300 ms |
 | `reunite` | body lands on the head (reunion) | satisfying clack + little chord | 500 ms |
-| `cage` | cage drops on the head (transition) | metal clang | 400 ms |
 | `thud` | head stops rolling on the slope (transition) | soft thud | 150 ms |
 | `ui_confirm` | retry button / menu | click | 60 ms |
 

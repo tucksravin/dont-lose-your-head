@@ -40,7 +40,6 @@ const CUES: Dictionary = {
 	&"bridge_drop": "the bridge falls into place (platforming day)",
 	&"dive": "the body leaps for the head (reunion)",
 	&"reunite": "the body lands on the head (reunion)",
-	&"cage": "a cage drops onto the head (transition)",
 	&"thud": "the head stops rolling on the slope (transition)",
 	&"ui_confirm": "button press / retry",
 }
