@@ -709,3 +709,41 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Lockdown rain opens at interval 1.4 / fall 140. Each wrong pad multiplies spawn rate and fall speed by `miss_mult` 3 (floor 0.06 s, cap 900 px/s). Timer restarts on miss so it hits immediately.
 **Verified:** not verified — F6 the first two misses. Smoke skipped.
 **Open:** Human F6 — opening pace / whether the 2nd miss is already unfair.
+
+## 2026-08-22 17:03 — Velma: climb right, throw at perched head
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Head on a right platform out of reach; glasses on a centre platform; climb starts from the right; reaching glasses expands FOV to see the head; throw glasses at the head for full vision and knock it off so it rolls to the next screen.
+**Did:**
+- Layout: body (600,320); HeadPlatform (592,148) / head (592,134); chain 560→500→440→380 then GlassesPlatform (320,184); glasses (320,176). Same 76×16 one-way 36 px steps.
+- Pickup satisfies body and `VisionBlur.expand_to(300)`. Then `play_throw()`, glasses `fly_to` the head, `deliver()` (mind + wear). `_before_head_release()` drops the skull to y=306 before the roll.
+- Carry-to-head auto-deliver is gone. Locked in DESIGN.md. Bot plan walks the new stair and waits for the throw.
+**Verified:** `--import` and `--quit-after 60 res://scenes/days/day_velma.tscn` — no ERROR / SCRIPT ERROR / Parse Error.
+**Open:** Human F6 the climb + whether the expand radius shows the perch. Smoke skipped.
+
+## 2026-08-22 17:06 — Pause after Velma FOV expand
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Pause between FOV expanding and the glasses throw — see the head, brief pause, then throw.
+**Did:** `see_pause` 0.7 s after `expand_to` finishes, then throw. SceneTree timer (one-shot). Bot wait 1.5 → 2.2 so the pause still fits.
+**Verified:** not verified — F6 the beat. Smoke skipped.
+**Open:** Human F6 — 0.7 too long/short.
+
+## 2026-08-22 17:10 — Velma: two clear circles; unblur on hit
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Body starts on the right. Unblur a small area around the head and the body. Grabbing glasses does not unblur; the screen unblurs when the glasses hit the head.
+**Did:** Body already at (600,320). Shader now has a second clear circle on the head (`head_clear_radius` 50). Pickup no longer calls `expand_to` — pause then throw; `VisionBlur` still lifts on `mind` (deliver).
+**Verified:** not verified — F6 start + pickup + hit. Smoke skipped.
+**Open:** Human F6 circle sizes.
+
+## 2026-08-22 17:12 — Velma: spawn left; lock on pickup
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Start the body on the left. Stop the body after picking up the glasses — walked off during the throw.
+**Did:** Body spawn (80, 320). On pickup: `velocity = 0` and `is_scripted = true` so a held run key can't carry them off the glasses platform. Bot still walks right to the first step.
+**Verified:** not verified — F6 grab while holding left. Smoke skipped.
+**Open:** —
+
+## 2026-08-22 17:16 — Cage panic: faster meter, fewer/faster kikis
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** In day_panic, increase panic increment and decrement by 2. Half kiki spawn rate, 2× their speed.
+**Did:** Instance tunables only (`day_panic.tscn`): panic 12→24 / calm 8→16 / calm max 16→32. Flying kikis interval 1.2→2.4, speed 180→360. KikiCloud untouched (visual ring, not the flyers).
+**Verified:** not verified — F6 a hop and a still. Smoke skipped.
+**Open:** Human F6 — if "by 2" meant +2 not ×2, say so.

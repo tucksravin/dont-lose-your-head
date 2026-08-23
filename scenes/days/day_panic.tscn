@@ -29,6 +29,8 @@ size = Vector2(56, 16)
 
 [node name="DayPanic" type="Node2D" unique_id=1567717338]
 script = ExtResource("1_day")
+kiki_interval = 2.4
+kiki_speed = 360.0
 
 [node name="Background" type="Polygon2D" parent="." unique_id=647412420]
 z_index = -1
@@ -125,12 +127,12 @@ key = "mind"
 [node name="PanicCounter" parent="." unique_id=1147921961 instance=ExtResource("6_panic_counter")]
 start_panic = 30.0
 max_panic = 40.0
-panic_per_second = 12.0
+panic_per_second = 24.0
 calm_delay = 0.08
 open_hold = 0.5
 ignore_vertical = true
-calm_per_second = 8.0
-calm_max_per_second = 16.0
+calm_per_second = 16.0
+calm_max_per_second = 32.0
 calm_ramp_time = 0.5
 
 [node name="KikiCloud" parent="." unique_id=1533850814 instance=ExtResource("13_cloud")]

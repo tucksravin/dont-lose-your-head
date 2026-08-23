@@ -36,16 +36,15 @@ var plans: Dictionary = {
 	# its own) — so run right until the scene changes.
 	"res://scenes/intro/intro.tscn": [{"run": "move_right"}],
 	"res://scenes/days/day_velma.tscn": [
-		# Head is near the entrance (180,306). Four one-way steps later in
-		# the room (centers 380/440/500/560, 36 px rise). Glasses on
-		# Platform4 (560,176). Carry back to the head — delivery_radius 50
-		# from body+(0,-30), so x=180 is inside it.
-		{"walk_to": 355.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 415.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 475.0}, {"jump": true}, {"wait": 0.7},
+		# Body starts at 80. Walk right to the first step, then climb
+		# left/up: 560/500/440/380 then glasses at 320. Pickup locks the
+		# body and auto-throws.
 		{"walk_to": 535.0}, {"jump": true}, {"wait": 0.7},
-		{"walk_to": 560.0}, {"satisfied": "body"},
-		{"walk_to": 180.0}, {"satisfied": "mind"},
+		{"walk_to": 475.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 415.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 355.0}, {"jump": true}, {"wait": 0.7},
+		{"walk_to": 320.0}, {"satisfied": "body"},
+		{"wait": 2.2}, {"satisfied": "mind"},
 	],
 	"res://scenes/days/day_template.tscn": [
 		{"walk_to": 200.0}, {"satisfied": "mind"},

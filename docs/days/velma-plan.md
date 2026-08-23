@@ -6,6 +6,8 @@
 
 **Scope estimate:** ~2–2.5 h (one new reusable node + one new day file) — right at the CLAUDE.md §7 "flag before starting" line. Flagging it here so whoever picks this up knows it's a full session, not a 45-minute task.
 
+**Reworked 2026-08-22 17:01** (smahr): head on a high right perch, glasses on a centre platform, climb starts on the right, pickup expands FOV, throw knocks the head off. Scene file + `day_velma.gd` are current; the carry-back layout below is historical.
+
 **Built 2026-08-22** (`scenes/gameplay/glasses.gd/.tscn`, `scenes/gameplay/vision_blur.gd/.tscn`, `scenes/days/day_velma.tscn`; `tools/smoke_test.sh` ALL GREEN — journal: `journals/smahr.md`). Two calls below were resolved differently than §2's original sketch, on later direction:
 - **§4.2 (carry mechanic vs. two goals)** — resolved as the real carry mechanic, not the two-independent-`SpatialGoal`s default. `Glasses` (`scenes/gameplay/glasses.gd`) is one `Area2D` with two `WinCondition` children: touching it on the ground satisfies **body** and starts it following the body (`carry_offset`); getting within `delivery_radius` of the head satisfies **mind** and hides it. The code block in §2.1 below is the superseded two-goals sketch — `glasses.gd` is the real thing now.
 - **The vignette centring** — `VisionBlur` now tracks the body's position every frame (screen UV = world position ÷ 640×360, since the camera is fixed — same assumption as `head.gd`'s `_is_off_screen()`), not the fixed screen-centre in the §2.1 sketch below.
