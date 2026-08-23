@@ -1,5 +1,7 @@
 extends Node2D
-## Spawns FallingThoughts across the top of the screen until the day ends.
+## Spawns FallingThoughts until the day ends. Default: they appear across
+## the top and fall. `launch_from_head` (lockdown): each one rises off the
+## head first, then rains the same way.
 ##
 ## Stops on win or fail so a thought can't fail you during the head's exit
 ## (DayManager already no-ops fail() once _ending, but we shouldn't keep
@@ -21,6 +23,9 @@ extends Node2D
 @export var autostart: bool = true
 ## How many thoughts drop at once. 1 is a single column; 2+ is a volley.
 @export var burst: int = 1
+## If true, each thought launches **up** from the head and off the top,
+## then rains from `min_x`–`max_x` as usual. Hit / speed / miss_mult unchanged.
+@export var launch_from_head: bool = false
 
 var _timer: Timer
 var _stopped: bool = false
@@ -73,10 +78,17 @@ func _spawn_one(speed: float) -> void:
 	var thought: Node2D = thought_scene.instantiate() as Node2D
 	if thought == null:
 		return
-	thought.position = Vector2(randf_range(min_x, max_x), -12.0)
 	if "fall_speed" in thought:
 		thought.set("fall_speed", speed)
 	add_child(thought)
+	var rain_at: Vector2 = Vector2(randf_range(min_x, max_x), -12.0)
+	if launch_from_head:
+		var head_node: Node2D = get_tree().get_first_node_in_group("head") as Node2D
+		if head_node != null and thought.has_method("launch_then_rain"):
+			thought.global_position = head_node.global_position
+			thought.call("launch_then_rain", rain_at)
+			return
+	thought.position = rain_at
 
 
 ## A wrong pad. Found by group so PuzzleChain needs no scene path.

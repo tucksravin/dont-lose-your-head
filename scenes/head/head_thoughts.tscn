@@ -1,0 +1,6 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" uid="uid://bl3sihq72415g" path="res://scenes/head/head_thoughts.gd" id="1_thoughts"]
+
+[node name="HeadThoughts" type="Node2D"]
+script = ExtResource("1_thoughts")

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://bpricpl5dlnpg" path="res://scenes/head/head.gd" id="1_head_script"]
 [ext_resource type="SpriteFrames" uid="uid://bde5tdw2qau5v" path="res://assets/sprites/head_frames.tres" id="2_head_frames"]
+[ext_resource type="PackedScene" path="res://scenes/head/head_thoughts.tscn" id="3_thoughts"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_head"]
 size = Vector2(28, 28)
@@ -26,3 +27,5 @@ bus = &"SFX"
 [node name="CalmSound" type="AudioStreamPlayer" parent="." unique_id=1543848886]
 volume_db = 16.45
 bus = &"SFX"
+
+[node name="HeadThoughts" parent="." instance=ExtResource("3_thoughts")]

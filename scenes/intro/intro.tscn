@@ -4,6 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
 [ext_resource type="SpriteFrames" uid="uid://bde5tdw2qau5v" path="res://assets/sprites/head_frames.tres" id="3_head_frames"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="4_sun"]
+[ext_resource type="PackedScene" path="res://scenes/head/head_thoughts.tscn" id="5_thoughts"]
 
 [sub_resource type="WorldBoundaryShape2D" id="WorldBoundaryShape2D_1"]
 
@@ -44,6 +45,9 @@ scale = Vector2(2, 2)
 sprite_frames = ExtResource("3_head_frames")
 animation = &"glasses_look_right"
 autoplay = "glasses_look_right"
+
+[node name="HeadThoughts" parent="HeadBlob" instance=ExtResource("5_thoughts")]
+position = Vector2(0, -14)
 
 [node name="Body" parent="." unique_id=473802789 instance=ExtResource("2_body")]
 position = Vector2(100, 320)
