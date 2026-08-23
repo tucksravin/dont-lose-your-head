@@ -1,31 +1,37 @@
 class_name Barbell
 extends Area2D
 ## Floor barbell: **walking into it picks it up** — no key (Tucker, Sat:
-## "when we hit a trigger it just happens"). Area2D so it doesn't push. After
-## pickup it follows the body (scripted offset) — not Head.attach, which is
-## for the skull.
+## "when we hit a trigger it just happens"). Area2D so it doesn't push.
 ##
-## Docs: https://docs.godotengine.org/en/stable/tutorials/physics/using_area_2d.html
+## Art is `barbell_frames.tres` (Tucker): `alone` on the floor, `with_body`
+## when held, `lifting` (squat → press, 10 fps) on each mash. Frames 1–3
+## *include* the skeleton, so pickup hides the body's `Visual` and this
+## sprite stands in for body + bar. Same 2× / `centered = false` /
+## `offset (-16,-32)` as the body, so the cell's feet sit on the node.
+##
+## Docs: https://docs.godotengine.org/en/stable/classes/class_animatedsprite2d.html
 
 signal picked_up
 
-@export var carry_offset: Vector2 = Vector2(0.0, -36.0)
-@export var pump_height: float = 14.0
-@export var pump_time: float = 0.07
+## While held, sit on the carrier's origin (feet). Zero because the lift
+## frames are a full body, not a bar floating above one.
+@export var carry_offset: Vector2 = Vector2.ZERO
 
 @onready var prompt: Label = $Prompt
+@onready var visual: AnimatedSprite2D = $Visual
 
 var _bodies: int = 0
 var _held: bool = false
 var _carrier: Node2D = null
-var _pump_y: float = 0.0
-var _pump_tween: Tween
+var _carrier_visual: CanvasItem = null
 
 
 func _ready() -> void:
 	set_physics_process(false)
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
+	if visual != null:
+		visual.play(&"alone")
 	_set_occupied(false)
 
 
@@ -33,23 +39,21 @@ func _physics_process(_delta: float) -> void:
 	if _carrier == null or not is_instance_valid(_carrier):
 		return
 	var offset: Vector2 = carry_offset
-	var sprite: AnimatedSprite2D = _carrier.get_node_or_null("Visual") as AnimatedSprite2D
-	if sprite != null and sprite.flip_h:
+	if _carrier_visual is AnimatedSprite2D and (_carrier_visual as AnimatedSprite2D).flip_h:
 		offset.x = -offset.x
-	global_position = _carrier.global_position + offset + Vector2(0.0, _pump_y)
+		visual.flip_h = true
+	else:
+		visual.flip_h = false
+	global_position = _carrier.global_position + offset
 
 
-## One lift stroke. Called from the day on each mash. Restarts if already pumping
-## so a fast mash still reads as up-down. Tween — Godot's one-shot interpolator.
+## One lift stroke — plays `lifting` from the start so a mash reads as a pump.
+## Replaces the old ColorRect Tween. Called from the day on each `jump`.
 func pump() -> void:
-	if not _held:
+	if not _held or visual == null:
 		return
-	if _pump_tween != null and _pump_tween.is_valid():
-		_pump_tween.kill()
-	_pump_y = -pump_height
-	_pump_tween = create_tween()
-	_pump_tween.tween_property(self, "_pump_y", 0.0, pump_time)\
-		.set_ease(Tween.EASE_IN).set_trans(Tween.TRANS_QUAD)
+	visual.play(&"lifting")
+	visual.set_frame_and_progress(0, 0.0)
 
 
 func _pick_up() -> void:
@@ -65,6 +69,11 @@ func _pick_up() -> void:
 	var body: Node2D = _find_body()
 	if body != null:
 		_carrier = body
+		_carrier_visual = body.get_node_or_null("Visual") as CanvasItem
+		if _carrier_visual != null:
+			_carrier_visual.visible = false
+		if visual != null:
+			visual.play(&"with_body")
 		set_physics_process(true)
 	picked_up.emit()
 

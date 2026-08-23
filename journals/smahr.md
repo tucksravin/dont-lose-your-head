@@ -810,3 +810,10 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Mirror `FlyingKiki.start_head_arc` (cubic Bézier right-then-down, then left). Panic kikis still spawn straight. Lockdown `ThoughtRain.launch_from_head`: rise off the skull (no hit), then the same random-x rain / miss_mult.
 **Verified:** `--quit-after 90` on `day_mirror.tscn` and `day_lockdown.tscn` — no SCRIPT ERROR. Rain’s launch is after the pedestal beat, so F6 is the real check.
 **Open:** Human F6 both — retune `kiki_arc_right` / `kiki_approach_y` if the horizontal run is too high or low.
+
+## 2026-08-22 18:32 — Workout barbell sprites
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Use barbell_frames.tres on the workout barbell; those frames are the animation.
+**Did:** Replaced the ColorRect weights with `AnimatedSprite2D` on `barbell.tscn`. Floor = `alone`. Pickup hides the body's `Visual` (lift frames include the skeleton) and plays `with_body`. `pump()` restarts `lifting` instead of the old Tween. Collision 64×20 to match 2× art.
+**Verified:** `--quit-after 90 res://scenes/days/day_workout.tscn` — no SCRIPT ERROR.
+**Open:** Human F6 — walk into the bar, mash Space, check the squat/press reads.
