@@ -46,12 +46,12 @@ color = Color(0, 0.41568628, 0.23921569, 1)
 [node name="Platform" type="StaticBody2D" parent="." unique_id=82556109]
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="Platform" unique_id=893076543]
-position = Vector2(570, 40)
+position = Vector2(570, 200)
 shape = SubResource("RectangleShape2D_platform")
 
 [node name="Visual" type="Sprite2D" parent="Platform" unique_id=1677279174]
 texture_repeat = 2
-position = Vector2(570, 40)
+position = Vector2(570, 200)
 texture = ExtResource("11_bridge_tex")
 region_enabled = true
 region_rect = Rect2(0, 0, 140, 8)
@@ -61,14 +61,14 @@ position = Vector2(608, 320)
 
 [node name="Frame" type="ColorRect" parent="Mirror" unique_id=830447436]
 offset_left = -18.0
-offset_top = -320.0
+offset_top = -160.0
 offset_right = 18.0
 mouse_filter = 2
 color = Color(0.27058825, 0.21960784, 0.10980392, 1)
 
 [node name="Glass" type="ColorRect" parent="Mirror" unique_id=1332614379]
 offset_left = -12.0
-offset_top = -314.0
+offset_top = -154.0
 offset_right = 12.0
 offset_bottom = -4.0
 mouse_filter = 2
@@ -76,7 +76,7 @@ color = Color(0.39215687, 0.33333334, 0.2627451, 1)
 
 [node name="Reflection" type="AnimatedSprite2D" parent="Mirror" unique_id=308322027]
 modulate = Color(0.8039216, 0.8039216, 0.6, 0.85)
-position = Vector2(0, -298)
+position = Vector2(0, -138)
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("10_head_frames")
 animation = &"look_left"
@@ -85,7 +85,7 @@ animation = &"look_left"
 position = Vector2(80, 320)
 
 [node name="Head" parent="." unique_id=1998963685 instance=ExtResource("3_head")]
-position = Vector2(572, 22)
+position = Vector2(572, 182)
 
 [node name="WinConditionManager" type="Node" parent="." unique_id=65010647]
 script = ExtResource("4_wcm")

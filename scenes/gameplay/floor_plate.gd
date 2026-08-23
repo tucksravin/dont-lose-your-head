@@ -2,10 +2,12 @@ class_name FloorPlate
 extends AnimatedSprite2D
 ## A floor button, drawn with button.png (Tucker's: off → mid → on).
 ##
-## **You have to land on it.** Walking over one only squashes it to `mid` under
-## the body's weight; a hop onto it slams it flat and fires `stomped` (Tucker,
-## Sat: "should have to jump on the button to activate, catch body's momentum
-## in the animation and rise back up after leaving"). Step off and it rises.
+## **You have to land on it.** Walking over one does **nothing at all** (Tucker,
+## Sat: "remove the button animation when you walk next to it, it should only do
+## things when you jump on it" — it used to squash to `mid` under the body's
+## weight, which read as the plate reacting to a passer-by). A hop onto it slams
+## it flat and fires `stomped` ("catch body's momentum in the animation and rise
+## back up after leaving"). Step off after a stomp and it rises.
 ##
 ## The plate carries the *look and the trigger*; whoever owns it decides what a
 ## stomp means — the lockdown plates answer a puzzle, the panic button opens the
@@ -62,11 +64,12 @@ func _physics_process(_delta: float) -> void:
 		_fall = maxf(_fall, _body.velocity.y)
 	if not enabled or _latched:
 		return
-	var over: bool = _over_plate()
-	if over and _body.is_on_floor():
-		if not _down:
-			_play(&"mid")  # standing on it, but that is not a press
-	elif _down or (animation != &"off" and animation != &"rise"):
+	# A landing is the ONLY thing that moves this plate. It used to squash to
+	# `mid` whenever the body stood on or walked across it, which made the
+	# button look like it was responding to being walked past. Now the only
+	# state change here is popping back up after a stomp, once the body that
+	# stomped it has left.
+	if _down and not _over_plate():
 		_release()
 
 

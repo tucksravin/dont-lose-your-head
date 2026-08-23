@@ -825,3 +825,28 @@ Rendered the title (no kikis, confirmed) and the transition's opening frame (hea
 **Did:** Tucker set `Music.volume_db` to **−19.0** himself after listening — the entry above says −14.0, which is now wrong. Left his value and his formatting exactly as written; the "why −14" comment I had put above the var came off with his edit and I did **not** re-add it, since removing it may have been deliberate.
 **Verified:** `--import` clean. Probe: front player settles at **−19.0 dB** on the title, still −19.0 and still playing (position advancing) after a scene change into day_panic. This is the first level in this session that was actually chosen by ear rather than by me guessing at a number.
 **Open:** none — branching and opening the PR next.
+
+## 2026-08-22 21:52 — Mirror down to a readable height; button ignores passers-by
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "bring the mirror to a reasonable height, we just want the head out of reach but the mirror to still read as a mirror" + "remove the button animation when you walk next to it, it should only do things when you jump on it"
+**Did:** Branch `tucker/mirror-height-and-button` off main (after #59 merged).
+
+**1. The mirror.** It was **36×320** — floor-to-ceiling, 5× the body's height — and it was that tall *because* its glass had to reach the head at y=22. Asked which end moved; you picked bringing both down. [scenes/days/day_mirror.tscn](scenes/days/day_mirror.tscn):
+- Platform (collision + visual) **y 40 → 200**; Head **(572,22) → (572,182)** — same 14 px above the platform top as before.
+- Frame `offset_top` **−320 → −160**, Glass **−314 → −154**, Reflection **(0,−298) → (0,−138)** = world y **182**, exactly head height, so the head is still staring into its own reflection. Glass keeps its 6 px top / 4 px bottom border, so the proportions are the old ones, just shorter.
+- [day_mirror.gd](scenes/days/day_mirror.gd): the `throw_end` doc comment was reasoning off the old 320 px frame's corner radius (~320.5 px). Now ~161. Left the value at 1000 — it clears 640 by 360, the whole flight is off screen — and said so in the comment rather than re-tuning a number that wasn't wrong.
+- **Grab untouched.** `_try_grab()` measures to the Mirror node's *origin*, which never left the floor at (608,320), so `grab_radius` 56 still means the same thing.
+- **Sean/Ben: this is your scene** (`day_mirror.tscn`, #32 and #48). Six values, no restructuring.
+
+**2. The button.** [scenes/gameplay/floor_plate.gd](scenes/gameplay/floor_plate.gd): dropped the `mid` squash that played whenever the body stood on or walked across a plate. `_physics_process` now only ever pops the plate back up after a stomp — a landing is the sole thing that moves it. Updated both doc comments ([floor_plate.gd](scenes/gameplay/floor_plate.gd) and [answer_pad.gd](scenes/gameplay/answer_pad.gd), which described the old behaviour). The `mid` animation stays in `button_frames.tres`, just unused.
+
+**Verified:** `--import` clean; day_mirror, day_panic and day_lockdown all load clean.
+- **Reach, measured not calculated** — parked the body under the platform and jumped it 10 times: best rise **48.5 px** (y 320 → 271.5). The platform needs **120 px**. Never landed on anything above the floor. Head at y=182 is 89 px above the body's best. **Out of reach with 71 px to spare.**
+- **Grab still fires** — walked the body right; `_threw` at **x=552**, exactly `grab_radius` 56 from the mirror at 608.
+- **Button** — walked the body straight across the plate (x 450 → 800, plate at 520): plate animations seen = **["off"]** only, **0 stomps**. Dropped it on from 60 px up: **["off", "press"]**, **1 stomp**, impact 980 px/s. That is precisely the ask.
+- Rendered day_mirror windowed at 640×360: head on its platform and its reflection in the glass sit side by side at the same height, and the mirror is a standing glass rather than a wall.
+- **Not verified: how either feels to play.** Your pass.
+**Open:**
+- **The mirror is 36×160 — a 1:4.4 bar.** It reads far better than the old 1:8.9 slab, but it's still narrow enough to read a bit door-like. Widening `Frame` to ±28 and `Glass` to ±22 would make it 1:2.9, much closer to a real cheval glass. Four numbers; didn't do it because you asked about height, not width.
+- **Kikis now spawn from a head at y=182 instead of y=22**, so their entry arc down to `kiki_approach_y` 300 is 118 px instead of 278. The horizontal run the player jumps is unchanged, but the approach will feel different — worth a play.
+- Two probe notes for whoever writes tests next: a parked body in day_mirror gets killed by a kiki and the GameOver card **pauses the tree**, which freezes everything and looks like a physics bug; and `Input.action_press()` from a coroutine never triggers `is_action_just_pressed` (it lands between physics frames), so jumps have to be driven by setting `velocity.y` directly.
