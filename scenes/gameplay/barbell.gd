@@ -19,6 +19,18 @@ signal picked_up
 
 @onready var prompt: Label = $Prompt
 @onready var visual: AnimatedSprite2D = $Visual
+## Same files Body's jump uses, but picked at random each pump rather than
+## cycled in order — mashing is rapid-fire, and a fixed 1-2-3-4 cycle reads
+## as a noticeable pattern at that speed where a random pick doesn't. Local
+## to the barbell (its own AudioStreamPlayer, PumpSound), not the global sfx
+## script — same reasoning as Body's jump/landing and Head's panic sounds.
+@export var pump_sounds: Array[AudioStream] = [
+	preload("res://assets/audio/sfx/jump/jump_1.wav"),
+	preload("res://assets/audio/sfx/jump/jump_2.wav"),
+	preload("res://assets/audio/sfx/jump/jump_3.wav"),
+	preload("res://assets/audio/sfx/jump/jump_4.wav"),
+]
+@onready var _pump_sound: AudioStreamPlayer = $PumpSound
 
 var _bodies: int = 0
 var _held: bool = false
@@ -54,6 +66,16 @@ func pump() -> void:
 		return
 	visual.play(&"lifting")
 	visual.set_frame_and_progress(0, 0.0)
+	_play_pump_sound()
+
+
+## No-op if pump_sounds is empty. Random, not cycled — see the export's
+## doc comment for why.
+func _play_pump_sound() -> void:
+	if pump_sounds.is_empty():
+		return
+	_pump_sound.stream = pump_sounds[randi() % pump_sounds.size()]
+	_pump_sound.play()
 
 
 func _pick_up() -> void:
