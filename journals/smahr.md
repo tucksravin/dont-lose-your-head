@@ -824,3 +824,17 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** `lifting` still loops in the sheet, but after one squat→press we park on `with_body` (`animation_looped`). Next `jump` starts another stroke. Shared SpriteFrames loop flag left alone.
 **Verified:** `--quit-after 60 res://scenes/days/day_workout.tscn` — no SCRIPT ERROR.
 **Open:** Human F6 — one press should be one lift, then still.
+
+## 2026-08-22 19:58 — Duplicate _on_visual_looped
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Error at (93, 1): Unexpected identifier "dfunc" in class body.
+**Did:** `barbell.gd` had `_on_visual_looped` twice (line 93). Removed the second copy. Godot was reading the extra `func` as junk after `void`.
+**Verified:** `--quit-after 30 res://scenes/gameplay/barbell.tscn` — no SCRIPT ERROR / dfunc.
+**Open:** —
+
+## 2026-08-22 20:06 — Intro help text ASCII for web
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Web/localhost turns the intro arrow characters into garbage.
+**Did:** Replaced `← →` and `·` with `Left/Right` and `-`. Godot's default Label font has no system fallback on HTML5, so those glyphs tofu. Desktop hid it.
+**Verified:** not verified — re-export web and check the chase hint.
+**Open:** Lockdown's last puzzle uses `∯` / `π` — same web-font risk if that label is on.
