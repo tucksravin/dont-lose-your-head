@@ -9,8 +9,11 @@ extends Node2D
 ##      anything. The counter runs in its cutscene mode (`scripted_per_second`),
 ##      because here the meter is the *story*, not a response to the player.
 ##   3. At max the head pops off, lands on the crest, and rolls away down the
-##      slope. When it is gone: fade, then Game.start_days() — which now opens
-##      on transition_bird, where you get the controls back and chase it.
+##      slope — and the moment it goes, **you get the controls** (Tucker, Sat:
+##      "you should have to follow the head down in the initial scene"). The
+##      scene ends when YOU have run off the right edge after it, not when the
+##      head leaves; then Game.start_days() picks up in transition_bird, still
+##      chasing.
 ##
 ## Why the panic ending is wired here and not left to the counter: maxing out
 ## normally calls DayManager.fail() (the game-over card). A cutscene has no
@@ -18,11 +21,12 @@ extends Node2D
 ## cutscene mode deliberately never fails, and this script watches
 ## `panic_changed` and runs the pop itself.
 ##
-## The body is the real body.tscn in `is_scripted` mode: body.gd skips input but
-## still animates off velocity and still emits landed/footsteps, so the walk-in
-## looks and sounds like the walk everywhere else. This script does what a
-## player's fingers would — sets velocity and calls move_and_slide() — instead
-## of moving a transform. The head rides on Head.attach() until it pops.
+## The body is the real body.tscn, and it is only borrowed: for the walk-in it
+## runs in `is_scripted` mode, where body.gd skips input but still animates off
+## velocity and still emits landed/footsteps, and this script does what a
+## player's fingers would — sets velocity, calls move_and_slide(). Clearing that
+## flag when the head goes hands it straight back, mid-scene, with nothing to
+## re-wire. The head rides on Head.attach() until it pops.
 ##
 ## The slope is the transition's slope (1 px down for every 3 across, ground
 ## `#006a3d`) with a flat shelf on the left to walk in on, so cutting from here
@@ -56,6 +60,15 @@ extends Node2D
 ## head stays exactly 16 px above the ground the whole way down.
 @export var roll_speed: float = 220.0
 @export var roll_direction: Vector2 = Vector2(3.0, 1.0)
+## Chase: floor snap for the body once the player has it (px). The same number
+## transition.gd uses — downhill at run speed the default 1 px lets it skip off
+## the slope instead of following it.
+@export var chase_floor_snap: float = 8.0
+## How far past the right edge the BODY must be for the scene to be over. The
+## body sprite is 32 px wide, so 24 means it is fully gone.
+@export var exit_margin: float = 24.0
+## Pause after the body has left, before the fade.
+@export var exit_delay: float = 0.4
 @export var fade_duration: float = 0.5
 
 @onready var body: CharacterBody2D = $Body
@@ -63,9 +76,12 @@ extends Node2D
 @onready var counter: PanicCounter = $PanicCounter
 @onready var cloud: Node2D = $KikiCloud
 @onready var fade: ColorRect = $FadeOverlay/Fade
+@onready var instruction: Label = $Instruction
 
 var _walking: bool = true
 var _popped: bool = false
+var _chasing: bool = false
+var _exiting: bool = false
 
 
 func _ready() -> void:
@@ -78,7 +94,7 @@ func _ready() -> void:
 	# so switch the shake back on by hand.
 	head.jitter_px = head_jitter
 	head.set_process(true)
-	head.left_scene.connect(_on_head_gone)
+	instruction.visible = false
 	# The meter holds at 0 until he has arrived — the thoughts turn up when he
 	# stops, not while he is walking.
 	counter.set_physics_process(false)
@@ -86,17 +102,19 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if not _walking:
+	if _walking:
+		if body.global_position.x < mark_x:
+			body.velocity.x = walk_speed
+		else:
+			body.velocity.x = 0.0
+			_walking = false
+			_arrive()
+		if not body.is_on_floor():
+			body.velocity.y += gravity * delta
+		body.move_and_slide()
 		return
-	if body.global_position.x < mark_x:
-		body.velocity.x = walk_speed
-	else:
-		body.velocity.x = 0.0
-		_walking = false
-		_arrive()
-	if not body.is_on_floor():
-		body.velocity.y += gravity * delta
-	body.move_and_slide()
+	if _chasing and not _exiting:
+		_check_exit()
 
 
 ## He is at the mark. Beat, then let the thoughts in.
@@ -150,9 +168,31 @@ func _pop_head() -> void:
 	head.exit_direction = roll_direction
 	head.exit_speed = roll_speed
 	head.release()
+	_hand_over()
 
 
-func _on_head_gone() -> void:
+## The head is gone: give the player the body and tell them what to do with it.
+## Clearing `is_scripted` is the whole handover — body.gd reads input again from
+## the next physics tick, and this script stops calling move_and_slide().
+func _hand_over() -> void:
+	body.floor_snap_length = chase_floor_snap
+	body.is_scripted = false
+	instruction.visible = true
+	_chasing = true
+
+
+## Over when the PLAYER has left, not when the head did. get_viewport_rect() is
+## screen pixels (640×360); the camera is fixed at the centre, so screen and
+## world line up 1-to-1 here.
+func _check_exit() -> void:
+	if body.global_position.x <= get_viewport_rect().size.x + exit_margin:
+		return
+	_exiting = true
+	_leave()
+
+
+func _leave() -> void:
+	await get_tree().create_timer(exit_delay).timeout
 	var out: Tween = create_tween()
 	out.tween_property(fade, "modulate:a", 1.0, fade_duration)
 	await out.finished

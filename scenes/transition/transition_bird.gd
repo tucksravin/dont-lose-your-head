@@ -9,8 +9,16 @@ extends "res://scenes/transition/transition.gd"
 ##
 ## This is the worked example of the base's SECOND hook. `_play_arrival` is
 ## overridden to do nothing (no cage, no squash — nothing befalls the head, it
-## just goes as you close on it) and all of the beat lives in `_play_exit`,
-## which the base calls once the body has reached the stopped head.
+## just goes as you close on it) and all of the beat lives in `_play_exit`.
+##
+## **The bird does not wait for you** (Tucker, Sat: "the bird should trigger
+## earlier, such that the player could be holding forward and not get to the
+## head in time"). `catch_up_wait = 0` on the scene means the base stops gating
+## the ending on the body arriving, so the bird comes on its own schedule: the
+## head stops ~1.9 s in, the bird has it ~1.0 s later, and a player who held
+## forward the whole way is still ~70 px short at that moment. You arrive to
+## watch it lift. Slower than that and you watch from further back — there is
+## no way to save it, and that is the point.
 ##
 ## Carrying the head: `reparent` onto the bird, the same trick
 ## transition_glasses uses to get the head off the PathFollow2D. It keeps the

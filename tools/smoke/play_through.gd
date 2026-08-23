@@ -38,12 +38,13 @@ const START_SCENE: String = "res://scenes/intro/intro.tscn"
 const SCENE_BUDGET: float = 25.0
 
 var plans: Dictionary = {
-	# The intro is a cutscene now (Sat): it takes no input at all and hands off
-	# on its own after ~10.8 s — the head pops off and rolls away. An empty plan
-	# means "just wait for the scene to change", which is exactly right, and the
-	# 25 s scene budget covers it. It must NOT be {"run": …}: that step gives up
-	# after 10 s, which is shorter than the cutscene.
-	"res://scenes/intro/intro.tscn": [],
+	# The intro is half cutscene, half chase (Sat). It takes no input for the
+	# first ~8 s — he walks to the crest, the kikis wind his head up, it pops
+	# off — and then hands the controls over and ends only once the BODY has
+	# run off the right edge after it. So: sit through the scripted part, then
+	# hold right. It must not be one bare {"run": …} from t=0: that step gives
+	# up after 10 s and the whole scene is ~12 s.
+	"res://scenes/intro/intro.tscn": [{"wait": 7.5}, {"run": "move_right"}],
 	"res://scenes/days/day_velma.tscn": [
 		# Body starts at 80. Walk right to the first step, then climb
 		# left/up: 560/500/440/380 then glasses at 320. Pickup locks the

@@ -55,9 +55,10 @@ extends Node2D
 ##   → the situation (`_play_arrival`) plays — the cage lands, …
 ##   → the head ROLLS: roll_time at constant speed (it was knocked, so it leaves
 ##     at speed) for brake_ratio of the path, then brake_time easing to a stop
-##   → the beat ENDS only once the body has actually reached the head (no
-##     timeout; the hint label says to go after it) → hold → `_play_exit` (a
-##     bird carries it off…) → fade → Game.next_day().
+##   → the beat waits for the body to actually reach the head (`catch_up_wait`
+##     -1 = however long that takes; the hint label says to go after it, and a
+##     fork can set 0 so its ending is something you can miss) → hold →
+##     `_play_exit` (a bird carries it off…) → fade → Game.next_day().
 ##
 ## The head here is a plain AnimatedSprite2D on the same head_frames.tres as
 ## head.tscn — NOT an instance of head.tscn. Tried that first: a frozen
@@ -88,6 +89,13 @@ extends Node2D
 ## The body has "reached" the stopped head once its x is within this many px
 ## of the head's (or past it). It pulls up there — a couple of strides short.
 @export var arrive_distance: float = 40.0
+## How long to wait for the body to actually get there before the beat moves on
+## regardless. **-1 (the default) = as long as the player needs** — the cage and
+## glasses forks want that, and the hint label tells you to go after it. 0 = do
+## not wait at all, which is how a fork makes its ending something you can MISS:
+## transition_bird sets 0 so the bird takes the head on its own schedule and a
+## player holding forward can arrive to an empty hillside (Tucker, Sat).
+@export var catch_up_wait: float = -1.0
 ## Pause after the body has arrived, before the fade.
 @export var hold_after_arrival: float = 0.6
 @export var fade_duration: float = 0.4
@@ -153,8 +161,9 @@ func _run() -> void:
 	_head_stopped = true
 	if _cage_rolling_sound:
 		_cage_rolling_sound.stop()
-	# ...and the beat only ends once the body is actually there.
-	await _wait_for_gap(arrive_distance, -1.0)
+	# ...and the beat waits on the body actually getting there — forever by
+	# default, or not at all if the fork set catch_up_wait to 0.
+	await _wait_for_gap(arrive_distance, catch_up_wait)
 	await get_tree().create_timer(hold_after_arrival).timeout
 	# ...and whatever happens once you HAVE caught up (a bird takes it…).
 	await _play_exit()

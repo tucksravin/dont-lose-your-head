@@ -6,13 +6,12 @@
 
 [node name="TransitionBird" instance=ExtResource("1_base")]
 script = ExtResource("2_bird_script")
+catch_up_wait = 0.0
+hold_after_arrival = 0.15
 
 [node name="Head" parent="HeadPath/Follow" index="0"]
 animation = &"glasses"
 autoplay = "glasses"
-
-[node name="Instruction" parent="HUD" index="0"]
-text = "A/D or ← → to run · Space to jump. Go after your head."
 
 [node name="Bird" type="AnimatedSprite2D" parent="." index="6"]
 visible = false
