@@ -13,4 +13,5 @@ lockdown. The last question is impossible to answer correctly on first glance. *
 
 Remove platforming day from map for now. Can revisit later
 
-reconfigure velma - 
+reconfigure velma - throw glasses at head to knock it off a perch and restore vision
+**Decided Sat 17:01:** head on a high right perch; glasses on a centre platform; climb starts on the right; pickup expands FOV; throw knocks the head off and it rolls out.
