@@ -356,3 +356,22 @@
 **Open:**
 - Not eyeballed by a human (§4): the workout day is a **masher**, and W under the left hand while A/D also live there is a different feel than Space was. Worth one real playthrough of day_workout before this merges — if it feels bad, the fix is putting Space back or moving the mash to ↑ only.
 - `play_through` not re-run here (still stalls on `day_panic`, pre-existing); its bot drives actions, not keys, so the binding change is invisible to it.
+
+## 2026-08-22 20:43 — S jumps in the mirror day
+**Driver:** Ben · **Agent:** Claude Opus 5 (Claude Code) · **Branch:** `replay`
+**Asked:** "In the mirror scene, the user should be able to press down OR 's' to jump when the controls are mirrored. Right now, 'S' doesn't work"
+**Did:**
+- Root cause: the mirror day doesn't have its own key handling — `body.gd`'s `_jump_requested()` reads the **`move_down`** action instead of `jump` when `invert_vertical` is on (day_mirror.gd flips that with the head's look). `move_down` was bound to ↓ and D-pad down only; **S was bound to nothing at all**, in any action. So there was no bug in the mirror day — the key simply had no binding.
+- `project.godot`: added S to `move_down` (1 line). Built the event by cloning the existing arrow-key entry and swapping keycode/unicode, so every other field matches byte-for-byte what Godot writes — after this morning's corruption I'm not hand-typing these.
+- That also makes the two states symmetrical, which they weren't before: normal jump is **W / ↑**, mirrored jump is **S / ↓**. WASD hand and arrow hand each keep a jump in both states.
+- Docs + comments (§9): README input table (`move_down | S, ↓`), body.gd's `invert_vertical` comment, day_mirror.gd's header, the DESIGN.md and CODEBASE.md mirror rows — all said "↓ hops", now "S / ↓ hops".
+- Left the in-game prompt alone: it reads "Jump the thoughts. E at the glass throws it. **Arrows flip with the head.**" That line is now slightly incomplete (WASD flips too), but it's Tucker's copy and the only controls text on the day — flagging rather than rewriting (§2).
+**Verified** — throwaway `tools/smoke/_mirror_s_check.gd` (deleted after + its `.uid`). It loads **day_mirror.tscn**, forces `invert_vertical`, presses real keys through `Input.parse_input_event`, and checks the body actually left the ground (velocity or position), rather than asking the InputMap what it thinks:
+- `ok  Down arrow jumps while the controls are mirrored`
+- `ok  S jumps while the controls are mirrored`
+- `ok  S does nothing when the controls are NOT mirrored` — the new binding is inert outside the mirrored state, so it can't hand anyone a second jump key on a normal day
+- `ok  W still jumps normally`
+- `--import` clean · `load_all` 92 · `day_lint` 103 · `day_chain` 40 — all SMOKE PASS.
+**Open:**
+- Not eyeballed by a human (§4). The mirror day alternates on a timer, so the thing to feel is whether swapping W↔S mid-run reads as "the controls flipped" or just as mush.
+- The day's prompt still says "Arrows flip with the head" — someone may want "Arrows/WASD flip with the head", one string in day_mirror.tscn.

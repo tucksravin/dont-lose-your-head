@@ -44,7 +44,7 @@ Everything is a **Node**; a **Scene** (`.tscn`, a text file) is a saved node tre
 | `move_left` / `move_right` | A / D, ← / → | Left stick X, D-pad |
 | `jump` | W, ↑ | A (bottom face button) |
 | `interact` | E, ↓ | X (left face button) — **unused: nothing in the game reads it** (Sat, Tucker: no use key; you trigger things by reaching them). Binding kept so a day can pick it up again. |
-| `move_down` | ↓ | D-pad down — mirror day only: jump while the head stares at the glass |
+| `move_down` | S, ↓ | D-pad down — mirror day only: jump while the head stares at the glass (mirrors `jump`'s W / ↑) |
 | `restart` | R | Back/Select |
 | `pause` | Esc | Start |
 

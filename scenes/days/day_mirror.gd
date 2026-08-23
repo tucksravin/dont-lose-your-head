@@ -1,6 +1,6 @@
 extends Node2D
 ## Mirror World (C3d): head on a right-hand platform, staring into a tall
-## glass. Look-at-glass inverts walk *and* jump (↓ hops); look-at-player
+## glass. Look-at-glass inverts walk *and* jump (S / ↓ hops); look-at-player
 ## restores them. Kikis leave the **head**, curve right, drop, then fly left
 ## at the body — jump them; a hit is `DayManager.fail("kiki")`. **Getting
 ## the body within `grab_radius`
