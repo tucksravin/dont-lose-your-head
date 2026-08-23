@@ -9,6 +9,7 @@ extends Label
 
 
 func _ready() -> void:
+	visible = false
 	if counter:
 		counter.panic_changed.connect(_on_panic_changed)
 		_on_panic_changed(int(counter.value))

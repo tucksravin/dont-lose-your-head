@@ -90,6 +90,12 @@ func _on_visual_looped() -> void:
 	visual.play(&"with_body")
 
 
+func _on_visual_looped() -> void:
+	if not _held or visual == null or visual.animation != &"lifting":
+		return
+	visual.play(&"with_body")
+
+
 func _pick_up() -> void:
 	if _held or _bodies <= 0:
 		return

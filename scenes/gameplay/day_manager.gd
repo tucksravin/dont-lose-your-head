@@ -47,7 +47,18 @@ func _ready() -> void:
 		push_warning("DayManager has no WinConditionManager assigned.")
 	if game_over == null:
 		push_warning("DayManager has no game-over overlay assigned.")
+	_hide_help()
 	_connect_sun()
+
+
+## DESIGN §2 Words: instruction text is off. The Label stays in the scene
+## (scripts still write to it) so turning a day back on is one `visible`.
+func _hide_help() -> void:
+	var root: Node = owner if owner != null else get_parent()
+	if root == null:
+		return
+	for node in root.find_children("Instruction", "Label", true, false):
+		(node as CanvasItem).visible = false
 
 
 ## The Sun is found by its `sunset` signal, not a hard path — same duck-type
