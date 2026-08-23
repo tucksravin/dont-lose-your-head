@@ -63,7 +63,7 @@ flowchart LR
 | [project.godot](../project.godot) | 640×360, GL Compatibility, nearest filter + pixel snap, input map (`move_left/right`, `jump`, `move_down`, `restart`, `pause`; `interact` is still bound but **nothing reads it** — §5), autoloads | main (+ autoload lines on daykit/sfx) |
 | [export_presets.cfg](../export_presets.cfg) | the one "Web" preset (threads off); excludes `tools/*` | main (+ base) |
 | [default_bus_layout.tres](../default_bus_layout.tres) | Master → Music, SFX | night/sfx |
-| [scripts/autoload/](../scripts/autoload/) | `Events`, `Game`, `Dev`, `Sfx`, `Music` — §3 | main (+ #16: the day list · transition: the transition entry · base: F6 lookup, events.gd note) / daykit (Dev) / sfx (Sfx, Music) |
+| [scripts/autoload/](../scripts/autoload/) | `Events`, `Game`, `Dev`, `Sfx`, `Music`, `Touch` — §3 | main (+ #16: the day list · transition: the transition entry · base: F6 lookup, events.gd note) / daykit (Dev) / sfx (Sfx, Music) |
 | [scenes/body/](../scenes/body/) · [scenes/head/](../scenes/head/) · [scenes/sun/](../scenes/sun/) | the three actors every day instances — §4 | main (+ anim; body `jumped`/`landed` on sfx; `caged` head on #16) |
 | [scenes/gameplay/](../scenes/gameplay/) | needs + both flow systems, panic, sky drift — §5 | main (+ base/anim) |
 | [scenes/days/](../scenes/days/) | one `.tscn` per day (+ `platforming_day.gd`); `day_01.tscn` is a broken leftover — §6.1 | main (+ #16: panic rework, bridge/palette; Instruction label on daykit; sky_drift on anim) |
@@ -78,7 +78,7 @@ flowchart LR
 
 ## 3. Autoloads — [scripts/autoload/](../scripts/autoload/)
 
-Autoloads are nodes Godot adds under the root before any scene, by name, in this order: **Events, Game, Dev, Sfx, Music**. In `-s` script mode (the smoke tests) they exist at runtime but aren't compile-visible — reach them with `Smoke.autoload(tree, "Game")` (= `tree.root.get_node_or_null("Game")`, [tools/smoke/smoke_lib.gd](../tools/smoke/smoke_lib.gd)).
+Autoloads are nodes Godot adds under the root before any scene, by name, in this order: **Events, Game, Dev, Sfx, Music, Touch**. In `-s` script mode (the smoke tests) they exist at runtime but aren't compile-visible — reach them with `Smoke.autoload(tree, "Game")` (= `tree.root.get_node_or_null("Game")`, [tools/smoke/smoke_lib.gd](../tools/smoke/smoke_lib.gd)).
 
 | autoload | file | job | surface |
 |---|---|---|---|
@@ -86,6 +86,7 @@ Autoloads are nodes Godot adds under the root before any scene, by name, in this
 | **Game** | [game.gd](../scripts/autoload/game.gd) | the playlist — owns the run order and scene changes (one bypass: GameOver's Retry calls `reload_current_scene()` itself — [scenes/ui/game_over.gd](../scenes/ui/game_over.gd)) | `DAY_SCENES`, `REUNION_SCENE`, `current_day`, `wearing_glasses`; `start_days()`, `go_to(i)`, `next_day()`, `restart_day()`, `change_scene(path)`. Does **not** listen to `Events.day_completed` / `day_failed` — DayManager owns those. |
 | **Dev** | [dev.gd](../scripts/autoload/dev.gd) *(night/daykit)* | dev keys + overlay, **debug builds only** (inert in the web export) | F1/F2/F3 satisfy body/mind/all · F4 fail · F5 restart · F6/F7 prev/next in the run · F8 reunion · F9 overlay (needs ✓/✗, sun %, panic, body) · F10 slow-mo. Registers `debug_*` actions at runtime so the input map stays gameplay-only |
 | **Sfx** | [sfx.gd](../scripts/autoload/sfx.gd) *(night/sfx)* | sound effects by name; silent until a file exists | `CUES` (16, the single source of truth), `play(cue, pitch_scale = 1.0) -> bool`, `missing()`, `has_file()`, signal `played(cue)`. Wires itself by **signal shape** as nodes enter the tree: body `jumped`/`landed`, head `released`, Sun (has `sunset` + `day_length` → a one-shot `sunset_warning` timer 5 s before day end), PanicCounter `panic_changed`/`calmed`, DayManager `day_failed`, WinConditionManager `condition_satisfied`/`all_satisfied`; plus the Events bus. **Web:** audio can't start before the first click/keypress — and the intro plays hands-free, so the intro is silent on the web until day 1 (X4, a press-any-key screen, would fix that) |
+| **Touch** | [touch.gd](../scripts/autoload/touch.gd) *(touch-controls)* | drag stick that appears wherever a finger lands; on only when `DisplayServer.is_touchscreen_available()` | presses `move_left`/`move_right` (held) and `jump`/`move_down` (one-shot edges) — the only four actions the game reads, so **no scene or body script knows it exists**. Gated on the body not being `is_scripted`, so it follows who is actually driving. Set `force_on = true` to drive it with a mouse on desktop. |
 | **Music** | [music.gd](../scripts/autoload/music.gd) *(night/sfx)* | one looping track per scene, 0.8 s crossfade; **`bg.ogg` is the bed under everything** | a scene root's `music_track` export → `TRACKS` map by path → `day` for anything in `scenes/days/` → **`DEFAULT_TRACK` (`bg`) if the wanted track has no file** → silence only if `bg.ogg` is gone too |
 
 ---

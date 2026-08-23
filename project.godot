@@ -23,6 +23,7 @@ Game="*res://scripts/autoload/game.gd"
 Dev="*res://scripts/autoload/dev.gd"
 Sfx="*res://scripts/autoload/sfx.gd"
 Music="*res://scripts/autoload/music.gd"
+Touch="*res://scripts/autoload/touch.gd"
 
 [display]
 
