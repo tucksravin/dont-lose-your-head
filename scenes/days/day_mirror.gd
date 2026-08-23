@@ -1,13 +1,15 @@
 extends Node2D
 ## Mirror World (C3d): head on a right-hand platform, staring into a tall
 ## glass. Look-at-glass inverts walk *and* jump (↓ hops); look-at-player
-## restores them. Kikis fly out of the glass toward the body — jump them; a
-## hit is `DayManager.fail("kiki")`. **Getting the body within `grab_radius`
+## restores them. Kikis leave the **head**, curve right, drop, then fly left
+## at the body — jump them; a hit is `DayManager.fail("kiki")`. **Getting
+## the body within `grab_radius`
 ## of the glass throws it** — no key press (Tucker, Sat: "when we hit a
 ## trigger it just happens"); that satisfies both needs and ends the day.
 ##
 ## Invert is `Body.move_sign` + `Body.invert_vertical`. Spawn is a Timer
-## like ThoughtRain. No SubViewport.
+## like ThoughtRain. Kikis come from the **head** (not the glass): they curve
+## right, drop, then fly left at the body. No SubViewport.
 
 @export var look_hold: float = 2.2
 @export var grab_radius: float = 56.0
@@ -16,13 +18,23 @@ extends Node2D
 @export var throw_release: float = 0.2
 @export var throw_time: float = 0.55
 @export var chase_delay: float = 0.18
-@export var throw_end: Vector2 = Vector2(760.0, 140.0)
+## Off screen (x > 640) with enough margin that the thrown Mirror's rotation
+## can't swing any part of it back into frame before the tween ends: Frame's
+## corners are up to ~320.5 px from Mirror's origin (it now runs floor-to-
+## ceiling — day_mirror.tscn), so throw_end.x needs to clear 640 by more than
+## that radius at every angle, not just at throw_spin's final angle.
+@export var throw_end: Vector2 = Vector2(1000.0, 140.0)
 @export var throw_spin: float = 4.0
 @export var kiki_scene: PackedScene
 @export var kiki_interval: float = 1.15
 @export var kiki_start_delay: float = 0.8
 @export var kiki_speed: float = 200.0
-@export var kiki_spawn_offset: Vector2 = Vector2(-22.0, -18.0)
+## How far right of the head the attack curve peaks (px).
+@export var kiki_arc_right: float = 48.0
+## Seconds for the right-then-down curve.
+@export var kiki_arc_time: float = 0.55
+## World y of the horizontal run — in jump reach of the floor body.
+@export var kiki_approach_y: float = 300.0
 @export var instruction_text: String = "Jump the thoughts. E at the glass throws it. Arrows flip with the head."
 
 @onready var body: CharacterBody2D = $Body
@@ -121,19 +133,21 @@ func _try_grab() -> void:
 
 
 func _spawn_kiki() -> void:
-	if _done or kiki_scene == null:
+	if _done or kiki_scene == null or head == null:
 		return
 	var kiki: Node2D = kiki_scene.instantiate() as Node2D
 	if kiki == null:
 		return
-	kiki.global_position = mirror.global_position + kiki_spawn_offset
-	var toward: Vector2 = body.global_position - mirror.global_position
-	toward.y = 0.0
-	if toward.x == 0.0:
-		toward.x = -1.0
-	kiki.set("direction", toward)
 	kiki.set("speed", kiki_speed)
+	kiki.set("arc_right", kiki_arc_right)
+	kiki.set("arc_time", kiki_arc_time)
+	kiki.set("approach_y", kiki_approach_y)
 	add_child(kiki)
+	if kiki.has_method("start_head_arc"):
+		kiki.call("start_head_arc", head.global_position)
+	else:
+		kiki.global_position = head.global_position
+		kiki.set("direction", Vector2.LEFT)
 
 
 ## DayManager awaits this before `head.release()`. Pickup → throw sheet →

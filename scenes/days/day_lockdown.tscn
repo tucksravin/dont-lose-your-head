@@ -80,6 +80,7 @@ position = Vector2(480, 320)
 script = ExtResource("10_rain")
 thought_scene = ExtResource("11_thought")
 autostart = false
+launch_from_head = true
 interval = 1.4
 start_delay = 0.4
 fall_speed = 140.0

@@ -70,7 +70,6 @@ scale = Vector2(2, 2)
 [node name="Head" parent="." instance=ExtResource("2_wgxpk")]
 z_index = 1
 position = Vector2(592, 246)
-caged = true
 
 [node name="PanicLabel" type="Label" parent="." node_paths=PackedStringArray("counter")]
 offset_left = 548.0
@@ -93,6 +92,7 @@ head_path = NodePath("../Head")
 game_over_path = NodePath("../GameOver")
 
 [node name="PanicCounter" parent="." instance=ExtResource("6_panic_counter")]
+start_panic = 70.0
 max_panic = 100.0
 panic_per_second = 40.0
 calm_max_per_second = 20.0
