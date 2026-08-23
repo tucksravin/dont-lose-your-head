@@ -2,10 +2,15 @@ extends Node2D
 ## End card — the run's last screen, handed to us by the reunion's fade-out.
 ##
 ## Same trick as the title screen: this is the *real* body and head, not art.
-## body.gd picks its animation off `velocity`, and in `is_scripted` mode it
-## never calls move_and_slide() — so with `velocity` left at zero the guy just
-## stands there, head on, facing the sun. `Head.attach()` is the same call the
-## title and the reunion use to carry the skull.
+## body.gd picks its animation off `velocity` (walk vs idle, and `flip_h` from
+## its sign), and in `is_scripted` mode it never calls move_and_slide() itself —
+## so this script does what a player's fingers would: set `velocity`, call
+## move_and_slide(), and stop by zeroing it, which drops him back to `idle`.
+## The reunion's walk-off does the same thing in the other direction.
+##
+## He walks off to the LEFT on arrival so he is not standing in front of the
+## credits. `Head.attach()` (the call the title and the reunion also use) means
+## the head — and the kiki cloud parented to it — travels with him.
 ##
 ## The reunion fades *to* black before changing scene, so this one fades *from*
 ## black — otherwise the end card pops in at full brightness.
@@ -29,6 +34,18 @@ extends Node2D
 ## `Game.start_days()`, which resets `current_day`, so a second run starts from
 ## the same state as the first with nothing to reset here.
 ##
+## The credits crawl is a plain Label parented to the *world*, not to the UI
+## CanvasLayer, at `z_index = -1`. That one number is the whole trick: it puts
+## the text above the Background (-1, but earlier in the tree) and below the
+## Ground band and the guy (both 0), so the names rise out from behind the grass
+## and pass behind him instead of across his face. The title and the Replay
+## button live on CanvasLayers, which always draw over the world, so they stay
+## clear of it too — no clipping rect, no z fighting.
+##
+## The copy lives in the .tscn, not here, so it can be edited in the Inspector
+## without touching code. `_process` moves it; a Tween would need re-creating
+## every loop for no gain.
+##
 ## Docs: https://docs.godotengine.org/en/stable/classes/class_tween.html
 
 ## Music autoload reads this off the root. Same track as the reunion = no cut.
@@ -36,6 +53,14 @@ extends Node2D
 ## Where the head sits on the body's neck, in body-local space — measured off
 ## the sprites, same value the title screen uses.
 @export var head_mount: Vector2 = Vector2(0.0, -52.0)
+## Where he walks to, in world x. The credits are centred on 320 and the widest
+## line ("Special \"No Thanks\" To - bakedfoccacia") makes the column ~406 px
+## across, so the text starts at x 117 — he has to park left of that, not just
+## left of centre. 72 leaves his right edge around 104. Lengthen a credit line
+## and this needs to come left with it.
+@export var walk_to_x: float = 72.0
+## How fast he strolls over there (px/s). The intro's walk-in speed.
+@export var walk_speed: float = 90.0
 ## How long the fade in from the reunion's black takes.
 @export var fade_in_duration: float = 1.2
 ## How many kikis are in the parting cloud. 44 packs the skull solid at 2x.
@@ -51,6 +76,11 @@ extends Node2D
 @export var drift_max: float = 260.0
 ## Share of the cloud that is a big_kiki rather than a lil one.
 @export var big_kiki_share: float = 0.25
+## Crawl speed, px/s. 22 takes a full pass a bit over half a minute.
+@export var credits_speed: float = 22.0
+## Where the crawl starts, in world y — just under the 360 px frame, so the
+## first name climbs out from behind the ground band.
+@export var credits_start_y: float = 372.0
 ## Where the Replay button starts the run again. See the header.
 @export_file("*.tscn") var replay_scene: String = "res://scenes/intro/intro.tscn"
 
@@ -58,23 +88,50 @@ extends Node2D
 @onready var _head: Head = $Head
 @onready var _fade: ColorRect = $FadeOverlay/Fade
 @onready var _replay: Button = $UI/Root/Replay
+@onready var _credits: Label = $Credits
 
 var _restarting: bool = false
 
 
 func _ready() -> void:
-	# is_scripted stops body.gd running gravity/input on it; velocity stays
-	# zero, so its animation picker holds `idle`.
+	# is_scripted stops body.gd running gravity/input on it; this script owns
+	# his velocity and his move_and_slide() from here.
 	_body.is_scripted = true
 	_body.velocity = Vector2.ZERO
 	_head.attach(_body, head_mount)
 	create_tween().tween_property(_fade, "modulate:a", 0.0, fade_in_duration)
 	_quiet_the_head()
 	_burst_kikis()
+	# Size the Label to its own text so the wrap point below is exact — the
+	# .tscn's height is only a placeholder for the editor.
+	_credits.size.y = _credits.get_combined_minimum_size().y
+	_credits.position.y = credits_start_y
 	_replay.pressed.connect(_on_replay)
 	# Focus means Enter/Space work as well as the mouse without this scene
 	# reading input itself — a focused Button already handles `ui_accept`.
 	_replay.grab_focus()
+
+
+## Walk him left until he clears the credits, then stop dead — zero velocity is
+## what puts body.gd's picker back on `idle`. y stays 0: there is no floor
+## collider on this screen, so nothing pulls him down and nothing to land on.
+func _physics_process(_delta: float) -> void:
+	if _body.global_position.x <= walk_to_x:
+		if _body.velocity.x != 0.0:
+			_body.velocity = Vector2.ZERO
+		return
+	_body.velocity.x = -walk_speed
+	_body.velocity.y = 0.0
+	_body.move_and_slide()
+
+
+## Move the crawl up, and send it back under the frame once its last line has
+## cleared the top. Looping rather than stopping: this screen has no end, and a
+## crawl parked off-screen forever is just a dead node.
+func _process(delta: float) -> void:
+	_credits.position.y -= credits_speed * delta
+	if _credits.position.y + _credits.size.y < 0.0:
+		_credits.position.y = credits_start_y
 
 
 ## Guarded like the title's play button: a double-click would otherwise fire

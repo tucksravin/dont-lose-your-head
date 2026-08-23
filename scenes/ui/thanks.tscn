@@ -56,6 +56,30 @@ position = Vector2(0, 320)
 color = Color(0, 0.41568628, 0.23921569, 1)
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 40, 0, 40)
 
+[node name="Credits" type="Label" parent="." unique_id=538970002]
+z_index = -1
+offset_right = 640.0
+offset_bottom = 240.0
+theme_override_colors/font_color = Color(0.94509804, 1, 0.6862745, 1)
+theme_override_colors/font_outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
+theme_override_constants/line_spacing = 6
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "Art Lead - tucksravin
+SFX Lead - hugububba
+Engineering Lead - darthglobi
+Snack Producer - hugububba
+Seagull Manager - tucksravin
+Pasta Sister - darthglobi
+
+Additional assets:
+Joshua Briggs - https://joshua-briggs.itch.io/bird-sprite
+tbbk - https://opengameart.org/content/pixel-art-skeleton
+Pipstifelle - https://lospec.com/palette-list/gooseberry-ghost
+
+Play Testers - pahmeh, bakedfocaccia"
+horizontal_alignment = 1
+
 [node name="Body" parent="." unique_id=695829259 instance=ExtResource("2_body")]
 position = Vector2(320, 320)
 
@@ -93,9 +117,9 @@ anchors_preset = 5
 anchor_left = 0.5
 anchor_right = 0.5
 offset_left = -160.0
-offset_top = 140.0
+offset_top = 107.0
 offset_right = 160.0
-offset_bottom = 180.0
+offset_bottom = 149.0
 grow_horizontal = 2
 theme_override_colors/font_color = Color(0.94509804, 1, 0.6862745, 1)
 theme_override_colors/font_focus_color = Color(0.94509804, 1, 0.6862745, 1)

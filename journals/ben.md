@@ -375,3 +375,38 @@
 **Open:**
 - Not eyeballed by a human (§4). The mirror day alternates on a timer, so the thing to feel is whether swapping W↔S mid-run reads as "the controls flipped" or just as mush.
 - The day's prompt still says "Arrows flip with the head" — someone may want "Arrows/WASD flip with the head", one string in day_mirror.tscn.
+
+## 2026-08-22 21:12 — Scrolling credits on the end card
+**Driver:** Ben · **Agent:** Claude Opus 5 (Claude Code) · **Branch:** `replay`
+**Asked:** "Add scrolling credits to the thank you scene" + the eight lines (Art Lead / SFX Lead / Engineering Lead / Snack Producer / Seagull Manager / Pasta Sister, then Special "No Thanks" To and Play Testers)
+**Did:**
+- `scenes/ui/thanks.tscn`: a `Credits` Label parented to the **world**, not to the UI CanvasLayer, at **`z_index = -1`**. That one number is the whole layout: it puts the crawl above `Background` (also -1, but earlier in the tree) and below `Ground` and the guy (both 0) — so the names climb out from **behind the grass band** and pass **behind him** rather than across his face. Title and Replay are on CanvasLayers, which always draw over the world, so they stay clear with no clipping rect and no z fighting. Cream + 4 px dark outline at font 14, centred, `line_spacing = 6`, matching the rest of the game's text.
+- Copy lives in the .tscn, not the script, so it can be edited in the Inspector without touching code. Exact lines and the blank line between the two blocks preserved as given.
+- `scenes/ui/thanks.gd`: `credits_speed` (22 px/s) and `credits_start_y` (372, just under the 360 px frame) as exports; `_ready` sizes the Label to its own text via `get_combined_minimum_size()` so the wrap point is exact rather than the .tscn's placeholder height; `_process` moves it up and sends it back under the frame once its last line clears the top. It **loops** — this screen has no end, and a crawl parked off-screen forever is a dead node. `_process` rather than a Tween because a Tween would need re-creating every loop for nothing.
+- `mouse_filter = 2` on the Label as a matter of course now — see the 20:22 entry for why anything full-width gets that treatment.
+**Verified** — throwaway `tools/smoke/_credits_check.gd` (deleted after + its `.uid`), **10/10 ok**:
+- all eight lines present verbatim, and the blank line between the blocks survived (9 lines total)
+- `crawls upward (22.1 px in ~1 s)` — moves, in the right direction, at the exported speed
+- `draws behind the body (z 0) and the ground band (z 0)` and in front of the background
+- parked it one pixel above the top edge and watched it come back: `restarts from below the frame instead of scrolling away forever`
+- `credits ignore the mouse` **and `Replay button still takes a real click`** — pushed a real `InputEventMouseButton` through the viewport again, because the last thing I added to this scene broke that button and I am not doing that twice
+- `--import` clean · `load_all` 92 · `day_chain` 40 — SMOKE PASS.
+**Open:**
+- Not eyeballed (§4). The thing to look at is whether the crawl reads well *behind* the guy or whether the team wants it plainly in front — one `z_index` in the .tscn either way. Speed (22 px/s ≈ 27 s a lap) is a guess; `credits_speed` in the Inspector.
+- The last line clears the top before the first line has looped back, so there is a gap with an empty screen between passes. Fine for an end card that also has a button; if it should be continuous, the fix is padding the text or starting the next pass earlier.
+- Roles are as dictated. If "Pasta Sister" and "Seagull Manager" were placeholders, they're one string in the .tscn.
+
+## 2026-08-22 21:22 — He walks left off the credits
+**Driver:** Ben · **Agent:** Claude Opus 5 (Claude Code) · **Branch:** `replay`
+**Asked:** "Have the body walk to the left of the screen at the start of the thank you scene so we can see the credits"
+**Did:**
+- `scenes/ui/thanks.gd`: a `_physics_process` that sets `velocity.x = -walk_speed` and calls `move_and_slide()` until he passes `walk_to_x`, then zeroes velocity. He's `is_scripted`, so body.gd runs no input or gravity on him and never calls move_and_slide() itself — this script does what a player's fingers would, exactly like the reunion's walk-off in the other direction. Nothing else needed for the look: body.gd's picker reads `velocity` and gives `walk` + `flip_h` on the way, `idle` when it hits zero.
+- `walk_speed` 90 (the intro's stroll) and `walk_to_x` as exports. `velocity.y` stays 0 — there's no floor collider on this screen, so nothing pulls him down.
+- The head rides along on the existing `Head.attach()`, and the kiki cloud is parented to the head, so the whole ensemble travels.
+**Verified** — throwaway `tools/smoke/_thanks_walk_check.gd` (deleted after + its `.uid`), 10 checks: sets off leftwards, plays `walk`, `flip_h` true, reaches the mark, stops dead, back to `idle`, parks without overshooting, head came with him and is still above the neck.
+- **The test caught a real miss.** I first set `walk_to_x = 96` off an eyeball guess that the credits column was ~260 px wide. It isn't: `get_combined_minimum_size().x` on the Label is ~406 px (the widest line is `Special "No Thanks" To - bakedfoccacia`), so the text starts at x 117 and his right edge was landing at ~127 — still on top of the credits, which is the entire thing this task was for. Moved to `walk_to_x = 72` (right edge ~103) and the check went green. Measuring the Label instead of guessing is why that surfaced before a human saw it.
+- Left a note on the export: lengthen a credit line and `walk_to_x` has to come left with it.
+- `--import` clean · `load_all` 92 · `day_chain` 40 — SMOKE PASS.
+**Open:**
+- Not eyeballed (§4). He now walks left while the credits rise and the kiki cloud disperses around him — three things starting at once, plus the 1.2 s fade-in. Might want the walk delayed until the fade finishes; that's one `await` if it looks busy.
+- Continuity nit for the team: the reunion ends with him walking off to the **right** into the sunset, and the end card opens with him walking **left**. Nobody may care, but it is a direction change across the cut.
