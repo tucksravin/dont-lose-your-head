@@ -1,0 +1,61 @@
+[gd_scene format=3 uid="uid://j46i386bt7tt"]
+
+[ext_resource type="Script" uid="uid://bt1hylbmdgjx6" path="res://scenes/ui/thanks.gd" id="1_thanks"]
+[ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
+[ext_resource type="PackedScene" uid="uid://icgagian0sgo" path="res://scenes/head/head.tscn" id="3_head"]
+
+[node name="ThanksScreen" type="Node2D" unique_id=1848622759]
+script = ExtResource("1_thanks")
+
+[node name="Background" type="Polygon2D" parent="." unique_id=775248605]
+z_index = -1
+color = Color(0.59607846, 0.50980395, 0.46666667, 1)
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=666210849]
+position = Vector2(320, 180)
+
+[node name="Ground" type="Polygon2D" parent="." unique_id=1590867728]
+position = Vector2(0, 320)
+color = Color(0, 0.41568628, 0.23921569, 1)
+polygon = PackedVector2Array(0, 0, 640, 0, 640, 40, 0, 40)
+
+[node name="Body" parent="." unique_id=695829259 instance=ExtResource("2_body")]
+position = Vector2(320, 320)
+
+[node name="Head" parent="." unique_id=1556383890 instance=ExtResource("3_head")]
+position = Vector2(320, 268)
+
+[node name="UI" type="CanvasLayer" parent="." unique_id=1971856498]
+layer = 10
+
+[node name="Root" type="Control" parent="UI" unique_id=1154055433]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+mouse_filter = 2
+
+[node name="Thanks" type="Label" parent="UI/Root" unique_id=1232299204]
+layout_mode = 0
+anchor_right = 1.0
+offset_top = 40.0
+offset_bottom = 104.0
+theme_override_colors/font_color = Color(0.94509804, 1, 0.6862745, 1)
+theme_override_colors/font_outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
+theme_override_constants/outline_size = 8
+theme_override_font_sizes/font_size = 40
+text = "Thank you for playing!"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="FadeOverlay" type="CanvasLayer" parent="." unique_id=2079905034]
+layer = 20
+
+[node name="Fade" type="ColorRect" parent="FadeOverlay" unique_id=1664273778]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0, 0, 0, 1)

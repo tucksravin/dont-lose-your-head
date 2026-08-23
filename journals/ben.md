@@ -277,3 +277,23 @@
 - `tools/smoke_test.sh`: same two pre-existing failures carried across every entry since the mirror-day work (`play_through`'s `day_panic` stall, the exit-time resource-leak line in `audio`) — nothing new, nothing worse.
 - **Not verified:** audibility/feel in-editor (standing item, §4) — worth a real mash-Space session to confirm the randomized jump sounds actually read well layered under the barbell's lift motion and don't clash with the swarm-push sfx (if any) firing on the same input.
 **Open:** None new. `Sfx.CUES` unaffected by this entry (the sound never touched the global script at all, so nothing to remove there this time) — worth noting since most entries lately have also been trimming a stale cue as a side effect; this one didn't have one to trim.
+
+## 2026-08-22 19:33 — End card after the reunion ("Thank you for playing")
+**Driver:** Ben · **Agent:** Claude Opus 5 (Claude Code)
+**Asked:** "Instead of going to `main.tscn` after the reunion scene, go to another scene that shows the body reunited with the head and a 'Thank you for playing' message"
+**Did:**
+- New scene `scenes/ui/thanks.tscn` + `scenes/ui/thanks.gd` — the run's last screen. Built the same way as the title screen: the *real* `body.tscn` and `head.tscn`, `is_scripted = true` with `velocity` left at zero so body.gd's animation picker holds `idle`, and `Head.attach(_body, Vector2(0, -52))` (the title's measured neck mount) to put the head back on.
+- Look borrowed from the reunion's last beat so the cut doesn't jar: same background brown, same green floor band, the `sun.png` horizon sprite, and the title's label styling (cream on dark outline) for "Thank you for playing".
+- Fade *in* from black over 1.2 s — reunion.gd fades *to* black before changing scene, so without this the end card popped in at full brightness.
+- `@export var music_track: StringName = &"reunion"` on the root. The `Music` autoload asks the scene root for that property first and early-returns when the requested track is already playing, so the reunion music carries straight through with no stop/restart.
+- `scenes/reunion/reunion.gd`: `next_scene` default changed `res://scenes/main.tscn` → `res://scenes/ui/thanks.tscn`. One-line change; reunion.tscn does not override the export, so no scene file touched.
+- Left `scenes/main.tscn` alone — it's the old input-map template boot scene, now unreferenced by the run. Deleting it is a separate call for the team.
+- **Kept the head's `HeadThoughts` stream** on this screen (the title deliberately strips it). Reunion keeps its kikis, so the end card matching that felt like the smaller, less-inventive choice — trivially reversible if the team wants a quiet ending.
+- **Did not add** a "play again" button or any input handling — the ask was a screen with the reunited guy and a thank-you, so I stopped there. Flagging it as a possible follow-up rather than deciding it (§2).
+**Verified:**
+- `/Applications/Godot4.7.app/Contents/MacOS/Godot --headless --path . --import` — clean, no errors (note: Godot lives at `Godot4.7.app` on this machine, not the `Godot.app` path CLAUDE.md §4 lists; run the checks with `GODOT=/Applications/Godot4.7.app/Contents/MacOS/Godot`).
+- `--headless --path . --quit-after 150 res://scenes/ui/thanks.tscn` — loads and runs, no ERROR/SCRIPT ERROR; only the usual "11/11 sfx cues have no file yet" line.
+- `tools/smoke_test.sh` — see the correction entry below for the result.
+**Open:**
+- Not eyeballed in the editor (§4): the fade-in timing, whether the head sits right on the neck at idle (the −52 mount was measured off the *walk* frames' bob), and whether the sun at x=500 crowds the standing pair at x=320.
+- Does the ending want a way back to the title, or is a static card the intended full stop?
