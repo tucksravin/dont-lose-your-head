@@ -1,15 +1,16 @@
-[gd_scene format=3]
+[gd_scene format=3 uid="uid://dx3mm076abyn5"]
 
-[ext_resource type="Script" path="res://scenes/days/day_mirror.gd" id="1_day"]
+[ext_resource type="Script" uid="uid://sae6pcchcaq2" path="res://scenes/days/day_mirror.gd" id="1_day"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
-[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
-[ext_resource type="Script" path="res://scenes/gameplay/win_condition_manager.gd" id="4_wcm"]
+[ext_resource type="PackedScene" uid="uid://icgagian0sgo" path="res://scenes/head/head.tscn" id="3_head"]
+[ext_resource type="Script" uid="uid://b52e5l8in6h8c" path="res://scenes/gameplay/win_condition_manager.gd" id="4_wcm"]
 [ext_resource type="PackedScene" uid="uid://bhou4a7r04mw5" path="res://scenes/sun/sun.tscn" id="5_sun"]
-[ext_resource type="Script" path="res://scenes/gameplay/sky_drift.gd" id="6_sky"]
-[ext_resource type="Script" path="res://scenes/gameplay/day_manager.gd" id="7_dm"]
+[ext_resource type="Script" uid="uid://drgvctg8sgork" path="res://scenes/gameplay/sky_drift.gd" id="6_sky"]
+[ext_resource type="Script" uid="uid://cdgvssoc46s8n" path="res://scenes/gameplay/day_manager.gd" id="7_dm"]
 [ext_resource type="PackedScene" path="res://scenes/ui/game_over.tscn" id="8_over"]
-[ext_resource type="Script" path="res://scenes/gameplay/win_condition.gd" id="9_win"]
-[ext_resource type="SpriteFrames" path="res://assets/sprites/head_frames.tres" id="10_head_frames"]
+[ext_resource type="Script" uid="uid://cc46s87eug7f5" path="res://scenes/gameplay/win_condition.gd" id="9_win"]
+[ext_resource type="SpriteFrames" uid="uid://bde5tdw2qau5v" path="res://assets/sprites/head_frames.tres" id="10_head_frames"]
+[ext_resource type="Texture2D" uid="uid://dvglcr4kgfj7k" path="res://assets/sprites/bridge.png" id="11_bridge_tex"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -17,104 +18,102 @@ size = Vector2(640, 40)
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_platform"]
 size = Vector2(140, 8)
 
-[node name="DayMirror" type="Node2D"]
+[node name="DayMirror" type="Node2D" unique_id=1971048973]
 script = ExtResource("1_day")
 
-[node name="Background" type="Polygon2D" parent="."]
+[node name="Background" type="Polygon2D" parent="." unique_id=1964745879]
 z_index = -1
+color = Color(0.59607846, 0.50980395, 0.46666667, 1)
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
-color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
 script = ExtResource("6_sky")
 
-[node name="Camera" type="Camera2D" parent="."]
+[node name="Camera" type="Camera2D" parent="." unique_id=47900635]
 position = Vector2(320, 180)
 
-[node name="Floor" type="StaticBody2D" parent="."]
+[node name="Floor" type="StaticBody2D" parent="." unique_id=1516524344]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=89890632]
 position = Vector2(320, 340)
 shape = SubResource("RectangleShape2D_floor")
 
-[node name="Visual" type="ColorRect" parent="Floor"]
+[node name="Visual" type="ColorRect" parent="Floor" unique_id=747959015]
 offset_top = 320.0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0, 0.415686274509804, 0.23921568627451, 1)
+color = Color(0, 0.41568628, 0.23921569, 1)
 
-[node name="Platform" type="StaticBody2D" parent="."]
+[node name="Platform" type="StaticBody2D" parent="." unique_id=82556109]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform"]
-position = Vector2(570, 276)
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Platform" unique_id=893076543]
+position = Vector2(570, 40)
 shape = SubResource("RectangleShape2D_platform")
 
-[node name="Visual" type="ColorRect" parent="Platform"]
-offset_left = 500.0
-offset_top = 272.0
-offset_right = 640.0
-offset_bottom = 280.0
-mouse_filter = 2
-color = Color(0.270588235294118, 0.219607843137255, 0.109803921568627, 1)
+[node name="Visual" type="Sprite2D" parent="Platform" unique_id=1677279174]
+texture_repeat = 2
+position = Vector2(570, 40)
+texture = ExtResource("11_bridge_tex")
+region_enabled = true
+region_rect = Rect2(0, 0, 140, 8)
 
-[node name="Mirror" type="Node2D" parent="."]
+[node name="Mirror" type="Node2D" parent="." unique_id=55751038]
 position = Vector2(608, 320)
 
-[node name="Frame" type="ColorRect" parent="Mirror"]
+[node name="Frame" type="ColorRect" parent="Mirror" unique_id=830447436]
 offset_left = -18.0
-offset_top = -70.0
+offset_top = -320.0
 offset_right = 18.0
 mouse_filter = 2
-color = Color(0.270588235294118, 0.219607843137255, 0.109803921568627, 1)
+color = Color(0.27058825, 0.21960784, 0.10980392, 1)
 
-[node name="Glass" type="ColorRect" parent="Mirror"]
+[node name="Glass" type="ColorRect" parent="Mirror" unique_id=1332614379]
 offset_left = -12.0
-offset_top = -64.0
+offset_top = -314.0
 offset_right = 12.0
 offset_bottom = -4.0
 mouse_filter = 2
-color = Color(0.392156862745098, 0.333333333333333, 0.262745098039216, 1)
+color = Color(0.39215687, 0.33333334, 0.2627451, 1)
 
-[node name="Reflection" type="AnimatedSprite2D" parent="Mirror"]
-modulate = Color(0.803921568627451, 0.803921568627451, 0.6, 0.85)
-position = Vector2(0, -62)
+[node name="Reflection" type="AnimatedSprite2D" parent="Mirror" unique_id=308322027]
+modulate = Color(0.8039216, 0.8039216, 0.6, 0.85)
+position = Vector2(0, -298)
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("10_head_frames")
 animation = &"look_left"
 
-[node name="Body" parent="." instance=ExtResource("2_body")]
+[node name="Body" parent="." unique_id=1092110047 instance=ExtResource("2_body")]
 position = Vector2(80, 320)
 
-[node name="Head" parent="." instance=ExtResource("3_head")]
-position = Vector2(572, 258)
+[node name="Head" parent="." unique_id=1998963685 instance=ExtResource("3_head")]
+position = Vector2(572, 22)
 
-[node name="WinConditionManager" type="Node" parent="."]
+[node name="WinConditionManager" type="Node" parent="." unique_id=65010647]
 script = ExtResource("4_wcm")
 
-[node name="DayManager" type="Node" parent="."]
+[node name="DayManager" type="Node" parent="." unique_id=1414014500]
 script = ExtResource("7_dm")
 conditions_path = NodePath("../WinConditionManager")
 head_path = NodePath("../Head")
 game_over_path = NodePath("../GameOver")
 
-[node name="BodyNeed" type="Node" parent="."]
+[node name="BodyNeed" type="Node" parent="." unique_id=2141440479]
 script = ExtResource("9_win")
-key = "body"
 
-[node name="MindNeed" type="Node" parent="."]
+[node name="MindNeed" type="Node" parent="." unique_id=2012409060]
 script = ExtResource("9_win")
 key = "mind"
 
-[node name="Sun" parent="." instance=ExtResource("5_sun")]
+[node name="Sun" parent="." unique_id=289894109 instance=ExtResource("5_sun")]
 
-[node name="Instruction" type="Label" parent="."]
+[node name="Instruction" type="Label" parent="." unique_id=1618948675]
 offset_left = 12.0
 offset_top = 8.0
 offset_right = 628.0
 offset_bottom = 32.0
-theme_override_colors/font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
-theme_override_colors/font_outline_color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+theme_override_colors/font_color = Color(0.94509804, 1, 0.6862745, 1)
+theme_override_colors/font_outline_color = Color(0.1254902, 0.10980392, 0.007843138, 1)
 theme_override_constants/outline_size = 4
 theme_override_font_sizes/font_size = 14
 text = "Jump the thoughts. E at the glass throws it. Arrows flip with the head."
 
-[node name="GameOver" parent="." instance=ExtResource("8_over")]
+[node name="GameOver" parent="." unique_id=1258937100 instance=ExtResource("8_over")]
