@@ -70,7 +70,6 @@ scale = Vector2(2, 2)
 [node name="Head" parent="." instance=ExtResource("2_wgxpk")]
 z_index = 1
 position = Vector2(592, 246)
-caged = true
 
 [node name="PanicLabel" type="Label" parent="." node_paths=PackedStringArray("counter")]
 offset_left = 548.0
