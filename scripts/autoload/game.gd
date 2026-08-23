@@ -26,11 +26,10 @@ const DAY_SCENES: Array[String] = [
 	"res://scenes/days/day_panic_still.tscn",
 	"res://scenes/transition/transition_cage.tscn",
 	"res://scenes/days/day_panic.tscn",
+	"res://scenes/days/day_workout.tscn",
 	"res://scenes/transition/transition_glasses.tscn",
 	"res://scenes/days/day_velma.tscn",
-	"res://scenes/days/platforming_day.tscn",
 	"res://scenes/days/day_lockdown.tscn",
-	"res://scenes/days/day_workout.tscn",
 	"res://scenes/days/day_mirror.tscn",
 ]
 
