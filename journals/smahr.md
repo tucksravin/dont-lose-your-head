@@ -859,3 +859,10 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** PanicCounter already called `set_panic_ratio` / `set_agitation`; shake was `set_process(caged)` so the tree head never jittered. `Head.set_agitation` now turns process on. Still day uses `head_jitter` 3 (intro's loose-head amount) and stops shake/tint for the sigh-fall.
 **Verified:** `Godot_v4.7.2-stable_win64.exe --headless --path . --import` clean. `--quit-after 60 res://scenes/days/day_panic_still.tscn` — no SCRIPT ERROR (exit leak ERROR/WARNING only, existing). Shake/tint need F6.
 **Open:** F6 `day_panic_still.tscn` — walk to wind panic, watch the skull.
+
+## 2026-08-22 21:00 — Lockdown last puzzle ASCII for web
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** puzzle_chain last prompt/answers tofu in the web build.
+**Did:** Same HTML5 Label-font issue as the intro arrows. Rewrote the flux question and answers (`int_S`, `x^3`, `12pi/5`) and the earlier `×` / `−` so every pad string is ASCII. README web gotchas: player-facing Labels stay ASCII.
+**Verified:** not verified in a browser — glyphs are now in the default font by construction. F6 lockdown and glance the last question.
+**Open:** A bundled font would let us keep real math symbols; out of scope tonight.

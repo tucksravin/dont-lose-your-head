@@ -20,15 +20,17 @@ signal puzzle_advanced(index: int)
 ## stumble away from the plate.
 @export var buck_velocity: Vector2 = Vector2(110.0, -380.0)
 
-## prompt, three choices, index of the correct choice (0–2).
-## Escalates; last one is a glance-impossible calc-3 flux (div thm → 12π/5).
+## prompt, three choices, index of the correct choice (0-2).
+## Escalates; last one is a glance-impossible calc-3 flux (div thm -> 12pi/5).
+## ASCII only: Godot's default Label font has no system fallback on HTML5,
+## so ∯ / π / superscripts tofu in the web build (same as the intro arrows).
 var puzzles: Array = [
-	["17 − 9", ["8", "7", "26"], 0],
-	["6 × 7", ["36", "42", "48"], 1],
+	["17 - 9", ["8", "7", "26"], 0],
+	["6 x 7", ["36", "42", "48"], 1],
 	["125 / 5", ["12", "25", "5"], 1],
 	[
-		"∯_S ⟨x³, y³, z³⟩ · dS   on  x²+y²+z²=1  (outward)",
-		["12π/5", "4π/3", "4π"],
+		"int_S <x^3, y^3, z^3> . dS   on  x^2+y^2+z^2=1  (outward)",
+		["12pi/5", "4pi/3", "4pi"],
 		0,
 	],
 ]
