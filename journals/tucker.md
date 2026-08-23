@@ -610,3 +610,44 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Docs: `assets/sprites/README.md` (two paragraphs with the frame maps and the offsets), `CREDITS.md`, CODEBASE §7.
 **Verified:** both sheets are **100% on-palette** (button: `#45381c`/`#b2f167`/`#f1ffaf`; tree: `#006a3d`/`#b2f167`/`#45381c`/`#988277`). `--import` clean. Windowed renders eyeballed: tree whole with the caged head on the branch, tree after `breaking` (stub + head gone), button off, button pressed. Suite was green except the **pre-existing** `day_panic` bot stall (panic tuning, same on main).
 **Open:** the drawn button plate is only **8×3 px = 16×6 on screen**, while its trigger area is 56 px wide — if it should fill the trigger, redraw at ~28×8 rather than scaling (a non-2× scale breaks the pixel grid). The tree uses sky `#988277` for 188 px of gaps, so it only reads correctly on the sky background. Both scenes are Sean's.
+
+## 2026-08-22 16:55 — Button art doubled
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "can you just double the button I have? every pixel becomes 4?"
+**Did:** nearest-neighbour 2× of `assets/sprites/button.png` (48×16 → **96×32**, each drawn pixel now a 2×2 block), `button_frames.tres` regions 16×16 → **32×32**, and `day_panic.tscn`'s `ReleaseButton/Visual` offset (−8,−16) → **(−16,−32)** so the plate still sits on the floor. Node scale stays **2**, so it is still an ordinary 2× sprite in the scene — the plate now renders **32×12**, the same width as the body, under the 56 px trigger. Did it to the exported PNG rather than the node scale so the scene doesn't mix scale factors; `src/button.aseprite` is untouched at 16×16, so a re-export needs the doubling redone (noted in the sprites README).
+**Verified:** `--import` clean; windowed render eyeballed — plate reads at body width. (Smoke suite skipped per Tucker.)
+**Open:** none.
+
+## 2026-08-22 16:57 — Button art on the lockdown answer plates too
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "button should also be used in the other scenes with a button interact (thinking of lockdown)"
+**Did:** `scenes/gameplay/answer_pad.tscn`'s `Visual` ColorRect → an `AnimatedSprite2D` on `button_frames.tres` (2×, `centered = false`, `offset (-16,-32)`). The doubled plate renders **32×12**, exactly the size of the rectangle it replaced, so no repositioning was needed. `answer_pad.gd`: `visual` retyped to `AnimatedSprite2D` and `_set_occupied()` now plays `press` / `off` instead of swapping colours — **the `idle_color` and `active_color` exports are gone** (dead once the art carries the state). All three lockdown plates use it.
+- Checked the other candidates and left them: the lockdown **pedestal** (32×48 raised block, not a floor button) and **spatial_goal.tscn** (32×32 green "stand here" marker used by day_template — a goal area, not a button). Say the word if either should get the art.
+**Verified:** `--import` clean; windowed render of the lockdown puzzle — the plate under the body is pressed flat, the other two have their studs up, digits still legible above. (Smoke skipped per Tucker.)
+**Open:** none.
+
+## 2026-08-22 17:13 — Floor plates: you have to jump on them; they catch the impact and rise again
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "should have to jump on the button to activate, catch body's momentum in the animation and rise back up after leaving. also please don't run smoke tests, these also need to be on a branch and then pulled into main like before"
+**Did:** new **`scenes/gameplay/floor_plate.gd`** (`class_name FloorPlate`, extends AnimatedSprite2D) — one node for every floor button:
+- walking over it plays **`mid`** (squashed under the body's weight) and does nothing else;
+- **landing** on it plays **`press`** and emits **`stomped(impact)`** — that is the activation;
+- **momentum:** it remembers the body's fastest downward speed while airborne and uses it as `speed_scale` on `press` (`clamp(impact / base_impact 300, 0.6, 2.5)`), so a drop from height slams harder than a hop in place; `impact` is passed to `stomped` too;
+- stepping off plays **`rise`** back to the raised frame;
+- `latch` keeps it down for good once stomped (the panic button, since the cage stays open); `enabled`/`set_live()` for the lockdown setup beat.
+Added **`mid`** and **`rise`** animations to `button_frames.tres` (frame 1 alone; 2→1→0 at 18 fps).
+- **`day_panic.gd`**: stepping on the button no longer opens the cage — it only grants `kiki_safe`; the cage opens on `stomped`. Copy is now "Jump on the button to free the cage."
+- **`answer_pad.gd`** rewritten around the plate (it was already landing-gated): the Area2D occupancy bookkeeping and its own `landed` plumbing are gone — the plate owns detection, this script just turns `stomped` into `chosen(value)`.
+**Two things this branch also rescues** (both were stranded, see Open): the **doubled button** (48×16 → 96×32) and the **answer plates using the button art**, cherry-picked here.
+**Verified:** `--import` clean, and a headless trace of the panic button: walking over it → `mid`, no open; hop → `STOMPED impact=288`, cage opened, plate holds `press`. Feel is Tucker's to judge — no smoke run (his call).
+**Open / for Tucker:**
+1. **Your local `main` is 2 commits ahead of origin and 1 behind.** Those two ahead are the doubled button + plate swap: they were committed onto `main` in your checkout instead of the branch, so PR #40 never contained them and they were never pushed. They are on this branch now. After it merges: `git checkout main && git reset --hard origin/main`.
+2. **The Godot editor open on the repo silently reverted my `.tscn` edits twice** (it re-saved `day_panic.tscn` from a stale in-memory copy, undoing the button offset). That is why this work was built in a separate git worktree. Close or reload the editor before pulling.
+
+## 2026-08-22 17:21 — Wrong answer plate gives a little buck (no game over)
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "for lockdown, jumping on the wrong button should push down, and then launch the body offscreen before game over" → corrected mid-task to "wait no his is right, just make it a little launch" and "no game over"
+**Did:** `puzzle_chain.gd` `_on_wrong()` now pops the body off the plate before speeding the rain up — new `_buck_body()` sets `velocity.y = buck_velocity.y` (−380; the body's own jump is −300, so it reads as a bit more than a jump) and a sideways `buck_velocity.x` 110 away from the plate. Velocity only: body.gd keeps driving, so **the player never loses control**, gravity lands them normally, and the sideways nudge is overwritten as soon as they hold a direction — a stumble, not a knockback to fight. The push-down itself needs no code: FloorPlate presses on any landing, right or wrong, and rises once the buck carries the body off it. **No fail path was added** — Sean's #39 behaviour stands: a wrong answer speeds up the ThoughtRain and the day continues; only a thought *hit* (or sunset) ends it. First draft launched the body off screen into a game over, per the original ask; reverted on Tucker's correction, along with the `hold_down()` helpers it needed on FloorPlate/AnswerPad.
+- Fixed a stale comment in `answer_pad.gd` that still claimed a wrong answer fails the day.
+**Verified:** `--import` clean. Not play-tested by me — Tucker is testing (his call, no smoke runs).
+**Open:** `buck_velocity` is an `@export` on PuzzleChain if the pop is too weak or too wild.

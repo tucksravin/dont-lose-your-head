@@ -23,7 +23,7 @@ extends Node2D
 @export var kiki_spawn_offset: Vector2 = Vector2(-40.0, -16.0)
 @export var drop_time: float = 0.35
 @export var floor_y: float = 306.0
-@export var instruction_text: String = "Reach the button to free the cage. Moving winds panic. Jump the thoughts."
+@export var instruction_text: String = "Jump on the button to free the cage. Moving winds panic. Jump the thoughts."
 
 @onready var body: CharacterBody2D = $Body
 @onready var head: Head = $Head
@@ -54,6 +54,9 @@ func _ready() -> void:
 		get_tree().create_timer(kiki_start_delay).timeout.connect(_on_kiki_start)
 	release.body_entered.connect(_on_button_entered)
 	release.body_exited.connect(_on_button_exited)
+	var plate: FloorPlate = release.get_node_or_null("Visual") as FloorPlate
+	if plate != null:
+		plate.stomped.connect(_on_button_stomped)
 	Events.day_completed.connect(_stop)
 	Events.day_failed.connect(_stop_failed)
 
@@ -65,9 +68,10 @@ func _on_kiki_start() -> void:
 	_kiki_timer.start()
 
 
-## Reaching the button IS the release. `kiki_safe` still goes on while the
-## body is over it (the cage drop and the win beat both take a moment, and a
-## kiki landing in that window shouldn't fail a day you have already won).
+## Stepping onto the button does NOT open the cage any more — you have to land
+## on it (Tucker, Sat). Entering only grants `kiki_safe`, which stays while the
+## body is over the plate (the cage drop and the win beat take a moment, and a
+## kiki in that window shouldn't fail a day you have already won).
 func _on_button_entered(other: Node2D) -> void:
 	if other is CharacterBody2D:
 		_on_button = true
@@ -75,12 +79,6 @@ func _on_button_entered(other: Node2D) -> void:
 		var prompt: Label = release.get_node_or_null("Prompt") as Label
 		if prompt != null:
 			prompt.visible = false
-		# The plate pushes down under the body (button.png, Tucker's: off →
-		# mid → on). One-shot, so it stays held down afterwards.
-		var plate: AnimatedSprite2D = release.get_node_or_null("Visual") as AnimatedSprite2D
-		if plate != null and plate.sprite_frames != null and plate.sprite_frames.has_animation(&"press"):
-			plate.play(&"press")
-		_open_cage()
 
 
 func _on_button_exited(other: Node2D) -> void:
@@ -90,11 +88,12 @@ func _on_button_exited(other: Node2D) -> void:
 		var prompt: Label = release.get_node_or_null("Prompt") as Label
 		if prompt != null:
 			prompt.visible = false
-		# Stepping off springs it back — unless the cage is already open.
-		var plate: AnimatedSprite2D = release.get_node_or_null("Visual") as AnimatedSprite2D
-		if not _opened and plate != null and plate.sprite_frames != null \
-				and plate.sprite_frames.has_animation(&"off"):
-			plate.play(&"off")
+
+
+## The body LANDED on the button — that is the press (walking over it only
+## squashes the plate). FloorPlate does the landing test and the momentum.
+func _on_button_stomped(_impact: float) -> void:
+	_open_cage()
 
 
 func _open_cage() -> void:

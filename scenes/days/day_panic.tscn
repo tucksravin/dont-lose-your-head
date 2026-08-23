@@ -13,6 +13,7 @@
 [ext_resource type="Script" uid="uid://cc46s87eug7f5" path="res://scenes/gameplay/win_condition.gd" id="12_win"]
 [ext_resource type="PackedScene" uid="uid://tt53kd82hn5o" path="res://scenes/gameplay/kiki_cloud.tscn" id="13_cloud"]
 [ext_resource type="SpriteFrames" uid="uid://v3pomc0to6l7" path="res://assets/sprites/button_frames.tres" id="20_button"]
+[ext_resource type="Script" path="res://scenes/gameplay/floor_plate.gd" id="21_plate"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
 size = Vector2(640, 40)
@@ -99,7 +100,9 @@ scale = Vector2(2, 2)
 sprite_frames = ExtResource("20_button")
 animation = &"off"
 centered = false
-offset = Vector2(-8, -16)
+offset = Vector2(-16, -32)
+script = ExtResource("21_plate")
+latch = true
 
 [node name="Prompt" type="Label" parent="ReleaseButton" unique_id=1256580234]
 visible = false
