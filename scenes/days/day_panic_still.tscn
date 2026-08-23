@@ -92,6 +92,7 @@ head_path = NodePath("../Head")
 game_over_path = NodePath("../GameOver")
 
 [node name="PanicCounter" parent="." instance=ExtResource("6_panic_counter")]
+start_panic = 70.0
 max_panic = 100.0
 panic_per_second = 40.0
 calm_max_per_second = 20.0

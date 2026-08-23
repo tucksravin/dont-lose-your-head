@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scenes/transition/transition.gd" id="1_transition"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
 [ext_resource type="SpriteFrames" path="res://assets/sprites/head_frames.tres" id="3_head_frames"]
+[ext_resource type="PackedScene" path="res://scenes/head/head_thoughts.tscn" id="4_thoughts"]
 
 [sub_resource type="Curve2D" id="Curve2D_hill"]
 _data = {
@@ -77,3 +78,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 mouse_filter = 2
 color = Color(0.125490196078431, 0.109803921568627, 0.007843137254902, 1)
+
+[node name="HeadThoughts" parent="." instance=ExtResource("4_thoughts") node_paths=PackedStringArray("follow")]
+follow = NodePath("../HeadPath/Follow/Head")

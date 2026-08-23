@@ -768,3 +768,45 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Removed `caged = true` on the tree head. It plays the loose/glasses face. The sigh no longer "opens a cage"; the bars still arrive in `transition_cage` after the fall.
 **Verified:** not verified — F6 the tree. Smoke skipped.
 **Open:** —
+
+## 2026-08-22 17:34 — Still-panic starts at 70
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** In the panic still scene, set starting panic to 70.
+**Did:** Overrode `PanicCounter.start_panic` to 70 on `day_panic_still.tscn` only (max stays 100). Cage day untouched.
+**Verified:** not verified — F6 and check the label opens near 70.
+**Open:** —
+
+## 2026-08-22 17:38 — Head thought stream
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Small continuous stream of kikis from the head, separate from level hazards; they rise and dissipate.
+**Did:** Added `HeadThoughts` on `head.tscn` — lil kikis spawn above the skull, tween up, fade, `queue_free`. Visual only (`Kiki.spawn`, `top_level`). Locked in DESIGN §2. Transitions/intro still use a sprite, not `head.tscn`.
+**Verified:** Godot `--import` compiled `head_thoughts.gd`. `--quit-after 60 res://scenes/head/head.tscn` — no SCRIPT ERROR (only the existing Sfx missing-cue warning).
+**Open:** Human F6 any day — retune `interval` / `rise_px` on HeadThoughts if too busy or too faint. Transition/intro stream later if wanted.
+
+## 2026-08-22 17:42 — Head thought stream was off-screen
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** They aren't visible in any scene.
+**Did:** `top_level` made each kiki keep its local offset as world pos (~0,−14), so they rose off the top-left. They now stay children of `HeadThoughts` and tween local `position` up; `z_index` 10, scale 2.
+**Verified:** `--quit-after 90 res://scenes/days/day_panic_still.tscn` — no SCRIPT ERROR (exit resource leak only).
+**Open:** Human F6 — confirm they rise off the skull.
+
+## 2026-08-22 17:48 — Thought stream on intro + transitions
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Visible in the transition and intro scenes too.
+**Did:** Packed `head_thoughts.tscn`. Instanced on intro `HeadBlob` (at the skull) and on `transition.tscn` with `follow` → the path sprite so cage/glasses forks inherit it. Days still get it from `head.tscn`.
+**Verified:** `--quit-after 90` on `intro.tscn` and `transition_cage.tscn` — no SCRIPT ERROR.
+**Open:** Human F6 intro and a transition.
+
+## 2026-08-22 17:51 — Cage transition thought stream path
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** transition_cage — stream not visible.
+**Did:** `follow` was `HeadPath/Follow/Head` (child of HeadThoughts, so null). Thoughts sat at (0,0) and rose off-screen. Path is now `../HeadPath/Follow/Head`, plus the same lookup in `_ready` if the export misses.
+**Verified:** `--quit-after 90 res://scenes/transition/transition_cage.tscn` — no SCRIPT ERROR.
+**Open:** Human F6 `transition_cage.tscn`.
+
+## 2026-08-22 18:02 — Attack kikis from the head
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Mirror: from the head, curve right, down, then horizontal at the player. Lockdown: vertical off the head, keep the rain.
+**Did:** Mirror `FlyingKiki.start_head_arc` (cubic Bézier right-then-down, then left). Panic kikis still spawn straight. Lockdown `ThoughtRain.launch_from_head`: rise off the skull (no hit), then the same random-x rain / miss_mult.
+**Verified:** `--quit-after 90` on `day_mirror.tscn` and `day_lockdown.tscn` — no SCRIPT ERROR. Rain’s launch is after the pedestal beat, so F6 is the real check.
+**Open:** Human F6 both — retune `kiki_arc_right` / `kiki_approach_y` if the horizontal run is too high or low.
