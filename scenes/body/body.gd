@@ -7,7 +7,7 @@ extends CharacterBody2D
 ## Multiply the walk axis. 1 = normal; −1 = left/right swapped (mirror day).
 ## Other days leave this at 1. Sprite still faces travel, not the key pressed.
 @export var move_sign: float = 1.0
-## When true, jump reads `move_down` (↓) instead of `jump` (↑ / Space / W).
+## When true, jump reads `move_down` (↓) instead of `jump` (↑ / W).
 ## Mirror day flips this with the head's look. Other days leave it false.
 @export var invert_vertical: bool = false
 ## Jump sounds, cycled in order (not random) each time the body jumps — set

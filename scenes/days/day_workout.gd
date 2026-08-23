@@ -4,13 +4,13 @@ extends Node2D
 ## Creep starts after pickup. Fail = sunset or kikis touching the head.
 ## Both WinConditions live on the swarm and fire when pressure hits 0.
 ##
-## Body is `is_scripted` while lifting so Space is mash, not hop
+## Body is `is_scripted` while lifting so the jump key is mash, not hop
 ## (body.gd ignores input in that mode). DayManager still owns fail / release.
 
 enum Phase { FIND_BAR, LIFT, DONE }
 
 @export var find_text: String = "Walk to the barbell and press E."
-@export var lift_text: String = "Mash Space — push the thoughts off your head."
+@export var lift_text: String = "Mash W or ↑ — push the thoughts off your head."
 
 @onready var body: CharacterBody2D = $Body
 @onready var instruction: Label = $Instruction
