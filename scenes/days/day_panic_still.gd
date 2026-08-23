@@ -1,8 +1,8 @@
 extends Node2D
 ## First panic day: stand still until the meter hits 0. The head is stuck in
-## a tree on the right-edge cliff; when it calms it uncages, sighs (wink +
-## squash), and falls backward out of the canopy and off the drop — that
-## roll-off *is* the outro, and the next playlist entry is the cage transition.
+## a tree on the right-edge cliff (not caged — the cage comes after the
+## fall, in transition_cage). When it calms it sighs (wink + squash) and
+## falls backward out of the canopy and off the drop.
 ##
 ## `_before_head_release` is the DayManager hook (same as lockdown's tip and
 ## the hanging-cage drop): it runs after the needs are met and before
@@ -35,12 +35,10 @@ func _on_pit(other: Node2D) -> void:
 			manager.call("fail", "pit")
 
 
-## Cage opens, look at the body, sigh, then tip backward out of the tree.
+## Look at the body, sigh, then tip backward out of the tree.
 func _before_head_release() -> void:
 	if head == null:
 		return
-	head.caged = false
-	head.refresh_face()
 	head.look(-1)
 	head.set_solid(false)
 	var visual: AnimatedSprite2D = head.get_node_or_null("Visual") as AnimatedSprite2D

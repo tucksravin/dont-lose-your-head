@@ -761,3 +761,10 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Sample head velocity while it rolls. On pop: `v = head_vel + (0, -up_kick)`, then a projectile (`½gt²`). They peel off the skull instead of launching from rest toward an apex.
 **Verified:** not verified — F6 the pop. Smoke skipped.
 **Open:** Human F6 `glasses_up_kick` / `glasses_gravity` if they rise too little or too much.
+
+## 2026-08-22 17:30 — Still-panic head is not caged
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** day_panic_still — the head should not be in a cage.
+**Did:** Removed `caged = true` on the tree head. It plays the loose/glasses face. The sigh no longer "opens a cage"; the bars still arrive in `transition_cage` after the fall.
+**Verified:** not verified — F6 the tree. Smoke skipped.
+**Open:** —
