@@ -40,7 +40,7 @@ flowchart LR
   R -- "next_scene" --> M["main.tscn<br/>(placeholder end)"]
 ```
 
-**Boot.** `project.godot` → `run/main_scene = scenes/intro/intro.tscn`. The intro is a playable chase ([scenes/intro/intro.gd](../scenes/intro/intro.gd)); when the head leaves the screen it calls `Game.start_days()`.
+**Boot.** `project.godot` → `run/main_scene = scenes/ui/title.tscn` (moved off the intro Sat, `tucker/opening`). The landing screen ([scenes/ui/title.gd](../scenes/ui/title.gd)) is the palette title card — *"Let the Intrusive Thoughts In"* — with the real body + head walking in place behind it (`is_scripted` body, `Head.attach()`); its button loads the intro. The intro is a playable chase ([scenes/intro/intro.gd](../scenes/intro/intro.gd)); when the head leaves the screen it calls `Game.start_days()`.
 
 **The list.** `Game.DAY_SCENES` ([scripts/autoload/game.gd](../scripts/autoload/game.gd)) is the run: `[day_panic_still, transition_cage, day_panic, transition_glasses, day_velma, platforming_day, day_lockdown, day_workout, day_mirror]`, then `Game.REUNION_SCENE`. `go_to(i)` loads entry *i* (or the reunion past the end); `next_day()` advances — and if the current scene was opened straight from the editor (F6), it first looks up where that scene sits, so testing one day still goes on to the right next one. `Game.wearing_glasses` is the only cross-scene flag: intro starts true, glasses transition sets false, Velma delivery sets true.
 

@@ -674,3 +674,19 @@ Added **`mid`** and **`rise`** animations to `button_frames.tres` (frame 1 alone
 **Open:**
 - **CREDITS needs the bird's source + licence** — I don't know where it came from. Must be filled in before we ship (jam rules + the no-generative-art line).
 - Bird renders at 2× = 32×32, same size as the head it's meant to carry. If it should be visibly bigger, that's `scale` on the instance — say the word.
+
+## 2026-08-22 18:03 — Landing screen (opening plan §1)
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 39434611)
+**Asked:** "a landing screen in palette with 'Let the Intrusive Thoughts In' as a replacement for the typical 'click to play' … with the guy (head and all) walking in place underneath"
+**Did:**
+- New [scenes/ui/title.tscn](scenes/ui/title.tscn) + [scenes/ui/title.gd](scenes/ui/title.gd). Sky `#988277`, dark-brown ground band, title **"Don't Lose Your Head"** at 44 px in bone with the `#201c02` outline every in-game label uses, and the button **"Let the Intrusive Thoughts In"** below it.
+- **The guy is the real guy**, not a mock-up: an instance of `body.tscn` with `is_scripted = true` and `velocity.x = 60`. body.gd picks its animation off velocity, and scripted mode never calls `move_and_slide()` — so he plays `walk` forever without moving, no new art and no new code. The head rides on `Head.attach(body, head_mount)`, the same call the lockdown day uses.
+- Mount point measured off the sprites rather than eyeballed: the walk frames' neck stub tops out at body-local y −40 (−38 on two of the four — that's the bob) and the head's jaw is +14 from its own origin, so `head_mount = (0, −52)` seats the jaw on the neck at the bottom of the bob and lets it sink 2 px at the top. First pass at −56 left a 4 px float; fixed.
+- Button styling is theme overrides in the .tscn, not a new Theme resource: `#45381c` plate / `#645543` hover / `#201c02` pressed with a `#b2f167` border, bone text with the standard outline. **Departure from the plan:** the plan said "same styling as game_over's Retry", but that button is still the default grey Godot theme (one of the two known off-palette spots) — matching it would have put a grey box on a palette screen. So the title screen is palettised and `game_over.tscn` is now the odd one out; giving it the same three overrides is a 5-minute follow-up if the team wants it.
+- Enter/Space work as well as the mouse — `grab_focus()` on the button, so Godot's own `ui_accept` handling does it; the scene reads no input itself.
+- `project.godot` **`run/main_scene` → `res://scenes/ui/title.tscn`** (was the intro). **Flagged per CLAUDE.md §8** — it's a project.godot edit, though not a rendering/display one. [docs/CODEBASE.md](docs/CODEBASE.md) "Boot" updated to match.
+**Verified:** `--import` clean, no errors. Rendered the scene windowed at 640×360 to a PNG and pixel-measured the head/shoulder join (head art rows 250–281, body top 282 — touching, no gap). Not verified: the button press → intro hand-off, and how the walk reads in motion — both need a human. **Tucker: run it, click the button, confirm you land in the intro.**
+**Open:**
+- Big empty band between the button and the guy. A couple of drifting kikis would fill it and sell the button's line — didn't add them, that's content and it's your call.
+- [tools/smoke/play_through.gd](tools/smoke/play_through.gd) still starts at `intro.tscn` and knows nothing about a title button. Leaving it until the intro rewrite (§2) lands, then fixing both in one pass — the suite is red on that scene until then.
+- `game_over.tscn` is now the only default-themed screen (see above).
