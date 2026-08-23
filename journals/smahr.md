@@ -817,3 +817,10 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Replaced the ColorRect weights with `AnimatedSprite2D` on `barbell.tscn`. Floor = `alone`. Pickup hides the body's `Visual` (lift frames include the skeleton) and plays `with_body`. `pump()` restarts `lifting` instead of the old Tween. Collision 64×20 to match 2× art.
 **Verified:** `--quit-after 90 res://scenes/days/day_workout.tscn` — no SCRIPT ERROR.
 **Open:** Human F6 — walk into the bar, mash Space, check the squat/press reads.
+
+## 2026-08-22 19:11 — Barbell lifts only on mash
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** Barbell animation plays constantly; only animate on up/Space.
+**Did:** `lifting` still loops in the sheet, but after one squat→press we park on `with_body` (`animation_looped`). Next `jump` starts another stroke. Shared SpriteFrames loop flag left alone.
+**Verified:** `--quit-after 60 res://scenes/days/day_workout.tscn` — no SCRIPT ERROR.
+**Open:** Human F6 — one press should be one lift, then still.

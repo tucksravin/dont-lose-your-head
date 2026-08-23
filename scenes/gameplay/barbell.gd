@@ -32,6 +32,10 @@ func _ready() -> void:
 	body_exited.connect(_on_body_exited)
 	if visual != null:
 		visual.play(&"alone")
+		# `lifting` loops in the .tres; we treat one cycle as one mash, then
+		# sit on `with_body` until the next press. Don't flip the shared
+		# SpriteFrames loop flag — that would dirty Tucker's sheet.
+		visual.animation_looped.connect(_on_visual_looped)
 	_set_occupied(false)
 
 
@@ -48,12 +52,20 @@ func _physics_process(_delta: float) -> void:
 
 
 ## One lift stroke — plays `lifting` from the start so a mash reads as a pump.
-## Replaces the old ColorRect Tween. Called from the day on each `jump`.
+## The clip loops in the sheet; `_on_visual_looped` parks on `with_body`
+## after one squat→press so it does not run on its own. Called from the
+## day on each `jump` (Space / up).
 func pump() -> void:
 	if not _held or visual == null:
 		return
 	visual.play(&"lifting")
 	visual.set_frame_and_progress(0, 0.0)
+
+
+func _on_visual_looped() -> void:
+	if not _held or visual == null or visual.animation != &"lifting":
+		return
+	visual.play(&"with_body")
 
 
 func _pick_up() -> void:
