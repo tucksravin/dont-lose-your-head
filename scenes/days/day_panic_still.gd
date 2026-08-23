@@ -15,6 +15,9 @@ extends Node2D
 @export var fall_end: Vector2 = Vector2(720.0, 460.0)
 ## Clockwise tip — looking at the body (left), this is falling backward.
 @export var fall_spin: float = 2.6
+## Loose-head shake at full panic (px). head.tscn's 1.5 is tuned for a
+## caged skull behind bars; in the tree it needs more, same as the intro.
+@export var head_jitter: float = 3.0
 @export var instruction_text: String = "Hold still. Panic to zero — your head sighs and falls out of the tree."
 
 @onready var head: Head = $Head
@@ -24,6 +27,8 @@ extends Node2D
 
 func _ready() -> void:
 	instruction.text = instruction_text
+	if head != null:
+		head.jitter_px = head_jitter
 	if pit != null:
 		pit.body_entered.connect(_on_pit)
 
@@ -40,6 +45,8 @@ func _before_head_release() -> void:
 	if head == null:
 		return
 	head.look(-1)
+	head.set_process(false)
+	head.set_panic_ratio(0.0)
 	head.set_solid(false)
 	var visual: AnimatedSprite2D = head.get_node_or_null("Visual") as AnimatedSprite2D
 	if visual != null:

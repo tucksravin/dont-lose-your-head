@@ -43,16 +43,17 @@ signal left_scene
 ## instead of the plain head. Set it per instance in the day scene; day_panic
 ## uses it. The cage is art only: nothing about release() changes.
 @export var caged: bool = false
-## Caged only: how far (px) the sprite shakes at full agitation (set_agitation
+## How far (px) the sprite shakes at full agitation (set_agitation
 ## ≥ jitter_full_agitation). 0 = never shakes. Cosmetic — the head's position
-## and collision don't move, only the sprite.
+## and collision don't move, only the sprite. Caged heads start processing
+## in `_ready`; a loose head starts when something calls `set_agitation`
+## (PanicCounter, the intro swarm).
 @export var jitter_px: float = 1.5
 @export var jitter_full_agitation: float = 4.0
-## Caged only: sprite tint at 0 panic and at max panic — the head visibly
-## darkens toward the palette's ground green as it gets closer to failing the
-## day, on top of the jitter and the animation speeding up. Named from
-## Colors (scripts/colors.gd) rather than a one-off hex so it stays a palette
-## colour. Harmless on an uncaged head.
+## Sprite tint at 0 panic and at max panic — the head visibly darkens toward
+## the palette's ground green as it gets closer to failing the day, on top of
+## the jitter. Named from Colors (scripts/colors.gd) rather than a one-off hex
+## so it stays a palette colour.
 @export var calm_tint: Color = Color.WHITE
 @export var panic_tint: Color = Colors.DARK_GREEN
 ## Caged only: the discrete panic-level sound (index 0 = level 1 .. index 2 =
@@ -95,7 +96,7 @@ func _ready() -> void:
 	# Nothing to do until attach() or release() — skip the per-frame callback
 	# rather than running an early-return every physics tick.
 	set_physics_process(false)
-	set_process(caged) # the shake below is caged-only
+	set_process(caged) # shake; a loose head turns this on in set_agitation()
 	refresh_face()
 
 
@@ -157,12 +158,14 @@ func set_solid(solid: bool) -> void:
 		_hitbox.set_deferred("disabled", not solid)
 
 
-## How fast the caged head's loop runs. 1.0 is the rate authored in
-## head_frames.tres; a day raises it to show the head getting agitated (day_panic
-## does this as panic climbs). Harmless on an uncaged head.
+## How fast the face loop runs, and how hard the sprite shakes. 1.0 is the
+## rate authored in head_frames.tres; PanicCounter lerps this from
+## calm_agitation → frantic_agitation as the meter fills. Turns `_process`
+## on so a loose head (tree, intro) jitters the same way a caged one does.
 func set_agitation(scale: float) -> void:
 	_agitation = maxf(scale, 0.0)
 	_sprite.speed_scale = _agitation
+	set_process(true)
 
 
 ## How panicked the head is, 0–1 against max_panic. Tints the sprite from

@@ -852,3 +852,10 @@ Entries by Sean + whichever LLM agent is driving for Sean. Format and rules: [CL
 **Did:** Still-panic has no button kikis (cloud only). Wired the hanging-cage day (`day_panic.gd`) to `FlyingKiki.start_head_arc` like Velma/mirror. Spawn offset off the button is gone.
 **Verified:** not verified — F6 `day_panic.tscn`.
 **Open:** If they really wanted flying hazards on the stand-still tree day, say so — jumping there winds panic.
+
+## 2026-08-22 20:27 — Still-panic head greens and shakes
+**Driver:** smahr · **Agent:** Cursor Grok 4.6
+**Asked:** day_panic_still — head should panic: more green and shake as panic increases.
+**Did:** PanicCounter already called `set_panic_ratio` / `set_agitation`; shake was `set_process(caged)` so the tree head never jittered. `Head.set_agitation` now turns process on. Still day uses `head_jitter` 3 (intro's loose-head amount) and stops shake/tint for the sigh-fall.
+**Verified:** `Godot_v4.7.2-stable_win64.exe --headless --path . --import` clean. `--quit-after 60 res://scenes/days/day_panic_still.tscn` — no SCRIPT ERROR (exit leak ERROR/WARNING only, existing). Shake/tint need F6.
+**Open:** F6 `day_panic_still.tscn` — walk to wind panic, watch the skull.
