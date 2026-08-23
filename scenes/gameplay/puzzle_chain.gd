@@ -15,6 +15,11 @@ signal puzzle_advanced(index: int)
 @onready var mind_need: WinCondition = $MindNeed
 @onready var question: Label = $Question
 
+## The pop a wrong plate gives the body: y is the upward kick (the body's own
+## jump is −300, so this reads as a bit more than a jump), x the sideways
+## stumble away from the plate.
+@export var buck_velocity: Vector2 = Vector2(110.0, -380.0)
+
 ## prompt, three choices, index of the correct choice (0–2).
 ## Escalates; last one is a glance-impossible calc-3 flux (div thm → 12π/5).
 var puzzles: Array = [
@@ -94,12 +99,31 @@ func _on_chosen(value: String) -> void:
 	_show_current()
 
 
+## Wrong answer: the plate you landed on bucks you off it — a small pop, you
+## keep control, the day carries on (Tucker, Sat: "just make it a little
+## launch") — and the rain speeds up, which is the real punishment.
 func _on_wrong() -> void:
+	_buck_body()
 	var rain: Node = get_tree().get_first_node_in_group("thought_rain")
 	if rain != null and rain.has_method("speed_up"):
 		rain.call("speed_up")
 		return
 	push_warning("PuzzleChain: wrong answer but no ThoughtRain — rain will not speed up.")
+
+
+## Pop the body off the plate. Just velocity — body.gd keeps driving it, so the
+## player never loses control and gravity brings them down normally. The
+## sideways nudge is overwritten the moment they hold a direction again, which
+## is deliberate: it is a stumble, not a knockback you have to fight.
+func _buck_body() -> void:
+	var body: CharacterBody2D = get_tree().get_first_node_in_group("body") as CharacterBody2D
+	if body == null:
+		return
+	body.velocity.y = buck_velocity.y
+	var away: float = signf(body.global_position.x - global_position.x)
+	if is_zero_approx(away):
+		away = 1.0
+	body.velocity.x = away * buck_velocity.x
 
 
 func _win() -> void:

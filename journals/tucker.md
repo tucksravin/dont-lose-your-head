@@ -643,3 +643,11 @@ Added **`mid`** and **`rise`** animations to `button_frames.tres` (frame 1 alone
 **Open / for Tucker:**
 1. **Your local `main` is 2 commits ahead of origin and 1 behind.** Those two ahead are the doubled button + plate swap: they were committed onto `main` in your checkout instead of the branch, so PR #40 never contained them and they were never pushed. They are on this branch now. After it merges: `git checkout main && git reset --hard origin/main`.
 2. **The Godot editor open on the repo silently reverted my `.tscn` edits twice** (it re-saved `day_panic.tscn` from a stale in-memory copy, undoing the button offset). That is why this work was built in a separate git worktree. Close or reload the editor before pulling.
+
+## 2026-08-22 17:21 — Wrong answer plate gives a little buck (no game over)
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "for lockdown, jumping on the wrong button should push down, and then launch the body offscreen before game over" → corrected mid-task to "wait no his is right, just make it a little launch" and "no game over"
+**Did:** `puzzle_chain.gd` `_on_wrong()` now pops the body off the plate before speeding the rain up — new `_buck_body()` sets `velocity.y = buck_velocity.y` (−380; the body's own jump is −300, so it reads as a bit more than a jump) and a sideways `buck_velocity.x` 110 away from the plate. Velocity only: body.gd keeps driving, so **the player never loses control**, gravity lands them normally, and the sideways nudge is overwritten as soon as they hold a direction — a stumble, not a knockback to fight. The push-down itself needs no code: FloorPlate presses on any landing, right or wrong, and rises once the buck carries the body off it. **No fail path was added** — Sean's #39 behaviour stands: a wrong answer speeds up the ThoughtRain and the day continues; only a thought *hit* (or sunset) ends it. First draft launched the body off screen into a game over, per the original ask; reverted on Tucker's correction, along with the `hold_down()` helpers it needed on FloorPlate/AnswerPad.
+- Fixed a stale comment in `answer_pad.gd` that still claimed a wrong answer fails the day.
+**Verified:** `--import` clean. Not play-tested by me — Tucker is testing (his call, no smoke runs).
+**Open:** `buck_velocity` is an `@export` on PuzzleChain if the pop is too weak or too wild.

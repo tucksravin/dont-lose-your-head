@@ -11,10 +11,12 @@ extends Area2D
 ## right and wrong.
 ##
 ## Why landing and not touching: the plates sit on the floor the body walks
-## along and a wrong answer fails the day — the body finishes the setup beat to
-## the RIGHT of all three, so a walk to the plate you want crosses the ones you
-## don't. Landing is a deliberate act, and it is what makes the plates being
-## small enough to jump over (32x8) worth doing.
+## along, and the body finishes the setup beat to the RIGHT of all three — so
+## with touch-to-choose a walk to the plate you want would answer the ones you
+## cross on the way. Landing is a deliberate act, and it is what makes the
+## plates being small enough to jump over (32x8) worth doing. A wrong answer
+## does NOT end the day (smahr, #39): the plate bucks you off and the thought
+## rain speeds up.
 ##
 ## The node stays an Area2D so PuzzleChain and the day can keep addressing it
 ## the way they always have (group `answer_pad`), and so its shape still
