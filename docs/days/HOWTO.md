@@ -15,7 +15,7 @@ The promise (TASKS.md T8): **a new day is one new file that runs end to end with
    - `GameOver` (the Retry overlay)
    - `SpatialGoal` ×2 (Area2D "get the body here" — set `key` = `body` / `mind` on each instance; the green box is placeholder art)
    - `Sun` (the 30 s timer; `day_length` per instance)
-   - `Instruction` (Label, top of screen — the one line of text the day is allowed, DESIGN §2.1 "Words")
+   - `Instruction` (Label, top of screen — the one line of text the day is allowed; **hidden** — DESIGN §2.1 "Words")
 3. **Add the day's idea.** A need that isn't "walk here" = any node that calls `satisfy()` on a `WinCondition` child with the right `key`. `scenes/gameplay/panic_counter.tscn` is the worked example of a non-spatial need: it fails the day at max panic via `DayManager.fail()` / group `"day_manager"`. Tick `win_on_zero` and add WinCondition children if standing still should win (`day_panic_still`); leave it off if something else wins (`day_panic`'s button). Keep the tunables as `@export`s on your node.
 4. **Put it in the run:** add the path to `Game.DAY_SCENES` in `scripts/autoload/game.gd` (order = play order; a transition scene goes right before the day it leads into). Press **F7** in any running scene to skip to it.
 5. **Prove it:** `tools/smoke_test.sh`. `day_lint` checks the bones; `play_through` will *force-satisfy* a day it has no plan for and warn — add a 3-line plan in `tools/smoke/play_through.gd` once the layout is stable so the bot proves it's completable.
@@ -26,7 +26,7 @@ Then press **F9** in the running game for the overlay (needs ✓/✗, sun %, bod
 
 | | |
 |---|---|
-| Screen | **640 × 360**, fixed camera, 1 world px = 1 screen px (2× on a 1280×720 window) |
+| Screen | **640 × 360**, fixed camera, 1 world px = 1 screen px (2× on a 1280×720 window) · invisible left wall at x=0 (Body adds it; do not walk off the left) |
 | Floor convention | top of the ground at **y = 320**; 40 px of ground below it |
 | Body | `speed` **150 px/s** · `jump_velocity` **−300** · `gravity` **980** · `move_sign` **1** (set −1 to swap left/right) · `invert_vertical` (jump reads `move_down` / ↓) → **max rise 45.9 px** (a 36 px step is comfortable, 48 is impossible) · hang time **0.61 s** → **92 px horizontal reach** from a standing jump · collision **24 × 32** (feet at origin) · sprite 26×38 on screen · walks up/down slopes ≤ 45° out of the box |
 | Head | 28 × 28 box, centred · states: `loose` / `glasses`, `look_left` / `glasses_look_left`, `look_right` / `glasses_look_right` (`Head.look` picks the pair from `Game.wearing_glasses`), `imprisoned` / `imprisoned_glasses` (`caged = true`), `wink` · `set_agitation(x)` scales the cage loop speed · **solid to the body** — if it sits on the path to a goal the player has to jump it (platforming_day does this, x=450) · always emits a small visual-only kiki stream (`HeadThoughts` — not a hazard) |

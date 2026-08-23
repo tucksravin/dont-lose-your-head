@@ -77,6 +77,30 @@ func _ready() -> void:
 	# Same idiom head.gd uses: a script that wants "the" body (e.g.
 	# PanicCounter) shouldn't need a hard node path to find it.
 	add_to_group("body")
+	# Deferred: _ready runs while the day is still adding children;
+	# add_child on the scene root there errors ("parent is busy").
+	call_deferred("_ensure_left_wall")
+
+
+## Invisible half-plane at x = 0. The camera is fixed (DESIGN §2.1), so
+## walking off the left leaves the body stuck off-screen. WorldBoundaryShape2D
+## is the same infinite-line shape the intro uses for the floor — no sprite.
+## Skip if the scene already has a WallLeft (the transition does).
+## Docs: https://docs.godotengine.org/en/stable/classes/class_worldboundaryshape2d.html
+func _ensure_left_wall() -> void:
+	var root: Node = get_tree().current_scene
+	if root == null:
+		root = get_parent()
+	if root == null or root.get_node_or_null("WallLeft") != null:
+		return
+	var wall: StaticBody2D = StaticBody2D.new()
+	wall.name = "WallLeft"
+	var col: CollisionShape2D = CollisionShape2D.new()
+	var bound: WorldBoundaryShape2D = WorldBoundaryShape2D.new()
+	bound.normal = Vector2.RIGHT
+	col.shape = bound
+	wall.add_child(col)
+	root.add_child(wall)
 
 
 func _physics_process(delta: float) -> void:
