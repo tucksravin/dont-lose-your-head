@@ -8,7 +8,7 @@
 
 [sub_resource type="Curve2D" id="Curve2D_offscreen"]
 _data = {
-"points": PackedVector2Array(0, 0, 0, 0, 240, 164, 0, 0, 0, 0, 260, 164, 0, 0, 0, 0, 720, 317)
+"points": PackedVector2Array(0, 0, 0, 0, 230, 174, 0, 0, 0, 0, 500, 264, 0, 0, 0, 0, 720, 264)
 }
 point_count = 3
 
@@ -25,7 +25,7 @@ brake_ratio = 1.0
 curve = SubResource("Curve2D_offscreen")
 
 [node name="Follow" parent="HeadPath" index="0"]
-position = Vector2(240, 164)
+position = Vector2(230, 174)
 
 [node name="Head" parent="HeadPath/Follow" index="0"]
 animation = &"glasses"
