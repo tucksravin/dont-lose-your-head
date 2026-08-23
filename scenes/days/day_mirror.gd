@@ -16,7 +16,12 @@ extends Node2D
 @export var throw_release: float = 0.2
 @export var throw_time: float = 0.55
 @export var chase_delay: float = 0.18
-@export var throw_end: Vector2 = Vector2(760.0, 140.0)
+## Off screen (x > 640) with enough margin that the thrown Mirror's rotation
+## can't swing any part of it back into frame before the tween ends: Frame's
+## corners are up to ~320.5 px from Mirror's origin (it now runs floor-to-
+## ceiling — day_mirror.tscn), so throw_end.x needs to clear 640 by more than
+## that radius at every angle, not just at throw_spin's final angle.
+@export var throw_end: Vector2 = Vector2(1000.0, 140.0)
 @export var throw_spin: float = 4.0
 @export var kiki_scene: PackedScene
 @export var kiki_interval: float = 1.15
