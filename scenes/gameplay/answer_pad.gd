@@ -5,8 +5,8 @@ extends Area2D
 ##
 ## Nearly all the work lives on the `$Visual` FloorPlate
 ## (scenes/gameplay/floor_plate.gd) — the same floor button the panic day uses.
-## It squashes to `mid` under a body that walks over it, slams flat and emits
-## `stomped` when the body LANDS on it, and rises when the body steps off. This
+## It ignores a body that walks over it, slams flat and emits `stomped` when the
+## body LANDS on it, and rises when the body steps off afterwards. This
 ## script turns a stomp into an answer and nothing else; PuzzleChain still owns
 ## right and wrong.
 ##
