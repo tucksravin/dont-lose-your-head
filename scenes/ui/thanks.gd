@@ -22,6 +22,13 @@ extends Node2D
 ## already playing is a no-op — so the reunion's music carries straight through
 ## instead of stopping and restarting.
 ##
+## The Replay button goes back to the *intro*, not the title: the title screen
+## is the "press play" landing page and you have already pressed it. Restarting
+## at the intro puts the run back at its first beat — and intro.gd sets
+## `Game.wearing_glasses = true` on entry and ends by calling
+## `Game.start_days()`, which resets `current_day`, so a second run starts from
+## the same state as the first with nothing to reset here.
+##
 ## Docs: https://docs.godotengine.org/en/stable/classes/class_tween.html
 
 ## Music autoload reads this off the root. Same track as the reunion = no cut.
@@ -44,10 +51,15 @@ extends Node2D
 @export var drift_max: float = 260.0
 ## Share of the cloud that is a big_kiki rather than a lil one.
 @export var big_kiki_share: float = 0.25
+## Where the Replay button starts the run again. See the header.
+@export_file("*.tscn") var replay_scene: String = "res://scenes/intro/intro.tscn"
 
 @onready var _body: CharacterBody2D = $Body
 @onready var _head: Head = $Head
 @onready var _fade: ColorRect = $FadeOverlay/Fade
+@onready var _replay: Button = $UI/Root/Replay
+
+var _restarting: bool = false
 
 
 func _ready() -> void:
@@ -59,6 +71,20 @@ func _ready() -> void:
 	create_tween().tween_property(_fade, "modulate:a", 0.0, fade_in_duration)
 	_quiet_the_head()
 	_burst_kikis()
+	_replay.pressed.connect(_on_replay)
+	# Focus means Enter/Space work as well as the mouse without this scene
+	# reading input itself — a focused Button already handles `ui_accept`.
+	_replay.grab_focus()
+
+
+## Guarded like the title's play button: a double-click would otherwise fire
+## two change_scene calls in the same frame.
+func _on_replay() -> void:
+	if _restarting:
+		return
+	_restarting = true
+	Sfx.play(&"ui_confirm")
+	Game.change_scene(replay_scene)
 
 
 ## Drop head.tscn's own endless thought stream — same call the title screen
