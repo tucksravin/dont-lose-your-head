@@ -690,3 +690,23 @@ Added **`mid`** and **`rise`** animations to `button_frames.tres` (frame 1 alone
 - Big empty band between the button and the guy. A couple of drifting kikis would fill it and sell the button's line — didn't add them, that's content and it's your call.
 - [tools/smoke/play_through.gd](tools/smoke/play_through.gd) still starts at `intro.tscn` and knows nothing about a title button. Leaving it until the intro rewrite (§2) lands, then fixing both in one pass — the suite is red on that scene until then.
 - `game_over.tscn` is now the only default-themed screen (see above).
+
+## 2026-08-22 18:14 — Scripted opening intro (opening plan §2)
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 39434611)
+**Asked:** "the guy ends up next to a slope, and then a swarm of kikis come panic the head until it gets to the point where it falls off and goes down the slope" — fully scripted until the head falls.
+**Did:** rewrote [scenes/intro/intro.gd](scenes/intro/intro.gd) and [scenes/intro/intro.tscn](scenes/intro/intro.tscn) wholesale. The old chase intro (head blob runs, you chase it off the right edge, Sun can time you out) is gone.
+- **Ground:** a flat shelf at y=200 out to x=260, then the transition's exact slope — 1 down for every 3 across, landing on y=360 at x=740, ground `#006a3d`. So cutting from here into the transition reads as further down the same hill.
+- **Beats:** walks in from off-screen left at 90 px/s → stops at x=200, a beat → KikiCloud closes in as a PanicCounter fills (0→100 in 4 s) → at the top the head pops off in an arc, lands on the crest, and rolls away → fade → `Game.start_days()`. About 10.8 s end to end.
+- **The body is the real body**, `is_scripted`, driven the way a player would drive it (set velocity, call `move_and_slide()`) rather than by moving a transform — so it uses the real walk animation, real collision on the slope, and the real footstep loop.
+- **The roll is free:** `head.exit_direction = (3,1)` is the slope itself, so head.gd's own `release()` carries it down riding exactly 16 px above the ground, spins it, and fires `left_scene` when it clears the edge. Measured at the right edge: head y=331, slope y there = 331. No new movement code.
+- **PanicCounter gained one opt-in export**, `scripted_per_second` ([scenes/gameplay/panic_counter.gd](scenes/gameplay/panic_counter.gd), +18 lines): when > 0 the meter climbs on its own, ignores the body, and **never fails** — a cutscene has no DayManager, so the scene that set it owns what happens at the top. Default 0 = every existing day behaves exactly as before. **Sean: this touches your panic file — it is additive and guarded, but flagging it.**
+- **Two things measured, not guessed:**
+  - The panic tint darkens the head toward `Colors.DARK_GREEN`, which is *the ground colour* — the head vanished into the slope as it rolled. Reset at the pop, which also reads as the panic breaking.
+  - That reset has to be `call_deferred`: we're inside `panic_changed`, and `PanicCounter._apply()` emits that **before** it pushes the tint to the head, so a plain call gets overwritten one line later — and with the counter's physics process off, nothing would ever repaint it.
+- The head's shake is normally caged-only (`set_process(caged)`); the intro switches it back on and raises `jitter_px` to 3, since a loose head has no bars to shake against.
+- Dropped: the Sun (a sunset failing a cutscene is nonsense — plan §2), and the dead `next_scene` export (TASKS N4).
+**Verified:** `--import` clean. Headless probe of the whole sequence: body stops at x=200 y=200 on_floor, panic starts at 3.35 s, head leaves the right edge on the slope line, scene hands off at 10.77 s. Rendered 10 frames windowed at 640×360 and eyeballed the swarm, the pop and the roll — head is bone-white and clearly readable against the green the whole way down. **Not verified: how it feels at speed, and the audio.** Tucker to play it.
+**Open:**
+- The body doesn't react when its head comes off — it just stands there. A flinch or a look-around would sell it; that's animation content, your call.
+- `head.tscn`'s UID `uid://icgagian0sgo` doesn't resolve — Godot warns and falls back to the path. Pre-existing (`day_panic.tscn` and `day_velma.tscn` reference it the same way); I left those alone and just omitted the uid in the two new scenes so I wasn't adding noise.
+- [tools/smoke/play_through.gd](tools/smoke/play_through.gd) still drives the old chase intro with `move_right`. Now wrong on two counts (title screen first, intro takes no input). Fixing it once §3/§4 land.

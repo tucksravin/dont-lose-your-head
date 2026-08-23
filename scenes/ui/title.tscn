@@ -2,7 +2,7 @@
 
 [ext_resource type="Script" path="res://scenes/ui/title.gd" id="1_title"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
-[ext_resource type="PackedScene" uid="uid://icgagian0sgo" path="res://scenes/head/head.tscn" id="3_head"]
+[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_normal"]
 bg_color = Color(0.27058825, 0.21960784, 0.10980392, 1)

@@ -58,6 +58,14 @@ class_name PanicCounter
 ## Stand-still win: hitting 0 satisfies every WinCondition child. Off on the
 ## hanging-cage day (the button wins). On in day_panic_still.
 @export var win_on_zero: bool = false
+## Cutscene use. When > 0 the meter climbs this fast on its own and nothing the
+## body does — moving, standing still — changes it. Maxing out does NOT fail:
+## a cutscene has no DayManager, so the scene that set this owns what happens
+## at the top and listens to `panic_changed` for it. The opening
+## (scenes/intro/intro.gd) uses it so the kiki swarm can wind the head up while
+## the guy just stands there. Every day leaves this at 0 and gets the normal
+## movement-driven meter below, unchanged.
+@export var scripted_per_second: float = 0.0
 
 ## Emitted when the whole number changes — the panic display listens to this.
 signal panic_changed(value: int)
@@ -89,7 +97,16 @@ func _ready() -> void:
 
 
 func _physics_process(delta: float) -> void:
-	if _failed or _won or _body == null:
+	if _failed or _won:
+		return
+
+	# Cutscene meter: climbs on its own, ignores the body, never fails.
+	if scripted_per_second > 0.0:
+		value = minf(value + scripted_per_second * delta, max_panic)
+		_apply()
+		return
+
+	if _body == null:
 		return
 
 	_elapsed += delta

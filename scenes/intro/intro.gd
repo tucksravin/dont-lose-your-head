@@ -1,91 +1,159 @@
 extends Node2D
-## Intro scene — the head runs off, you chase it. Nothing moves the body for
-## you: the scene ends when YOU have run off the right edge after it (decided
-## Sat evening, Tucker: "no scripting to make you follow, the scene shouldn't
-## change till the player goes offscreen"). The head blob (HeadBlob,
-## CharacterBody2D) is the one scripted thing — it runs right at head_speed
-## and leaves; the body is the instanced body.tscn, player-driven by body.gd.
+## The opening, after the landing screen. A cutscene: the player has no input
+## here (decided Sat, Tucker — "fully scripted until the head falls").
 ##
-## Sun: the same timer every day has (scenes/sun/sun.tscn, found by its
-## `sunset` signal the way DayManager finds it). Sunset before you've left =
-## the intro restarts (Game.restart_day() reloads the current scene; in the
-## intro current_day is -1, so that is all it does). Sfx's sunset warning
-## wires itself to the Sun, like everywhere else.
+## Beats:
+##   1. The guy walks in from the left and pulls up next to the crest of a slope.
+##   2. A KikiCloud closes in and a PanicCounter fills — the same two nodes the
+##      panic days use, so the opening teaches the mechanic before it costs
+##      anything. The counter runs in its cutscene mode (`scripted_per_second`),
+##      because here the meter is the *story*, not a response to the player.
+##   3. At max the head pops off, lands on the crest, and rolls away down the
+##      slope. When it is gone: fade, then Game.start_days() — which now opens
+##      on transition_bird, where you get the controls back and chase it.
 ##
-## Camera2D is static (fixed at viewport centre) rather than parented to
-## HeadBlob, so the head visibly runs off the right edge — the whole visual
-## point of the shot. Day scenes are the same.
+## Why the panic ending is wired here and not left to the counter: maxing out
+## normally calls DayManager.fail() (the game-over card). A cutscene has no
+## DayManager, and "you lost the intro" is not a thing — so the counter's
+## cutscene mode deliberately never fails, and this script watches
+## `panic_changed` and runs the pop itself.
 ##
-## TODO(cutscene): before the chase, a short Tween separation beat: skeleton
-## stands still → intrusive thoughts appear → head "pops" off (scale bounce +
-## rightward Tween) → chase. Docs: https://docs.godotengine.org/en/stable/classes/class_tween.html
+## The body is the real body.tscn in `is_scripted` mode: body.gd skips input but
+## still animates off velocity and still emits landed/footsteps, so the walk-in
+## looks and sounds like the walk everywhere else. This script does what a
+## player's fingers would — sets velocity and calls move_and_slide() — instead
+## of moving a transform. The head rides on Head.attach() until it pops.
+##
+## The slope is the transition's slope (1 px down for every 3 across, ground
+## `#006a3d`) with a flat shelf on the left to walk in on, so cutting from here
+## to transition_bird reads as further down the same hill.
+##
+## Docs: https://docs.godotengine.org/en/stable/classes/class_tween.html
 
-## How fast the head blob moves right (px/s).
-@export var head_speed: float = 150.0
-## Downward gravity for the head blob (px/s²). Body gravity is in body.gd.
+## Walk-in speed (px/s). Slower than the player's 150 — he is strolling.
+@export var walk_speed: float = 90.0
+## World x he stops at. The crest is at 260; he pulls up short of it.
+@export var mark_x: float = 200.0
+## Gravity for the scripted walk-in. Same number body.gd uses.
 @export var gravity: float = 980.0
-## How far past the right edge the BODY must be before the intro is over (px).
-## The body sprite is 32 px wide, so 24 means it is fully off screen.
-@export var exit_margin: float = 24.0
-## Pause after the body has left before the first day loads.
-@export var exit_delay: float = 0.4
-## NOT READ — Game.DAY_SCENES decides what comes next. Kept only so nothing that
-## set it breaks; delete when nobody references it (TASKS N4).
-@export var next_scene: String = "res://scenes/days/platforming_day.tscn"
+## Where the head sits on the neck — measured like title.gd's, see there.
+@export var head_mount: Vector2 = Vector2(0.0, -52.0)
+## How far the head's sprite shakes at full panic (px). head.tscn's own default
+## is 1.5, which is tuned for a caged head behind bars; loose it needs more.
+@export var head_jitter: float = 3.0
+## Beat after he stops, before the thoughts start arriving.
+@export var settle_time: float = 0.7
+## The pop: up-and-over to `pop_peak`, then down onto `pop_landing`.
+@export var pop_up_time: float = 0.28
+@export var pop_fall_time: float = 0.34
+@export var pop_peak: Vector2 = Vector2(232.0, 112.0)
+## Landing point — 16 px above the crest, which is where a centred 32 px head
+## rests on the ground. Roll from here and it rides the slope exactly.
+@export var pop_landing: Vector2 = Vector2(260.0, 184.0)
+## Seconds for the kikis to clear out once the head is off.
+@export var kiki_fade_time: float = 0.5
+## How fast the head leaves, and down which line. (3, 1) IS the slope, so the
+## head stays exactly 16 px above the ground the whole way down.
+@export var roll_speed: float = 220.0
+@export var roll_direction: Vector2 = Vector2(3.0, 1.0)
+@export var fade_duration: float = 0.5
 
-@onready var head_blob: CharacterBody2D = $HeadBlob
-@onready var body_blob: CharacterBody2D = $Body
+@onready var body: CharacterBody2D = $Body
+@onready var head: Head = $Head
+@onready var counter: PanicCounter = $PanicCounter
+@onready var cloud: Node2D = $KikiCloud
+@onready var fade: ColorRect = $FadeOverlay/Fade
 
-var _exiting: bool = false
+var _walking: bool = true
+var _popped: bool = false
 
 
 func _ready() -> void:
-	# Full replay from the title: they start the run wearing glasses again.
+	# A run always starts with the glasses on. The landing screen sets this too.
 	Game.wearing_glasses = true
-	# The Sun is found by its signal, not a hard path — same duck-type as
-	# DayManager / Sfx use, so the node can be moved or renamed freely.
-	for node in find_children("*", "Node2D", true, false):
-		if node.has_signal("sunset"):
-			node.connect("sunset", _on_sunset)
-			break
+	body.is_scripted = true
+	head.attach(body, head_mount)
+	# head.gd only runs its shake for a caged head (`set_process(caged)` in its
+	# _ready). This head is loose, but it is the most panicked it will ever be,
+	# so switch the shake back on by hand.
+	head.jitter_px = head_jitter
+	head.set_process(true)
+	head.left_scene.connect(_on_head_gone)
+	# The meter holds at 0 until he has arrived — the thoughts turn up when he
+	# stops, not while he is walking.
+	counter.set_physics_process(false)
+	counter.panic_changed.connect(_on_panic_changed)
 
 
 func _physics_process(delta: float) -> void:
-	_move_head(delta)
-	_check_exit()
-
-
-## Scripted rightward movement for the head blob. It keeps going off screen;
-## nothing waits for it.
-func _move_head(delta: float) -> void:
-	head_blob.velocity.x = head_speed
-	if head_blob.is_on_floor():
-		head_blob.velocity.y = 0.0
+	if not _walking:
+		return
+	if body.global_position.x < mark_x:
+		body.velocity.x = walk_speed
 	else:
-		head_blob.velocity.y += gravity * delta
-	head_blob.move_and_slide()
+		body.velocity.x = 0.0
+		_walking = false
+		_arrive()
+	if not body.is_on_floor():
+		body.velocity.y += gravity * delta
+	body.move_and_slide()
 
 
-## The intro is over when the PLAYER has run off the right side.
-## get_viewport_rect() is screen pixels (640×360); with the static camera at
-## (320,180) that is world space 1-to-1.
-func _check_exit() -> void:
-	if _exiting:
+## He is at the mark. Beat, then let the thoughts in.
+func _arrive() -> void:
+	await get_tree().create_timer(settle_time).timeout
+	counter.set_physics_process(true)
+
+
+## The meter reports whole numbers; the top of it is the cue for the pop.
+func _on_panic_changed(value: int) -> void:
+	if _popped or float(value) < counter.max_panic:
 		return
-	var right_edge: float = get_viewport_rect().size.x
-	if body_blob.global_position.x > right_edge + exit_margin:
-		_exiting = true
-		get_tree().create_timer(exit_delay).timeout.connect(_on_exit_delay)
+	_popped = true
+	_pop_head()
 
 
-## Sunset before you've left: the intro restarts, like a day that ran out of sun.
-func _on_sunset() -> void:
-	if _exiting:
-		return
-	Game.restart_day()
+## The head comes off: a hop up and over, a landing on the crest, then it rolls
+## away down the slope under head.gd's own release().
+func _pop_head() -> void:
+	counter.set_physics_process(false)
+	head.detach()
+	head.set_process(false) # done shaking — it is rolling now
+	# Drop the panic tint. PanicCounter darkens the head toward Colors.DARK_GREEN
+	# as the meter fills, which is the right cue while the head is up against the
+	# sky — but DARK_GREEN *is* the ground colour, so a tinted head rolling down
+	# the hill is invisible (measured: it vanished into the slope). The snap back
+	# to bone also reads as the panic breaking.
+	#
+	# Deferred, and it has to be: we are inside `panic_changed`, which
+	# PanicCounter._apply() emits BEFORE it pushes the tint to the head — so a
+	# plain call here gets overwritten one line later, and with the counter's
+	# physics process now off, nothing would ever repaint it. call_deferred puts
+	# us after _apply() has finished.
+	head.set_panic_ratio.call_deferred(0.0)
+	head.z_index = 1
+	Sfx.play(&"head_roll")
+	# TWEEN_PROCESS_PHYSICS: the head is a (frozen) RigidBody2D, so its
+	# transform belongs to the physics step — animating it on the idle frame
+	# gives a visible stutter against the body next to it.
+	var arc: Tween = create_tween().set_process_mode(Tween.TWEEN_PROCESS_PHYSICS)
+	arc.tween_property(head, "global_position", pop_peak, pop_up_time) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	arc.parallel().tween_property(head, "rotation", deg_to_rad(-50.0), pop_up_time)
+	arc.parallel().tween_property(cloud, "modulate:a", 0.0, kiki_fade_time)
+	arc.tween_property(head, "global_position", pop_landing, pop_fall_time) \
+			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
+	arc.parallel().tween_property(head, "rotation", 0.0, pop_fall_time)
+	await arc.finished
+	# head.gd already knows how to leave: straight line + spin + left_scene when
+	# it clears the edge. Point it down the slope and let it go.
+	head.exit_direction = roll_direction
+	head.exit_speed = roll_speed
+	head.release()
 
 
-## Hand off to the day chain. Game owns the day order, so the intro doesn't name
-## a specific scene — it just says "the intro is over, start the days".
-func _on_exit_delay() -> void:
+func _on_head_gone() -> void:
+	var out: Tween = create_tween()
+	out.tween_property(fade, "modulate:a", 1.0, fade_duration)
+	await out.finished
 	Game.start_days()
