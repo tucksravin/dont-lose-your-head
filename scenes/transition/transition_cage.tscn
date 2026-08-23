@@ -1,8 +1,10 @@
 [gd_scene format=3 uid="uid://dq4tn5cage7x1"]
 
 [ext_resource type="PackedScene" uid="uid://c3n7qv2m1trns" path="res://scenes/transition/transition.tscn" id="1_base"]
-[ext_resource type="Script" path="res://scenes/transition/transition_cage.gd" id="2_cage_script"]
-[ext_resource type="SpriteFrames" path="res://assets/sprites/head_frames.tres" id="3_head_frames"]
+[ext_resource type="Script" uid="uid://ftdpvf50bdoo" path="res://scenes/transition/transition_cage.gd" id="2_cage_script"]
+[ext_resource type="SpriteFrames" uid="uid://bde5tdw2qau5v" path="res://assets/sprites/head_frames.tres" id="3_head_frames"]
+[ext_resource type="AudioStream" uid="uid://cg70n0lgq0uqo" path="res://assets/audio/sfx/cage/cage_2.wav" id="3_qs22s"]
+[ext_resource type="AudioStream" uid="uid://vn1pq3tduq26" path="res://assets/audio/sfx/cage/cage_1.wav" id="5_wa8e1"]
 
 [sub_resource type="Curve2D" id="Curve2D_offscreen"]
 _data = {
@@ -10,20 +12,37 @@ _data = {
 }
 point_count = 2
 
-[node name="TransitionCage" instance=ExtResource("1_base")]
+[node name="TransitionCage" unique_id=1986657385 instance=ExtResource("1_base")]
 script = ExtResource("2_cage_script")
+cage_drop_height = 220.0
+cage_drop_time = 0.35
+cage_land_sound = ExtResource("3_qs22s")
 roll_time = 1.6
 brake_ratio = 1.0
 
-[node name="HeadPath" parent="."]
+[node name="HeadPath" parent="." index="4"]
 curve = SubResource("Curve2D_offscreen")
+
+[node name="Follow" parent="HeadPath" index="0"]
+position = Vector2(240, 178)
 
 [node name="Head" parent="HeadPath/Follow" index="0"]
 animation = &"glasses"
 autoplay = "glasses"
 
-[node name="Cage" type="AnimatedSprite2D" parent="." index="6"]
+[node name="Cage" type="AnimatedSprite2D" parent="." index="6" unique_id=1206735867]
 visible = false
 scale = Vector2(2, 2)
 sprite_frames = ExtResource("3_head_frames")
 animation = &"imprisoned_glasses"
+
+[node name="Fade" parent="FadeOverlay" index="0"]
+anchors_preset = 15
+
+[node name="CageSound" type="AudioStreamPlayer" parent="." index="9" unique_id=434149546]
+bus = &"SFX"
+
+[node name="CageRollingSound" type="AudioStreamPlayer" parent="." index="10" unique_id=1156366137]
+stream = ExtResource("5_wa8e1")
+volume_db = -15.065
+bus = &"SFX"

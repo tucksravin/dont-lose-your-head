@@ -26,8 +26,14 @@ extends "res://scenes/transition/transition.gd"
 ## How far above the head the cage starts (px) and how long it takes to fall.
 @export var cage_drop_height: float = 220.0
 @export var cage_drop_time: float = 0.35
+## The impact, played the instant the cage reaches the head. Local to this
+## scene (its own AudioStreamPlayer, CageSound) rather than the global Sfx
+## script — same reasoning as Body's jump/landing and Head's panic sounds:
+## the node that knows the moment plays its own sound.
+@export var cage_land_sound: AudioStream = preload("res://assets/audio/sfx/cage/cage_2.wav")
 
 @onready var cage: AnimatedSprite2D = $Cage
+@onready var _cage_sound: AudioStreamPlayer = $CageSound
 
 
 func _play_arrival() -> void:
@@ -40,13 +46,19 @@ func _play_arrival() -> void:
 		cage_anim = &"imprisoned_glasses"
 	cage.play(cage_anim)
 	var drop: Tween = create_tween()
-	drop.tween_property(cage, "global_position", head.global_position, cage_drop_time)\
+	drop.tween_property(cage, "global_position", head.global_position, cage_drop_time) \
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_IN)
 	await drop.finished
 	# Landed: the head is now the caged head. Hide the falling cage and switch
 	# the real head's loop so the roll that follows is one caged head, not two.
+	if cage_land_sound != null:
+		_cage_sound.stream = cage_land_sound
+		_cage_sound.play()
 	cage.visible = false
 	head.rotation = 0.0
 	head.play(cage_anim)
+	print("PLAY ROLLING")
+	print(_cage_rolling_sound.stream)
 	# The impact squash from the base; when it returns, the head rolls.
 	await super()
+	_cage_rolling_sound.play()
