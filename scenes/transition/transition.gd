@@ -96,7 +96,12 @@ signal body_arrived
 @onready var head: AnimatedSprite2D = $HeadPath/Follow/Head
 @onready var body: CharacterBody2D = $Body
 @onready var fade: ColorRect = $FadeOverlay/Fade
-@onready var _cage_rolling_sound: AudioStreamPlayer = $CageRollingSound
+## Optional: only transition_cage.tscn actually has a CageRollingSound node
+## (it's cage-specific, not a shared part of every fork's slope). get_node_or_null
+## instead of $ so a fork without one — transition_glasses.tscn, or the base
+## transition.tscn itself — doesn't crash at _ready(); the `if _cage_rolling_sound:`
+## guards below already treat a missing player as "no rolling sound here".
+@onready var _cage_rolling_sound: AudioStreamPlayer = get_node_or_null("CageRollingSound")
 
 var _rolling: bool = false
 var _head_stopped: bool = false

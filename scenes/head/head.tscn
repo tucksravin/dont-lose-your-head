@@ -20,6 +20,7 @@ animation = &"loose"
 autoplay = "loose"
 
 [node name="PanicSound" type="AudioStreamPlayer" parent="." unique_id=1610215940]
+volume_db = -5.0
 bus = &"SFX"
 
 [node name="CalmSound" type="AudioStreamPlayer" parent="." unique_id=1543848886]
