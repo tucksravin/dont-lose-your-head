@@ -745,3 +745,42 @@ Rendered the title (no kikis, confirmed) and the transition's opening frame (hea
 **Open:**
 - [tools/smoke/play_through.gd](tools/smoke/play_through.gd)'s intro plan is now `{"wait": 7.5}` then `{"run": "move_right"}` — it has to sit through the scripted 8 s and then run, and a bare `run` from t=0 would time out at 10 s against a ~12 s scene. Not run (your standing ask), just kept true.
 - The cage's 150 and the bird's 0.15 hold are single numbers on the scene roots if either beat wants to be earlier or later still.
+
+## 2026-08-22 20:00 — Transition hill: flat spot moved to the far side
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "for all the transitions, move flat part for the head to the far side of the screen so the unfortunate event has time to occur"
+**Did:** Asked first, because "the flat part" could mean the spot the head **starts** on or the spot it **stops** on, and the two build different scenes. You picked **where it comes to rest**, so the shelf moved from the top of the hill to the bottom.
+- **[scenes/transition/transition.tscn](scenes/transition/transition.tscn)** — the shared hill is now **1-in-3 all the way down** (−40,100)→(500,280), then a **240 px flat shelf** (500,280)→(740,280), ~140 px of it on screen. The old 60 px shelf at x=200–260 is gone. Head path re-fitted to 3 points **(230,174)→(500,264)→(560,264)** — parallel to the slope, then flat across the shelf. **The rest point (560,264) is byte-identical to before**, which is why `transition_bird.tscn` needed no changes at all: every one of the bird's offsets is relative to the head.
+- Two numbers that fell out nicely rather than being tuned: the new path is **344.6 px** long vs 336.2 before, so `roll_time` 1.0 / `brake_time` 0.3 still read the same; and `brake_ratio` 0.85 now puts the brake **on the flat** — the head reaches level ground 8 px before it starts slowing and stops on it. The body's spawn (50,130) is untouched because x=50 is left of everything that moved.
+- **[transition_cage.tscn](scenes/transition/transition_cage.tscn)** — curve re-fitted to **(230,174)→(500,264)→(720,264)**, total 504.6 px vs 504.9 before, so `roll_time` 1.6 / `brake_ratio` 1.0 are unchanged and it still leaves the screen at the same speed. It now crosses the shelf and rolls off along the level ground. Also updated the stale `Follow` position override (240,164)→(230,174) — runtime overwrites it, but it put the head in the wrong place in the editor viewport.
+- **[transition_glasses.gd](scenes/transition/transition_glasses.gd)** — `exit_end` **(720,317) → (720,264)**, 16 px above the new shelf. The skull now rolls off along the flat instead of still descending. `glasses_fly_at` 0.42 lands at x≈367 (was ≈375) so I left it. **Sean/Ben: still a one-line default in your fork.**
+- Docs: [docs/CODEBASE.md](docs/CODEBASE.md) §6.2 (geometry + all three forks' measurements) and [docs/DESIGN.md](docs/DESIGN.md) Transitions row (the decision, and the option that was rejected).
+**Verified:** `--import` clean, no errors. Headless probe, one process per scene (a finished transition calls `Game.next_day()`, which drops the next day into the same tree and shoves the next scene's body around — that cost me a bogus run), holding the real `move_right` action the whole way:
+- **bird** — trigger 0.55 s (body x=132) → head stops **on the shelf at 1.87 s with the body 230 px back** → bird takes it at 2.87 s, body still **79 px short** (was 72) → hand-off 4.55 s.
+- **cage** — cage fires 0.22 s in, body **149 px short** (was 149) → head stops off screen at (720,264) → hand-off 5.20 s.
+- **glasses** — head off at (720,264), hand-off 1.95 s.
+- **Min vertical clearance over the ground, sampled every physics frame across all three: 15.9–16.0 px.** It rides exactly 16 px above the slope *and* the shelf.
+- Rendered windowed at 640×360 and eyeballed: opening frame, the head stopped upright and level on the far-right shelf with the body still mid-slope, the bird arriving there, and the caged head tumbling. **Not verified: how any of it feels.** Your pass.
+**Open:**
+- **The cage's beat did not get more time, and I did not give it any.** Its event is `_play_arrival`, at the *top* of the hill — this change moved the flat spot to the *bottom*, so the drop still fires 0.22 s in with the body 149 px short. That looks deliberate: you set `trigger_distance` 150 last pass specifically so "the player could be holding forward and not get to the head in time". If you want the drop later, it's that one number on the scene root (e.g. 40 → fires ~1.0 s in with a real run-up). Say the word.
+- **The head now starts parked on the incline**, which is the exact thing the shelf originally fixed ("a ball parked on an incline read as a bug"). You chose one shelf at the far side over a shelf at each end, so I built one — but it's a two-point edit if the opening frame bothers you when you play it.
+- Right of x=500 the ground surface sits **60 px higher** than before (y=280 vs 340 at the right edge), so there's noticeably more green in the bottom-right corner. Reads fine in the renders; flagging it because it changes the framing.
+- Still not run: `tools/smoke_test.sh` (your standing ask).
+
+## 2026-08-22 20:11 — Duplicate `_on_visual_looped` in barbell.gd (parse error)
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** `Error at (93, 6): Function "_on_visual_looped" has the same name as a previously declared function.`
+**Did:** [scenes/gameplay/barbell.gd](scenes/gameplay/barbell.gd) had **two byte-identical copies** of `_on_visual_looped()` at lines 87 and 93. Deleted the second. Nothing else touched — no behaviour change, the surviving copy is the original.
+- **Not mine and not local: it's committed on `main`**, in **`bb07a47` "Fix barbell animation (#54)" (smahre)**, which merged after this session started. The diff adds the function a second time (`@@ -90,6 +90,12 @@`) rather than editing it — looks like a paste during conflict resolution. **smahr: flagging since it's your file and your PR.**
+- Same commit also added `visible = false` to the transition's `Instruction` label; my hill edits from the entry above sit on top of it cleanly, it survived.
+- Swept every tracked `.gd` for repeated `func` names in the same file — **barbell.gd was the only one.**
+**Verified:** `--import` clean, no parse errors. Loaded [day_workout.tscn](scenes/days/day_workout.tscn) (the scene that actually uses the barbell) headless — clean apart from the pre-existing "11/11 Sfx cues have no file yet" notice. **Not verified: that a lift still animates on a mash** — that needs a human on Space. Pure deletion of an exact duplicate, so it shouldn't have moved.
+**Open:**
+- Worth a glance at how #54 was merged; if the same paste happened elsewhere in that PR it wouldn't show as a duplicate-name error. The other files it touched were `body.gd` (+24), `day_manager.gd` (+11), `panic_label.gd` (+1) — I did not review those.
+
+## 2026-08-22 20:24 — Correction to the entry above
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "sean also fixed on main so we don't need to double up on that"
+**Did:** **Dropped my `barbell.gd` change.** Sean landed the same fix in **`52e0b89` "fixes a couple of bugs" (#56)** — the identical 6-line deletion of the duplicate `_on_visual_looped()`. Reverted my copy so the branch below doesn't carry a redundant edit. The diagnosis in the entry above still stands; only the fix was duplicated work.
+**Verified:** `git show origin/main:scenes/gameplay/barbell.gd | grep -c "^func _on_visual_looped"` → **1**. Working tree matches main for that file.
+**Open:** none.
