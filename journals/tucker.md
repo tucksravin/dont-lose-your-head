@@ -658,3 +658,19 @@ Added **`mid`** and **`rise`** animations to `button_frames.tres` (frame 1 alone
 **Did:** my bug, from assembling the stomp branch. `button.png` was doubled to **96×32** (frames 32×32 at x 0/32/64) but `button_frames.tres` still carried the **old 16×16 regions** — every frame sampled the empty top-left quarter of a cel, so all three frames were fully transparent: the panic release button and all three lockdown answer plates rendered as nothing. Cause: I added the `mid`/`rise` animations to the copy of `button_frames.tres` in the checkout, which at that moment was on a branch off origin/main **without** the doubling; copying that file into the worktree overwrote the cherry-picked version that had the 32×32 regions. Fixed the three `AtlasTexture` regions to `Rect2(0|32|64, 0, 32, 32)`.
 **Verified:** loaded `button_frames.tres` headless and counted opaque pixels per frame — `off` 80, `mid` 56, `on` 32 (all were **0** before). `--import` clean.
 **Open:** none. Lesson for me: after cherry-picking, never `cp` a file over the result from a checkout on a different base — re-apply the edit instead.
+
+## 2026-08-22 17:57 — Bird sprite: palette recolour + SpriteFrames
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 39434611)
+**Asked:** "I got a bird sprite, it's on my desktop, can you match the palette recolor i did across the frames?"
+**Did:**
+- Unpacked `~/Desktop/Bird.zip` (16 sprites, 16×16: idle ×2, flying ×8, walking ×3, eating ×3). All 16 shared one 10-colour off-palette set — nothing in the zip was pre-recoloured, so "match the recolour I did" = the same treatment as the tbbk skeleton: everything onto Gooseberry Ghost.
+- Mapped the 10 source colours onto 5 palette swatches, **luminance order preserved** (no two steps cross): eye `#130d1d` + dark edge `#4d3928` → `#201c02` · shadow/feet `#573e37` + body/wings `#755137` → `#45381c` · highlight `#977547` + belly mid `#ba7c37` → `#645543` · belly rim `#cf9049` + beak shadow `#c2a652` + collar `#9badb7` → `#cdcd99` · face/beak `#ebc659` → `#f1ffaf`.
+- Rendered three candidates over the `#988277` sky (dark brown / warm brown / green) and picked **dark brown** — biggest luminance gap from the sky (Δ79 vs Δ48), and the bone face keeps the eye readable at 16 px. Warm and green are a one-line swap if Tucker prefers them; preview sent.
+- Flattened the 16 sprites into one horizontal strip [assets/sprites/bird.png](assets/sprites/bird.png) (256×16) in the repo's usual layout, and wrote [assets/sprites/bird_frames.tres](assets/sprites/bird_frames.tres): `fly` f2–9 @14 fps · `idle` f0–1 @4 · `walk` f10–12 @8 · `eat` f13–15 @6, all looping.
+- Sources kept both ways: `src/bird.aseprite` (recoloured strip) and `src/bird_original.aseprite` (untouched original).
+- Docs: a Bird paragraph in [assets/sprites/README.md](assets/sprites/README.md) with the full colour map, and a line in [assets/sprites/CREDITS.md](assets/sprites/CREDITS.md).
+- No PIL/ImageMagick on this machine — wrote a throwaway pure-stdlib PNG codec in the scratchpad to do the pixel work. Nothing added to `tools/`.
+**Verified:** `--import` clean; a targeted `-s` probe loaded `bird_frames.tres` and printed all four animations at the right frame counts/fps, and counted every opaque pixel in `bird.png` — exactly `#45381c`:470 `#201c02`:146 `#cdcd99`:141 `#645543`:128 `#f1ffaf`:64, i.e. 100% palette. No smoke suite (Tucker's standing ask), not eyeballed in-engine yet — it isn't instanced in a scene until the bird transition is built.
+**Open:**
+- **CREDITS needs the bird's source + licence** — I don't know where it came from. Must be filled in before we ship (jam rules + the no-generative-art line).
+- Bird renders at 2× = 32×32, same size as the head it's meant to carry. If it should be visibly bigger, that's `scale` on the instance — say the word.

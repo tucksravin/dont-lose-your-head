@@ -7,6 +7,7 @@
 - **Barbell** (`barbell.png`, source `src/barbell.aseprite`): drawn by Tucker for this jam (Sat).
 - **Button** (`button.png`, source `src/button.aseprite`): drawn by Tucker for this jam (Sat).
 - **Tree** (`tree.png`, source `src/tree.aseprite`): drawn by Tucker for this jam (Sat).
+- **Bird** (`bird.png`, sources `src/bird.aseprite` recoloured, `src/bird_original.aseprite` untouched): third-party pixel art brought in by Tucker (Sat) — **source + licence: TODO, Tucker to fill in before we ship**. Modified: recoloured to the palette (10 colours → 5; the ramp order is preserved), 16 frames flattened into one 256×16 strip (idle 0–1, fly 2–9, walk 10–12, eat 13–15).
 - **Palette:** Gooseberry Ghost (8) + one bone-shadow swatch `#cdcd99` + a violet ramp `#5e2d8c` `#8a4fb5` `#c79df2` (intrusive thoughts / kikis).
 
 No generative art was used anywhere in this project.
