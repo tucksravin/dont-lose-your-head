@@ -96,6 +96,7 @@ signal body_arrived
 @onready var head: AnimatedSprite2D = $HeadPath/Follow/Head
 @onready var body: CharacterBody2D = $Body
 @onready var fade: ColorRect = $FadeOverlay/Fade
+@onready var _cage_rolling_sound: AudioStreamPlayer = $CageRollingSound
 
 var _rolling: bool = false
 var _head_stopped: bool = false
@@ -126,13 +127,20 @@ func _run() -> void:
 	head_rolled.emit()
 	# Knocked loose: off at speed down the slope, braking into the final stop.
 	var roll: Tween = create_tween()
-	roll.tween_property(follow, "progress", total * brake_ratio, roll_time)\
+	roll.tween_property(follow, "progress", total * brake_ratio, roll_time) \
 			.set_trans(Tween.TRANS_LINEAR)
-	roll.tween_property(follow, "progress", total, brake_time)\
+	roll.tween_property(follow, "progress", total, brake_time) \
 			.set_trans(Tween.TRANS_QUAD).set_ease(Tween.EASE_OUT)
+	if _cage_rolling_sound:
+		var fade_out: Tween = create_tween()
+		fade_out \
+				.tween_property(_cage_rolling_sound, "volume_db", -30, roll_time + brake_time) \
+				.set_trans(Tween.TRANS_LINEAR)
 	await roll.finished
 	_rolling = false
 	_head_stopped = true
+	if _cage_rolling_sound:
+		_cage_rolling_sound.stop()
 	# ...and the beat only ends once the body is actually there.
 	await _wait_for_gap(arrive_distance, -1.0)
 	await get_tree().create_timer(hold_after_arrival).timeout
@@ -162,7 +170,10 @@ func _wait_for_gap(max_gap: float, timeout: float) -> void:
 	var tree: SceneTree = get_tree()
 	var expired: Array[bool] = [false]
 	if timeout > 0.0:
-		tree.create_timer(timeout).timeout.connect(func() -> void: expired[0] = true)
+		tree.create_timer(timeout).timeout.connect(
+			func() -> void:
+				expired[0] = true,
+		)
 	while not expired[0] and not _gap_ok(max_gap):
 		await tree.physics_frame
 
@@ -182,7 +193,7 @@ func _physics_process(delta: float) -> void:
 		# The player is driving. "Reached" = level with the STOPPED head, or past it.
 		if _head_stopped and _gap_ok(arrive_distance):
 			_arrived = true
-			body.is_scripted = true  # controls off; we settle it from here
+			body.is_scripted = true # controls off; we settle it from here
 			body_arrived.emit()
 		return
 	# Pulled up: no input, but keep gravity and friction so a mid-jump arrival
@@ -204,6 +215,6 @@ func _physics_process(delta: float) -> void:
 func _play_arrival() -> void:
 	var squash: Tween = create_tween()
 	squash.tween_property(head, "scale", _head_scale * Vector2(1.15, 0.85), 0.08)
-	squash.tween_property(head, "scale", _head_scale, 0.16)\
+	squash.tween_property(head, "scale", _head_scale, 0.16) \
 			.set_trans(Tween.TRANS_BACK).set_ease(Tween.EASE_OUT)
 	await squash.step_finished

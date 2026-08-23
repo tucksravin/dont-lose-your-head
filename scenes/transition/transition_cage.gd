@@ -34,7 +34,6 @@ extends "res://scenes/transition/transition.gd"
 
 @onready var cage: AnimatedSprite2D = $Cage
 @onready var _cage_sound: AudioStreamPlayer = $CageSound
-@onready var _cage_rolling_sound: AudioStreamPlayer = $CageRollingSound
 
 
 func _play_arrival() -> void:
@@ -60,8 +59,6 @@ func _play_arrival() -> void:
 	head.play(cage_anim)
 	print("PLAY ROLLING")
 	print(_cage_rolling_sound.stream)
-	await _cage_sound.finished
-	_cage_rolling_sound.play()
 	# The impact squash from the base; when it returns, the head rolls.
 	await super()
-	_cage_rolling_sound.stop()
+	_cage_rolling_sound.play()
