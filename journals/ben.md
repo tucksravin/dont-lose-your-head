@@ -297,3 +297,41 @@
 **Open:**
 - Not eyeballed in the editor (§4): the fade-in timing, whether the head sits right on the neck at idle (the −52 mount was measured off the *walk* frames' bob), and whether the sun at x=500 crowds the standing pair at x=320.
 - Does the ending want a way back to the title, or is a static card the intended full stop?
+
+## 2026-08-22 20:12 — Replay button on the end card
+**Driver:** Ben · **Agent:** Claude Opus 5 (Claude Code) · **Branch:** `replay`
+**Asked:** "Add a replay button to the thank you scene that takes you back to the intro scene"
+**Did:**
+- `scenes/ui/thanks.tscn`: added a `Replay` Button under `UI/Root`, centred at y 140–180 — the same slot and the same three StyleBoxFlats (normal / hover / pressed) the title screen's Play button uses, so the two ends of the run match. Styles are duplicated inline rather than pulled into a shared theme: a shared `.tres` is the right call eventually, but not mid-jam on a file two people are touching.
+- `scenes/ui/thanks.gd`: `@export_file("*.tscn") var replay_scene = "res://scenes/intro/intro.tscn"`, `grab_focus()` on the button (so Enter/Space work as well as the mouse — a focused Button handles `ui_accept` itself, no input code here), `Sfx.play(&"ui_confirm")`, and a `_restarting` guard so a double-click can't fire two `change_scene` calls in one frame. Same shape as title.gd's `_on_play`.
+- Back to the **intro**, not the title: title is the "press play" landing page and you already pressed it. Nothing to reset here either — intro.gd sets `Game.wearing_glasses = true` on entry and ends by calling `Game.start_days()`, which resets `current_day`.
+- **Scene-file note (§6):** `thanks.tscn` was last touched by `4dd81a1 Add thank you message (#55)` and had been re-saved from the editor since my last entry — the `HorizonSun` sprite removed, the label changed to "Thank you for playing!", `unique_id`/`layout_mode` added by Godot. I added the button to the file **as it now stands** and kept those edits; my diff is 61 added lines, nothing removed, nothing reordered. There is also an unrelated 2-line editor churn in the working tree (`grow_horizontal`/`grow_vertical` on `UI/Root`) that was already there — not mine, left alone. **If anyone has the scene open in the editor, re-saving will drop the button — pull first.**
+**Verified:**
+- Throwaway SceneTree check (`tools/smoke/_thanks_replay_check.gd`, deleted after + its `.uid`): loaded the real scene, found the button, confirmed its text, confirmed it starts focused, confirmed `replay_scene` resolves, then emitted `pressed` and waited for the scene swap — **6/6 ok, "pressing Replay landed on intro.tscn"**.
+- `--headless --path . --import` — no errors from anything in scenes/ui/.
+- `day_chain` — SMOKE PASS (40 checks).
+- `load_all` — **1 of 92 FAILED, and it is not this change**: `scenes/gameplay/barbell.gd` no longer compiles. `bb07a47 Fix barbell animation (#54)` left **two byte-identical copies of `_on_visual_looped()`** in the file (lines 87–91 and 93–97) → `Parse Error: Function "_on_visual_looped" has the same name as a previously declared function`. That kills the whole script, so `day_workout` has no working barbell right now. Same suite passed 92/92 earlier this session, so it arrived with that commit. Deleting either copy fixes it — I did **not** touch it (someone else's file, wants its own commit).
+- `play_through` — still the known `day_panic` "walk_to 520 stalled at x=165" failure, unchanged from previous entries. Worth flagging that this stall means the bot **never reaches the reunion**, so nothing in the suite currently exercises the reunion → end card → replay path end to end; the throwaway checks are all the cover that flow has.
+- `audio` — still running when this was written; it does not touch scenes/ui.
+**Open:**
+- Not eyeballed in the editor (§4): whether the button at y 140 crowds the dispersing kiki cloud (the cloud is world-space, the button is on a CanvasLayer, so the button always draws over it — worth a look at whether that reads as intended).
+- Button text is a plain "Play Again". The title's button has voice ("Let the Intrusive Thoughts In"); if the ending wants a matching line, that's a one-word-in-the-.tscn change and the team's call, not mine.
+- Someone needs to fix the duplicated `_on_visual_looped()` in `scenes/gameplay/barbell.gd` — the suite is red until then.
+
+## 2026-08-22 20:22 — Replay button didn't actually work — the fade overlay was eating the click (correction to 20:12)
+**Driver:** Ben · **Agent:** Claude Opus 5 (Claude Code) · **Branch:** `replay`
+**Asked:** "let's focus on getting the thank you screen button to ACTUALLY LOAD THE FUCKING INTRO SCENE"
+**Correction to the 20:12 entry:** that entry's "6/6 ok, pressing Replay landed on intro.tscn" was **not a real test of the button**. It called `button.emit_signal("pressed")`, which fires the callback directly and skips every hit-test the engine does — so it proved the *handler* worked while the button was, in the actual game, unclickable. Emitting the signal is not clicking. My mistake, and exactly the class of bug that method can never catch.
+**The bug:** `thanks.tscn`'s `FadeOverlay/Fade` is a full-screen `ColorRect` on a CanvasLayer at **layer 20**, while the UI (and the button) sit on the layer-10 `UI` CanvasLayer. A `ColorRect` defaults to `mouse_filter = MOUSE_FILTER_STOP`, and **alpha 0 is still opaque to input** — invisible to the eye is not invisible to the mouse. Input goes to the highest CanvasLayer first, so the faded-out black rectangle swallowed every click before the Button ever saw it.
+**Did:**
+- `scenes/ui/thanks.tscn`: one line — `mouse_filter = 2` (`MOUSE_FILTER_IGNORE`) on `FadeOverlay/Fade`. Whole fix.
+- Left `reunion.tscn`'s identical fade alone: same latent trap, but nothing on that screen is clickable, so it costs nothing today (§7). Worth knowing if anyone ever puts a button there.
+- Note for anyone adding UI later: `game_over.tscn`'s `Dim` ColorRect has the same default, but its Retry button is *after* it in tree order (input walks children in reverse), so Retry still gets the click. It works by ordering, not by design.
+**Verified** — throwaway `tools/smoke/_thanks_click_check.gd` (deleted after + its `.uid`), which routes a real `InputEventMouseButton` through the viewport instead of emitting the signal, and also reports which Control is actually front-most at the click point. Ran it **A/B against the one-line change**:
+- without `mouse_filter = 2`: `click point (320,161) is over: /root/ThanksScreen/FadeOverlay/Fade (ColorRect)` · `pressed fired = false` · did not load the intro → **2 of 3 FAIL**
+- with it: `click point (320,161) is over: /root/ThanksScreen/UI/Root/Replay (Button)` · `pressed fired = true` · `ok clicking Replay loaded intro.tscn` → **SMOKE PASS**
+- Test gotcha worth writing down: `Viewport.push_input(ev)` treats the position as *window* coords, and headless runs at `root.size = (64, 64)` with a 0.1 screen transform — so the first version of the click test missed the button entirely for reasons that had nothing to do with the bug. `push_input(ev, true)` (`in_local_coords = true`) is what you want when the position came from `Control.get_global_rect()`.
+- `--import` clean. `load_all` **SMOKE PASS (92 checks)** — the duplicated `_on_visual_looped()` in `barbell.gd` flagged at 20:12 is gone after Ben pulled main, so that suite is green again.
+**Open:**
+- Still not eyeballed by a human (§4) — but the click path is now proven by real routed input, not by a signal emit.
+- Nothing in the suite covers reunion → end card → replay: `play_through` still stalls on `day_panic` long before it gets there. A small permanent suite for the ending (load the end card, click the button, assert the intro loads) would have caught this and would catch the next person who parks a full-screen overlay over a button — offered to the team, not added unasked (§2).
