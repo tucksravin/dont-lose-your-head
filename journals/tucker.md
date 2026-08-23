@@ -625,3 +625,21 @@ Per-person LLM work log (CLAUDE.md §1). Entries before 2026-08-21 18:32 are in 
 - Checked the other candidates and left them: the lockdown **pedestal** (32×48 raised block, not a floor button) and **spatial_goal.tscn** (32×32 green "stand here" marker used by day_template — a goal area, not a button). Say the word if either should get the art.
 **Verified:** `--import` clean; windowed render of the lockdown puzzle — the plate under the body is pressed flat, the other two have their studs up, digits still legible above. (Smoke skipped per Tucker.)
 **Open:** none.
+
+## 2026-08-22 17:13 — Floor plates: you have to jump on them; they catch the impact and rise again
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "should have to jump on the button to activate, catch body's momentum in the animation and rise back up after leaving. also please don't run smoke tests, these also need to be on a branch and then pulled into main like before"
+**Did:** new **`scenes/gameplay/floor_plate.gd`** (`class_name FloorPlate`, extends AnimatedSprite2D) — one node for every floor button:
+- walking over it plays **`mid`** (squashed under the body's weight) and does nothing else;
+- **landing** on it plays **`press`** and emits **`stomped(impact)`** — that is the activation;
+- **momentum:** it remembers the body's fastest downward speed while airborne and uses it as `speed_scale` on `press` (`clamp(impact / base_impact 300, 0.6, 2.5)`), so a drop from height slams harder than a hop in place; `impact` is passed to `stomped` too;
+- stepping off plays **`rise`** back to the raised frame;
+- `latch` keeps it down for good once stomped (the panic button, since the cage stays open); `enabled`/`set_live()` for the lockdown setup beat.
+Added **`mid`** and **`rise`** animations to `button_frames.tres` (frame 1 alone; 2→1→0 at 18 fps).
+- **`day_panic.gd`**: stepping on the button no longer opens the cage — it only grants `kiki_safe`; the cage opens on `stomped`. Copy is now "Jump on the button to free the cage."
+- **`answer_pad.gd`** rewritten around the plate (it was already landing-gated): the Area2D occupancy bookkeeping and its own `landed` plumbing are gone — the plate owns detection, this script just turns `stomped` into `chosen(value)`.
+**Two things this branch also rescues** (both were stranded, see Open): the **doubled button** (48×16 → 96×32) and the **answer plates using the button art**, cherry-picked here.
+**Verified:** `--import` clean, and a headless trace of the panic button: walking over it → `mid`, no open; hop → `STOMPED impact=288`, cage opened, plate holds `press`. Feel is Tucker's to judge — no smoke run (his call).
+**Open / for Tucker:**
+1. **Your local `main` is 2 commits ahead of origin and 1 behind.** Those two ahead are the doubled button + plate swap: they were committed onto `main` in your checkout instead of the branch, so PR #40 never contained them and they were never pushed. They are on this branch now. After it merges: `git checkout main && git reset --hard origin/main`.
+2. **The Godot editor open on the repo silently reverted my `.tscn` edits twice** (it re-saved `day_panic.tscn` from a stale in-memory copy, undoing the button offset). That is why this work was built in a separate git worktree. Close or reload the editor before pulling.

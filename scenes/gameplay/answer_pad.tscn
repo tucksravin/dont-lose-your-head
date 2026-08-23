@@ -1,7 +1,8 @@
-[gd_scene load_steps=4 format=3]
+[gd_scene load_steps=5 format=3]
 
 [ext_resource type="Script" path="res://scenes/gameplay/answer_pad.gd" id="1_pad"]
 [ext_resource type="SpriteFrames" uid="uid://v3pomc0to6l7" path="res://assets/sprites/button_frames.tres" id="2_button"]
+[ext_resource type="Script" path="res://scenes/gameplay/floor_plate.gd" id="3_plate"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_pad"]
 size = Vector2(32, 8)
@@ -19,6 +20,8 @@ sprite_frames = ExtResource("2_button")
 animation = &"off"
 centered = false
 offset = Vector2(-16, -32)
+script = ExtResource("3_plate")
+enabled = false
 
 [node name="Label" type="Label" parent="."]
 offset_left = -40.0
