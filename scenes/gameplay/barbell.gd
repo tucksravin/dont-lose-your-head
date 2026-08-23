@@ -66,7 +66,7 @@ func _physics_process(_delta: float) -> void:
 ## One lift stroke — plays `lifting` from the start so a mash reads as a pump.
 ## The clip loops in the sheet; `_on_visual_looped` parks on `with_body`
 ## after one squat→press so it does not run on its own. Called from the
-## day on each `jump` (Space / up).
+## day on each `jump` (W / up).
 func pump() -> void:
 	if not _held or visual == null:
 		return

@@ -14,7 +14,7 @@ Game jam entry — theme **Body and Mind**. Godot **4.7.1** (standard/GDScript b
 1. Install **Godot 4.7.1** (standard, *not* .NET): https://godotengine.org/download — on macOS it's already at `/Applications/Godot.app`.
 2. Clone, then open Godot → **Import** → pick `project.godot` in this folder.
 3. First open takes a moment (importing). Then **Run Project** (`F5` / `⌘B` on macOS).
-4. You should land on the **landing screen** — *"Let the Intrusive Thoughts In"* — with the guy walking in place under it. Clicking it (or Enter/Space) plays the **intro**: he stops by a slope, intrusive thoughts wind his head up until it pops off and rolls away — and the moment it goes you get the controls (`A/D` move, `Space` jump) and have to follow it down the hill and off the right edge. The chase carries straight on into the next scene, where a bird takes the head before you can reach it. `F9` shows the debug overlay, `F7` skips to the next scene (debug builds only). The old "template OK — press a key" screen is `scenes/main.tscn`, now only the placeholder after the reunion.
+4. You should land on the **landing screen** — *"Let the Intrusive Thoughts In"* — with the guy walking in place under it. Clicking it (or Enter/Space) plays the **intro**: he stops by a slope, intrusive thoughts wind his head up until it pops off and rolls away — and the moment it goes you get the controls (`A/D` move, `W`/`↑` jump) and have to follow it down the hill and off the right edge. The chase carries straight on into the next scene, where a bird takes the head before you can reach it. `F9` shows the debug overlay, `F7` skips to the next scene (debug builds only). The old "template OK — press a key" screen is `scenes/main.tscn`, now only the placeholder after the reunion.
 5. **Tonight, while on wifi:** Editor → **Manage Export Templates → Download and Install** (≈1 GB, one-time) so `tools/export_web.sh` works on *your* machine too. Sanity check from a terminal: `/Applications/Godot.app/Contents/MacOS/Godot --headless --path . --quit-after 60` should print no errors.
 6. Editing scripts: Godot's built-in script editor is fine. If you'd rather use VS Code, install the **godot-tools** extension and set `godotTools.editorPath.godot4` to `/Applications/Godot.app` (that lives in `.vscode/`, which is git-ignored). `F5`/`⌘B` runs the project, `F6`/`⌘R` runs the scene you have open.
 
@@ -42,9 +42,9 @@ Everything is a **Node**; a **Scene** (`.tscn`, a text file) is a saved node tre
 | Action | Keyboard | Gamepad |
 |---|---|---|
 | `move_left` / `move_right` | A / D, ← / → | Left stick X, D-pad |
-| `jump` | Space, W, ↑ | A (bottom face button) |
+| `jump` | W, ↑ | A (bottom face button) |
 | `interact` | E, ↓ | X (left face button) — **unused: nothing in the game reads it** (Sat, Tucker: no use key; you trigger things by reaching them). Binding kept so a day can pick it up again. |
-| `move_down` | ↓ | D-pad down — mirror day only: jump while the head stares at the glass |
+| `move_down` | S, ↓ | D-pad down — mirror day only: jump while the head stares at the glass (mirrors `jump`'s W / ↑) |
 | `restart` | R | Back/Select |
 | `pause` | Esc | Start |
 
