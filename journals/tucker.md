@@ -651,3 +651,10 @@ Added **`mid`** and **`rise`** animations to `button_frames.tres` (frame 1 alone
 - Fixed a stale comment in `answer_pad.gd` that still claimed a wrong answer fails the day.
 **Verified:** `--import` clean. Not play-tested by me — Tucker is testing (his call, no smoke runs).
 **Open:** `buck_velocity` is an `@export` on PuzzleChain if the pop is too weak or too wild.
+
+## 2026-08-22 17:26 — Fix: buttons invisible on main (atlas regions still 16×16)
+**Driver:** Tucker · **Agent:** Claude Fable 5
+**Asked:** "buttons are invisible on main"
+**Did:** my bug, from assembling the stomp branch. `button.png` was doubled to **96×32** (frames 32×32 at x 0/32/64) but `button_frames.tres` still carried the **old 16×16 regions** — every frame sampled the empty top-left quarter of a cel, so all three frames were fully transparent: the panic release button and all three lockdown answer plates rendered as nothing. Cause: I added the `mid`/`rise` animations to the copy of `button_frames.tres` in the checkout, which at that moment was on a branch off origin/main **without** the doubling; copying that file into the worktree overwrote the cherry-picked version that had the 32×32 regions. Fixed the three `AtlasTexture` regions to `Rect2(0|32|64, 0, 32, 32)`.
+**Verified:** loaded `button_frames.tres` headless and counted opaque pixels per frame — `off` 80, `mid` 56, `on` 32 (all were **0** before). `--import` clean.
+**Open:** none. Lesson for me: after cherry-picking, never `cp` a file over the result from a checkout on a different base — re-apply the edit instead.
