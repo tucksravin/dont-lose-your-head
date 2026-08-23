@@ -28,7 +28,7 @@ enum Phase { WALKING, MERGING, RIGHTING, SUNSET, DONE }
 @export var walk_off_speed: float = 150.0
 @export var exit_x: float = 700.0
 @export var fade_duration: float = 0.8
-@export var next_scene: String = "res://scenes/main.tscn"
+@export var next_scene: String = "res://scenes/ui/thanks.tscn"
 
 @onready var head_blob: Head = $Head
 @onready var body_blob: CharacterBody2D = $Body

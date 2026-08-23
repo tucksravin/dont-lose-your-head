@@ -1,8 +1,8 @@
-[gd_scene load_steps=7 format=3]
+[gd_scene format=3 uid="uid://dm6g4ar7tx14u"]
 
-[ext_resource type="Script" path="res://scenes/reunion/reunion.gd" id="1_reunion"]
+[ext_resource type="Script" uid="uid://ls6i52el86vh" path="res://scenes/reunion/reunion.gd" id="1_reunion"]
 [ext_resource type="PackedScene" uid="uid://ckkidbot3beas" path="res://scenes/body/body.tscn" id="2_body"]
-[ext_resource type="PackedScene" path="res://scenes/head/head.tscn" id="3_head"]
+[ext_resource type="PackedScene" uid="uid://icgagian0sgo" path="res://scenes/head/head.tscn" id="3_head"]
 [ext_resource type="Texture2D" uid="uid://cde00sdoc782w" path="res://assets/sprites/sun.png" id="4_sun"]
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_floor"]
@@ -10,61 +10,63 @@ size = Vector2(640, 40)
 
 [sub_resource type="LabelSettings" id="LabelSettings_prompt"]
 font_size = 10
-font_color = Color(0.945098039215686, 1, 0.686274509803922, 1)
+font_color = Color(0.94509804, 1, 0.6862745, 1)
 
-[node name="ReunionScene" type="Node2D"]
+[node name="ReunionScene" type="Node2D" unique_id=818718428]
 script = ExtResource("1_reunion")
 
-[node name="Background" type="Polygon2D" parent="."]
+[node name="Background" type="Polygon2D" parent="." unique_id=763129986]
 z_index = -1
+color = Color(0.59607846, 0.50980395, 0.46666667, 1)
 polygon = PackedVector2Array(0, 0, 640, 0, 640, 360, 0, 360)
-color = Color(0.596078431372549, 0.509803921568627, 0.466666666666667, 1)
 
-[node name="Camera2D" type="Camera2D" parent="."]
+[node name="Camera2D" type="Camera2D" parent="." unique_id=616804446]
 position = Vector2(320, 180)
 
-[node name="Floor" type="StaticBody2D" parent="."]
+[node name="Floor" type="StaticBody2D" parent="." unique_id=854761105]
 
-[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor" unique_id=2120591962]
 position = Vector2(320, 340)
 shape = SubResource("RectangleShape2D_floor")
 
-[node name="Visual" type="ColorRect" parent="Floor"]
+[node name="Visual" type="ColorRect" parent="Floor" unique_id=1818046314]
 offset_top = 320.0
 offset_right = 640.0
 offset_bottom = 360.0
 mouse_filter = 2
-color = Color(0, 0.415686274509804, 0.23921568627451, 1)
+color = Color(0, 0.41568628, 0.23921569, 1)
 
-[node name="HorizonSun" type="Sprite2D" parent="."]
+[node name="HorizonSun" type="Sprite2D" parent="." unique_id=1129568192]
 z_index = -1
 position = Vector2(580, 88)
 scale = Vector2(3, 3)
 texture = ExtResource("4_sun")
 
-[node name="Head" parent="." instance=ExtResource("3_head")]
+[node name="Head" parent="." unique_id=647551338 instance=ExtResource("3_head")]
 position = Vector2(480, 304)
-rotation = 3.14159265358979
+rotation = 3.1415927
 
-[node name="Body" parent="." instance=ExtResource("2_body")]
+[node name="Body" parent="." unique_id=1290933380 instance=ExtResource("2_body")]
 position = Vector2(100, 320)
 
-[node name="InteractPrompt" type="Label" parent="."]
+[node name="InteractPrompt" type="Label" parent="." unique_id=130099992]
 visible = false
-position = Vector2(452, 264)
-size = Vector2(80, 20)
+offset_left = 452.0
+offset_top = 264.0
+offset_right = 532.0
+offset_bottom = 287.0
 text = "E: reunite"
-horizontal_alignment = 1
 label_settings = SubResource("LabelSettings_prompt")
+horizontal_alignment = 1
 
-[node name="FadeOverlay" type="CanvasLayer" parent="."]
+[node name="FadeOverlay" type="CanvasLayer" parent="." unique_id=448114378]
 layer = 10
 
-[node name="Fade" type="ColorRect" parent="FadeOverlay"]
+[node name="Fade" type="ColorRect" parent="FadeOverlay" unique_id=382927708]
+modulate = Color(1, 1, 1, 0)
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0, 0, 0, 1)
-modulate = Color(1, 1, 1, 0)
