@@ -6,8 +6,17 @@ extends Node
 ## Which track a scene wants, in order: a `music_track` property on the scene's
 ## root script (`@export var music_track: StringName = &"spooky"`), else the
 ## entry for its path in TRACKS, else — for anything under scenes/days/ — the
-## generic "day" track, else silence. So per-day music is an export on the day;
-## one shared loop is one file named day.ogg; and nothing at all is fine too.
+## generic "day" track. So per-day music is an export on the day; one shared
+## loop is one file named day.ogg.
+##
+## **A track with no file yet falls back to DEFAULT_TRACK, not to silence**
+## (Tucker + Ben, Sat: one loopable background song). That is the whole trick
+## behind the unbroken bed — every scene resolves to the same name, `_switch_to`
+## sees the name hasn't changed and returns early, so the song never restarts or
+## crossfades from the title all the way to the reunion. Drop in `intro.ogg`
+## later and the intro starts resolving to "intro" again and fades away from the
+## bed on its own; nothing here needs editing. Silence is still reachable — just
+## delete bg.ogg.
 ##
 ## One AudioStreamPlayer per "side" of the crossfade, on the Music bus.
 ## Ogg Vorbis loops are switched on at runtime (AudioStreamOggVorbis.loop), so
@@ -22,13 +31,17 @@ const TRACKS: Dictionary = {
 	"res://scenes/transition/transition_cage.tscn": &"transition",
 }
 const GENERIC_DAY_TRACK: StringName = &"day"
+## The bed under everything that hasn't asked for something else. Empty = the
+## old behaviour (a track with no file is silence).
+const DEFAULT_TRACK: StringName = &"bg"
 
 ## Emitted when the track changes (StringName, may be empty for silence).
 signal track_changed(track: StringName)
 
 ## Tunables — plain vars, not @export: an autoload has no Inspector, edit here.
 var crossfade: float = 0.8
-var volume_db: float = -6.0
+
+var volume_db: float = -19.0
 
 var current_track: StringName = &""
 var _scene_path: String = ""
@@ -53,8 +66,21 @@ func _process(_delta: float) -> void:
 	_switch_to(_track_for(scene))
 
 
-## What a scene wants to hear. Public so tests and the overlay can ask.
+## What a scene actually gets to hear: what it asked for if that file exists,
+## otherwise the bed. Public so tests and the overlay can ask.
+##
+## `scene == null` happens for a frame mid-`change_scene_to_file()`, and it
+## resolves to the bed too — otherwise every scene change would blip the song
+## out and back in through silence.
 func _track_for(scene: Node) -> StringName:
+	var wanted: StringName = _wanted_track(scene)
+	if _has_file(wanted):
+		return wanted
+	return DEFAULT_TRACK if _has_file(DEFAULT_TRACK) else &""
+
+
+## What a scene asks for, before we check whether anyone recorded it.
+func _wanted_track(scene: Node) -> StringName:
 	if scene == null:
 		return &""
 	if "music_track" in scene:
@@ -67,6 +93,14 @@ func _track_for(scene: Node) -> StringName:
 	if path.begins_with("res://scenes/days/"):
 		return GENERIC_DAY_TRACK
 	return &""
+
+
+func _has_file(track: StringName) -> bool:
+	return not track.is_empty() and ResourceLoader.exists(_path_for(track))
+
+
+func _path_for(track: StringName) -> String:
+	return "res://assets/audio/music/%s.ogg" % track
 
 
 func _switch_to(track: StringName) -> void:
@@ -95,7 +129,7 @@ func _switch_to(track: StringName) -> void:
 func _load_track(track: StringName) -> AudioStream:
 	if track.is_empty():
 		return null
-	var path: String = "res://assets/audio/music/%s.ogg" % track
+	var path: String = _path_for(track)
 	if not ResourceLoader.exists(path):
 		return null
 	var stream: AudioStream = load(path)

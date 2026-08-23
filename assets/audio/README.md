@@ -31,10 +31,17 @@ Not wired yet, worth recording anyway: **`pop`** (head comes off — the intro b
 
 ## Music — `assets/audio/music/<track>.ogg`
 
-Loops. **OGG Vorbis, ~128–160 kbps, 44.1 kHz**, stereo fine. Make the loop point clean (the file loops end→start as-is; the game switches looping on at runtime). Tracks crossfade over 0.8 s when the scene changes.
+Loops. **OGG Vorbis, ~128–160 kbps**, stereo fine. Make the loop point clean (the file loops end→start as-is; the game switches looping on at runtime). Tracks crossfade over 0.8 s when the scene changes.
+
+**`bg.ogg` is the bed and it is already in.** *"dontloseyourhead"* by **Tucker + Ben** (Sat) — 3:20, Ogg Vorbis q4, stereo 48 kHz, 2.6 MB. A track named below that has **no file yet falls back to `bg`** rather than to silence (`Music.DEFAULT_TRACK`), so every scene resolves to the same name, `_switch_to` sees it hasn't changed and returns early, and the song plays **unbroken from the title to the reunion** — no restart, no fade at scene boundaries. Add any file below and that scene starts resolving to it and crossfades away from the bed on its own; no code to touch. Delete `bg.ogg` and everything is silent again, exactly as before.
+
+Source WAV (55 MB, 24-bit) is **not** in the repo — too big for a jam checkout and for the web build, which loads all audio up front. Re-encode with:
+`ffmpeg -i song.wav -f wav -c:a pcm_s16le - | oggenc -q 4 -o assets/audio/music/bg.ogg -`
+(Homebrew's ffmpeg ships without `libvorbis`; `brew install vorbis-tools` gets you `oggenc`.)
 
 | track (file name) | plays in | notes |
 |---|---|---|
+| `bg` | **everything that hasn't asked for something else** | ✅ in — the one background song |
 | `intro` | intro scene | head falls off, chase |
 | `day` | **any day that doesn't name its own track** | the all-purpose day loop — make this one first |
 | `day_panic` *(example)* | a day that sets `@export var music_track = &"day_panic"` on its root script | per-day music is an export on the day; no code |
