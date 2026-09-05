@@ -850,3 +850,63 @@ Rendered the title (no kikis, confirmed) and the transition's opening frame (hea
 - **The mirror is 36×160 — a 1:4.4 bar.** It reads far better than the old 1:8.9 slab, but it's still narrow enough to read a bit door-like. Widening `Frame` to ±28 and `Glass` to ±22 would make it 1:2.9, much closer to a real cheval glass. Four numbers; didn't do it because you asked about height, not width.
 - **Kikis now spawn from a head at y=182 instead of y=22**, so their entry arc down to `kiki_approach_y` 300 is 118 px instead of 278. The horizontal run the player jumps is unchanged, but the approach will feel different — worth a play.
 - Two probe notes for whoever writes tests next: a parked body in day_mirror gets killed by a kiki and the GameOver card **pauses the tree**, which freezes everything and looks like a physics bug; and `Input.action_press()` from a coroutine never triggers `is_action_just_pressed` (it lands between physics frames), so jumps have to be driven by setting `velocity.y` directly.
+
+## 2026-08-22 22:18 — Two questions: web math corruption (handed off), mobile controls (scoped)
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "math problems get corrupted in web builds, is there a fix for that?" then "sean is fixing it… how hard would it be to make these controls mobile friendly?"
+**Did:** Stopped the font investigation when you said Sean has it. Findings so far, in case they save him time:
+- The prompts in [scenes/gameplay/puzzle_chain.gd](scenes/gameplay/puzzle_chain.gd) use non-ASCII math glyphs. Probed the bundled default font: **`∯` (U+222F), `⟨` (U+27E8), `⟩` (U+27E9) are genuinely absent**. `−` `×` `²` `³` `·` `π` are all present.
+- **`FEATURE_FONT_SYSTEM` is false on this machine both headless AND windowed**, so my first theory (desktop falls back to system fonts, web can't) is **wrong** — there is no OS fallback on desktop either. Desktop renders the 4th puzzle with a mangled `∯` and hairline `⟨⟩`; whatever web does differently is still unexplained.
+- The project has **no font asset at all** and no `[gui]` theme section — everything is Godot's built-in default font.
+- Built a debug web export to look at it in a browser and got as far as loading it before you called it off. Cleaned up: server killed, `build/webdbg` deleted.
+- **Sean:** the three codepoints above are the suspects; embedding a font that covers them, or rewriting that one prompt in ASCII, are the two obvious fixes.
+**Mobile controls — scoped, not built.** The good news is structural: because of CLAUDE.md §5 ("input through actions, never key codes"), the entire game reads **four** actions — `move_left`, `move_right` (via `get_axis`) and `jump`, `move_down` (via `is_action_just_pressed`). Title and game-over are already `Button`s, so they tap fine. One autoloaded CanvasLayer calling `Input.action_press/release` on those four would work in **every scene with zero changes to any day script**.
+Real complications, in order of how much they'd cost:
+1. **day_mirror inverts jump to `move_down`**, so touch needs *both* an up and a down button or that day is unplayable. Left/right invert via `move_sign` inside body.gd, so those keep working and reverse for free — the gimmick survives.
+2. **Screen space.** 640×360, fixed camera, and the body walks along the bottom — thumb buttons in the bottom corners sit exactly where the action is. Needs a per-day look, or transparency, or a tap-half-the-screen scheme instead of a d-pad.
+3. **`project.godot` display settings** — `stretch/aspect` and `handheld/orientation` are unset. §5 says don't touch those without asking.
+4. **Godot 4 web on mobile Safari** is the genuine risk: audio unlock, memory, perf. The 2.6 MB music bed loads up front.
+**Verified:** nothing built or changed — this entry is analysis only. Working tree clean apart from an untracked `build/` from the export.
+**Open:** waiting on your call whether to build the touch layer. My estimate: ~2 h of code, and device testing I cannot do from here.
+
+## 2026-08-22 22:31 — Mobile controls: d-pad gating + drag-joystick feasibility
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "can the dpad show up only on mobile? and is drag joystick wherever you touch feasible? covers up down left and right and theres definitely at least some dead space in every scene"
+**Did:** Answered both; built nothing. Probed the three mechanics that decide it:
+- **`Input.action_press()` from inside a node's `_process` DOES produce a clean `is_action_just_pressed` edge in `_physics_process` — 6/6.** `Input.parse_input_event(InputEventAction)` also 6/6. Worth recording because the *opposite* looked true earlier today: my day_mirror probe couldn't make the body jump that way. The difference is that a `-s` SceneTree script calls it from a coroutine **between** frames; a real node calls it **inside** one. No trap for actual game code — either approach works.
+- **Analog strength passes straight through `get_axis`**: `action_press("move_right", 0.35)` → `get_axis` reads exactly 0.35. So a drag stick gives variable walk speed for free (body.gd does `direction * speed`). That's a change from the keyboard's binary input — one `signf()` keeps it binary if we don't want it.
+- **Platform detection**: `DisplayServer.is_touchscreen_available()` is the gate. Reads false here (headless/macOS, features `pc` + `macos`). **I could not verify what a web build reports on a real phone from this machine** — that's the one unknown, and it's a temporary on-screen label in the first build to settle.
+**Why the joystick beats the d-pad**, given the above: it removes two of the four costs I listed an hour ago. Up/down come from the same gesture, so **day_mirror's inversion works for free** (flick up normally, flick down when inverted — no second button), and "appears wherever you touch" means **no fixed furniture covering any scene**, so the per-day layout pass goes away. Left/right are held (`get_axis`); up is an edge that fires once on crossing the threshold and re-arms below it.
+**Shape:** an autoload **Node** (not a full-screen Control) with `_unhandled_input` on `InputEventScreenTouch`/`InputEventScreenDrag`. Control buttons consume `_gui_input` first, so the title and game-over Buttons keep working with nothing extra.
+**Verified:** the three probe results above. **Not verified: anything on an actual phone.**
+**Open:**
+- Revised estimate: **~1–1.5 h of code** plus deadzone/threshold tuning on a device — down from ~2 h, because the mirror-day button and the layout pass both disappear.
+- Still needs your OK on `project.godot` `stretch/aspect` + `handheld/orientation` (§5), and Godot-4-web-on-mobile-Safari is still the real risk.
+
+## 2026-08-22 23:04 — Touch controls: drag stick wherever you touch
+**Driver:** Tucker · **Agent:** Claude (Opus 5, session 8536b150)
+**Asked:** "try it" (drag joystick, mobile-only)
+**Did:** New autoload **`Touch`** — [scripts/autoload/touch.gd](scripts/autoload/touch.gd), one file, plus one line in [project.godot](project.godot). **No scene, day, transition or body script was touched.** That is entirely down to §5's "input through actions, never key codes": the whole game reads four actions, so the stick presses those and every scene believes it is a keyboard.
+- **Appears wherever the finger lands**, drawn in palette colours (`Colors.BONE`/`OUTLINE`) on its own CanvasLayer at layer 50. Nothing permanent on screen, so no scene loses any pixels.
+- **A plain Node, not a full-screen Control**, so `_unhandled_input` runs *after* Control `_gui_input` and the title's Play button and game-over Retry keep eating their own taps with nothing wired.
+- **Gated on `_player_body()` — the body existing AND not being `is_scripted`.** My first version checked only that a body existed, and the probe caught it: the title screen instances a *real* body and walks it in place, so a tap there raised a stick over the menu. `is_scripted` is the right question, and it lands two behaviours free: the stick appears the instant the intro hands over control, and vanishes the instant a transition takes it away. It also drops mid-gesture if control is removed, so no ring or held action is left behind.
+- **day_mirror's inversion works with no special case.** Up fires `jump`, down fires `move_down`; body.gd picks. Horizontal needs nothing at all — body.gd applies `move_sign` itself.
+- **Edges, not holds, for up/down**, with a re-arm: pushing further without returning to centre does not machine-gun jumps, matching `is_action_just_pressed`.
+- **`_release_edges()` waits for `Engine.get_physics_frames()` to advance** before releasing `jump`. Process frames can outrun physics frames, and a press+release inside one physics tick is invisible to body.gd — this is the same trap that made my day_mirror probe fail to jump earlier today, now handled in real code.
+- **`binary_walk = true`.** You didn't pick, so I took keyboard parity — no day's tuning shifts. `Input.get_axis()` passes analog strength straight through (measured 0.35 → 0.35), so flipping the flag gives real variable-speed walking. **One flag, your call.**
+- **`force_on = true` lets the MOUSE drive it on desktop.** Added after the browser test below: a mouse produces no touch events, and `emulate_touch_from_mouse` is off, so without this there is no way for you to try the feature at all without a phone. Gated so a real device never goes near the mouse path.
+- Docs: [docs/CODEBASE.md](docs/CODEBASE.md) autoload table + list.
+**Verified:** `--import` clean; game boots clean with the stick disabled (this machine has no touchscreen, so it builds no overlay at all). Synthesized finger events end-to-end against `transition_bird`:
+- drag right → `axis=+1.00`, `vel.x=+150`, **body moved +73 px**; drag left → `axis=−1.00`, −63 px.
+- one up-flick → **exactly 1** jump edge; pushing further without re-centring → **still 1** (no auto-repeat); re-centre and flick → 2.
+- flick down → **1 `move_down` edge**, jump untouched — day_mirror's inverted jump.
+- finger up → all four actions released.
+- tap on title.tscn → **no stick**; on thanks.tscn → **no stick**; on day_workout.tscn → **stick starts**.
+- mouse path with `force_on`: drag right +73 px, flick up 1 jump edge, release clean; with `force_on` off the mouse is **ignored entirely** (body moved +0 px).
+- Rendered the stick windowed at 640×360 — reads as a soft ring + knob in palette colours, not engine debug UI.
+- **Web export built and run in a mobile-emulated browser** (844×390, `maxTouchPoints: 1`, `ontouchstart: true`): the game runs, and the title correctly shows **no** stick.
+**Open:**
+- **NOT verified on a real device, and not verified in the browser either.** Neither synthetic JS `TouchEvent`s nor the driver's CDP drag reach Godot as `InputEventScreenTouch`, so I could not make the stick appear in-browser even with `force_on`. Everything above is in-engine. **This needs a phone, or you on desktop with `force_on = true` — that's why I added the mouse path.**
+- **`project.godot` `stretch/aspect` and `handheld/orientation` still untouched** (§5 — your call). In the emulated 844×390 viewport the game pillarboxes with black bars either side. Playable, not pretty.
+- Tunables to feel out on a device: `deadzone` 8, `jump_threshold` 24, `max_radius` 40, `rearm_inside` 14. All guesses.
+- Godot-4-web-on-mobile-Safari is still the real risk, and it is not something this branch addresses.
